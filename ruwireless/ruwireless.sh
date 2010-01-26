@@ -50,8 +50,8 @@ ruw_login () {
 		-F which_form="reg"	\
 		-F _FORM_SUBMIT="1"	\
 		-F error=""		\
-		-F destination=		\
-		-F "source="		\
+		-F destination=""		\
+		-F source=""		\
 		$LOGIN_SCRIPT_URL	\
 		)
 
