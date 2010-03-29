@@ -1,6 +1,7 @@
 #!/bin/sh
 LOGIN_SCRIPT_URL=https://login.ruw.rutgers.edu/login.pl
 
+
 usage () {
 	echo "usage: 	"
 	echo "	$0 login [username [password]]"
@@ -26,6 +27,31 @@ read_pass () {
 	return 0
 }
 
+# takes 1 param: the ruwireless page.
+check_status () {
+	if echo "$1" \
+		| grep "You are already logged in" \
+		> /dev/null ; then
+		echo "logged in already"
+	fi
+	
+	if echo "$1" \
+		| grep "This link is not valid" \
+		> /dev/null; then
+		echo "invalid logout link"
+	fi
+	
+	if echo "$1" \
+		| grep "Thank you for signing in." \
+		> /dev/null; then
+		echo "successfully logged in"
+	fi
+	
+	echo "$1" | grep "\"error\"" \
+		| cut -d'=' -f 4 | sed 's. />..' \
+		| tr -d '\n'
+}
+
 ruw_login () {
 	# Login
 	local ru_user ru_pass
@@ -44,24 +70,78 @@ ruw_login () {
 		usage
 	fi
 
-	local login_page=$(curl -s	\
-		--form-string bs_user="$ru_user"	\
-		--form-string bs_password="$ru_pass"	\
-		-F which_form="reg"	\
-		-F _FORM_SUBMIT="1"	\
-		-F error=""		\
-		-F destination=""		\
-		-F source=""		\
-		$LOGIN_SCRIPT_URL	\
+	login_page=$(curl -k -s                 \
+		--form-string bs_name="$ru_user"	\
+		--form-string bs_password="$ru_pass"\
+		-F which_form="reg"	                \
+		-F _FORM_SUBMIT="1"	                \
+		-F error=""		                    \
+		-F destination=""		            \
+		-F source=""		                \
+		$LOGIN_SCRIPT_URL	                \
 		)
-
-	echo "$login_page"
-
-	echo "not done"
+	
+	echo -n "your ip is : "
+    echo "$login_page" \
+		| grep -E -o \
+			'([0-9]{1,3}\.){3}[0-9]{1,3}' \
+	    | tr '\n' '\t' | cut -f 1
+	
+	check_status "$login_page"	
 }
 
 ruw_logout () {
-	echo "not done"
+	if [ $# -ne 2 ]; then
+		lpop=$( curl -k -s \
+			-F action="logoutPopup" \
+			$LOGIN_SCRIPT_URL)
+	
+		lline=$(echo "$lpop" | grep 'var theUrl')
+		ip=$(echo "$lline"| cut -d';' -f 2\
+			| cut -d'=' -f 2)
+		uid=$(echo "$lline"| cut -d';' -f 3 \
+			| cut -d'=' -f 2 | sed "s/'//")
+	
+		
+		echo "--- logout pop ---"
+		echo "$lpop"
+		echo "--- end logout pop ---"
+	
+	
+		echo "ip: $ip"
+		echo "uid: $uid"
+	else
+		echo "IP : $1"
+	fi
+	
+# var im_blue = true;
+# var theUrl = '/login.pl?action=logout;source=172.31.48.103;r=huDVz5q2725';
+# var lockU = 1;
+	
+	logout_cmd="curl -k  \
+		-F action=logout \
+		-F source=$ip    \
+		-F r=$uid        \
+		${LOGIN_SCRIPT_URL}"
+		
+	echo "logout_cmd: $logout_cmd"
+	
+	logout_page=$(curl -k    \
+     -F action=logout	     \
+     -F source=$ip	         \
+	 -F r=""               \
+     $LOGIN_SCRIPT_URL)
+	 
+	echo "${LOGIN_SCRIPT_URL}"'?action=logout;source='"$ip"';r='"$uid"
+	#logout_page=$(wget -q \
+	#	"${LOGIN_SCRIPT_URL}?action=logout;source=$ip;r=$uid;"\
+	#	-O -)
+	
+	echo "--- logout page ---"
+	echo "$lpop"
+	echo "--- end logout page ---"
+	
+	check_status "$logout_page"
 }
 
 get_ip_and_uid () {
@@ -71,9 +151,10 @@ get_ip_and_uid () {
 		return 2
 	fi
 	
-	local source_ip=$(echo "\'$first_page\'" | grep -E -o '([0-9]{1,3}\.){3}[0-9]{1,3}' )
-	local uid=$(echo "\'$first_page\'" | grep -E -o '' )
-
+	local source_ip=$(echo "\'$first_page\'" \
+		| grep -E -o \
+			'([0-9]{1,3}\.){3}[0-9]{1,3}' )
+	
 	
 }
 
@@ -81,15 +162,17 @@ ruw_status () {
 	local first_page source_ip
 	# If not logged in: contains the login form (with 'source' IP and 'destination' URL)
 	# If logged in		: contains the login form (with 'error' = "You are already logged in")
-	#first_page=$(curl -m 1 -s $LOGIN_SCRIPT_URL)
-	first_page=$(wget -T 1 -q ${LOGIN_SCRIPT_URL} -O -)
+	first_page=$(curl -k -m 1 -s $LOGIN_SCRIPT_URL)
+	#first_page=$(wget -T 1 -q ${LOGIN_SCRIPT_URL} -O -)
 
 	if [ -z "$first_page" ]; then
 		echo "error: failed to get login page"
 		return '1'
 	fi
 
-	source_ip=$(echo "\'$first_page\'" | grep -E -o '([0-9]{1,3}\.){3}[0-9]{1,3}')
+	source_ip=$(echo "\'$first_page\'" \
+		| grep -E -o \
+			'([0-9]{1,3}\.){3}[0-9]{1,3}')
 	echo -n "Source IP : "
 	echo $source_ip
 }
@@ -100,16 +183,16 @@ if [ $# -lt 1 ]; then
 	usage
 fi
 
-if (which "curl"); then
-	echo "we have curl"
-elif (which "wget"); then
-	echo "we have wget"
-else
-	echo "we need something"
-fi
+#if (which "curl"); then
+#	echo "we have curl"
+#elif (which "wget"); then
+#	echo "we have wget"
+#else
+#	echo "we need something"
+#fi
 
 case $1 in
-"logout") ruw_logout;;
+"logout") ruw_logout $@;;
 
 "login")  ruw_login $@;;
 
