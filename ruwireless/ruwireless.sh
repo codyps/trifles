@@ -1,5 +1,6 @@
 #!/bin/sh
 LOGIN_SCRIPT_URL=https://login.ruw.rutgers.edu/login.pl
+http_prog=
 
 usage () {
 	echo "usage: 	"
@@ -64,16 +65,25 @@ ruw_logout () {
 	echo "not done"
 }
 
+get_page () {
+	if [ $http_prog = "curl" ]; then
+		curl -m 1 -s $1
+	elif [ $http_prog = "wget"]; then
+		wget -q -O - $1
+	else
+		echo "wat"
+	fi		
+}
+
 get_ip_and_uid () {
 	#local first_page=$(curl -m 1 -s $LOGIN_SCRIPT_URL)
-	local first_page=$(wget -T 1 -q ${LOGIN_SCRIPT_URL} -O -)
+	local first_page=$(get_page "$LOGIN_SCRIPT_URL")
 	if [ -z "$first_page" ]; then
 		return 2
 	fi
 	
 	local source_ip=$(echo "\'$first_page\'" | grep -E -o '([0-9]{1,3}\.){3}[0-9]{1,3}' )
 	local uid=$(echo "\'$first_page\'" | grep -E -o '' )
-
 	
 }
 
@@ -81,8 +91,7 @@ ruw_status () {
 	local first_page source_ip
 	# If not logged in: contains the login form (with 'source' IP and 'destination' URL)
 	# If logged in		: contains the login form (with 'error' = "You are already logged in")
-	#first_page=$(curl -m 1 -s $LOGIN_SCRIPT_URL)
-	first_page=$(wget -T 1 -q ${LOGIN_SCRIPT_URL} -O -)
+	first_page=$(get_page "$LOGIN_SCRIPT_URL")
 
 	if [ -z "$first_page" ]; then
 		echo "error: failed to get login page"
@@ -94,18 +103,26 @@ ruw_status () {
 	echo $source_ip
 }
 
+find_reqs () {
+	if [[ $(which "curl") ]]; then
+		http_prog="curl"
+		return 1
+	elif [[ $(which "wget") ]]; then
+		return 1
+	else
+		return 0
+	fi		
+}
+
 # MAIN
 
 if [ $# -lt 1 ]; then
 	usage
 fi
 
-if (which "curl"); then
-	echo "we have curl"
-elif (which "wget"); then
-	echo "we have wget"
-else
-	echo "we need something"
+if ( ! find_reqs ); then
+	echo "Need Curl or Wget"
+	exit 2
 fi
 
 case $1 in
