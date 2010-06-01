@@ -1,0 +1,19 @@
+#! /bin/bash
+
+if [[ $# != 1 ]]; then
+	echo "usage: $0 {show,auto}"
+	exit 3
+fi
+
+if [[ $1 == "auto" ]]; then
+	for i in /sys/bus/usb/devices/*/power/autosuspend; do echo 1 > $i; done 
+	for i in /sys/bus/usb/devices/*/power/level; do echo auto > $i; done
+elif [[ $1 == "show" ]]; then
+	for i in /sys/bus/usb/devices/*/power/autosuspend; do 
+		printf "$i: %s\n" $(<$i);
+	done 
+	for i in /sys/bus/usb/devices/*/power/level; do 
+		printf "$i: %s\n" $(<$i); 
+	done
+fi
+
