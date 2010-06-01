@@ -1,0 +1,12 @@
+
+* command line driven torrent metadata editor.
+  'torrentinfo' - command line metadata viewer in python.
+  http://wiki.theory.org/BitTorrentSpecification
+    describes format and gives links to code to read it.
+  bencoding:
+    byte strings: <strlen in ascii base 10>:<strdata>
+    lists: l<items>e
+    int: i<int ascii base 10>e
+    dict: d<bencoded str><bencoded elem>e
+  editing in vim possible, with careful keystrokes.
+
