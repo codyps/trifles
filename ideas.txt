@@ -16,7 +16,12 @@
   Current fuse davfs projects:
   * 'davfs2' - needs root perms, expects the use of mount.
   * 'wdfs' - last release 2007
-  * 'fusedav' - last release 2006
+      fails to mount rutgers sakai "reasources" webdav. Complains that it
+      could not be mounted due to internal server error (500). Possibly an
+      issue with neon. Compare it's use of neon with cadaver (a realy nice
+      almost usable command line client, just needs some fixes to tab
+      completion).
+  * 'fusedav' - last release 2006, not in gentoo repo.
   wdfs & fusedav use 'neon' to interface with the webdav protocol.
   I might be calling this up without cause, lacking new releases is not
-  nesicarilly a sign of bad software. Some testing is in order
+  nesicarilly a sign of bad software. Some testing is in order.
