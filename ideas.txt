@@ -9,6 +9,7 @@
     int: i<int ascii base 10>e
     dict: d<bencoded str><bencoded elem>e
   editing in vim possible, with careful keystrokes.
+  added 'tracker_modify.pl', which does what I need.
 
 * webdav fuse fs without the need for root perms.
   i'm unsure the reason, but it appears that davfs2 has decided it would be
@@ -25,3 +26,7 @@
   wdfs & fusedav use 'neon' to interface with the webdav protocol.
   I might be calling this up without cause, lacking new releases is not
   nesicarilly a sign of bad software. Some testing is in order.
+  -- Fixed wdfs in my branch on github. It wasn't setting its useragent.
+     and somehow that broke it, though it isn't clear why.
+
+
