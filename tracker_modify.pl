@@ -3,6 +3,7 @@
 # Add/delete trackers recursively from all torrents.
 # Free to copy and mutilate any way you like :)
 #
+use strict;
 
 sub usage {
 	print <<EOF
@@ -58,17 +59,19 @@ EOF
 
 my $ext = '.torrent';
 
-foreach $i (@ARGV) {
+foreach my $i (@ARGV) {
 	my $argv_enext = 1 if ($i =~ /^-e/);
 	my $argv_anext = 1 if ($i =~ /^-a/);
 	my $argv_dnext = 1 if ($i =~ /^-d$/);
 	my $noconf = 1 if ($i =~ /^-noconfirm/);
 	my $deladd = 1 if ($i =~ /^-deladd/);
+	my $add_list = ''
+	my $del_list = ''
 	next if ($i =~ /^-/);
 	if ($argv_enext) {
 		undef($argv_enext);
-		$ext = $i;
-		$ext = '' if ($i eq 'null'); 
+		my $ext = $i;
+		my $ext = '' if ($i eq 'null'); 
 	}
 	if ($argv_anext) {
 		undef($argv_anext);
