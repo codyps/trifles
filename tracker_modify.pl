@@ -56,14 +56,14 @@ EOF
 	exit(0);
 }
 
-$ext = '.torrent';
+my $ext = '.torrent';
 
 foreach $i (@ARGV) {
-	$argv_enext = 1 if ($i =~ /^-e/);
-	$argv_anext = 1 if ($i =~ /^-a/);
-	$argv_dnext = 1 if ($i =~ /^-d$/);
-	$noconf = 1 if ($i =~ /^-noconfirm/);
-	$deladd = 1 if ($i =~ /^-deladd/);
+	my $argv_enext = 1 if ($i =~ /^-e/);
+	my $argv_anext = 1 if ($i =~ /^-a/);
+	my $argv_dnext = 1 if ($i =~ /^-d$/);
+	my $noconf = 1 if ($i =~ /^-noconfirm/);
+	my $deladd = 1 if ($i =~ /^-deladd/);
 	next if ($i =~ /^-/);
 	if ($argv_enext) {
 		undef($argv_enext);
