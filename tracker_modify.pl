@@ -1,18 +1,17 @@
 #! /usr/bin/env perl
 #
-# tracker_modify.pl 0.01
 # Add/delete trackers recursively from all torrents.
 # Free to copy and mutilate any way you like :)
 #
 
 sub usage {
 	print <<EOF
-Usage: perl tracker_modify.pl [OPTIONS...] <-a add_file> 
+usage: perl tracker_modify.pl [OPTIONS...] <-a add_file>
                               <-d delete_file> <directory>
 Requires an add_file or delete_file or both.
 
 Main Options:
--a add_file	File location of tracker list to add. 
+-a add_file	File location of tracker list to add.
 		(seperate tiers by empty line)
 -d delete_file	File location of tracker hostname list to delete.
 		(hostnames only, supports regular expression)
@@ -30,8 +29,10 @@ Examples:
 > perl tracker_modify.pl -a add_file /home/user/torrent
 Add trackers to all files with extension .torrent in /home/user/torrent
 
-> perl tracker_modify.pl -e null -deladd -a add_file -d delete_file /home/user/torrent
-Add trackers only to files that have a delete match, all extensions in /home/user/torrent 
+> perl tracker_modify.pl -e null -deladd -a add_file -d delete_file \
+>> /home/user/torrent
+Add trackers only to files that have a delete match, all extensions
+in /home/user/torrent
 
 ----------add_file example----------
 http://tracker.openbittorrent.com:80/announce
@@ -40,7 +41,7 @@ udp://tracker.openbittorrent.com:80/announce
 http://tracker.publicbt.com:80/announce
 udp://tracker.publicbt.com:80/announce
 ------------------------------------
-Notice the blank line between tiers! LEAVE BLANK LINE BETWEEN EACH SEPERATE TRACKER!!!
+Notice the blank line between tiers!
 
 ---------delete_file example--------
 .thepiratebay.org\$
@@ -48,8 +49,8 @@ Notice the blank line between tiers! LEAVE BLANK LINE BETWEEN EACH SEPERATE TRAC
 moviex.info\$
 ^91.191.138.
 ------------------------------------
-List of hostnames to remove. ^ = beginning \$ = end of hostname, first line is basically 
-*.thepiratebay.org and the last line 91.191.138.*
+List of hostnames to remove. ^ = beginning \$ = end of hostname,
+first line is basically *.thepiratebay.org and the last line 91.191.138.*
 EOF
 ;
 	exit(0);
