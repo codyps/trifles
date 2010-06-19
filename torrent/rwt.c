@@ -31,19 +31,12 @@ int main(int argc, char **argv)
 	}
 
 	char *torrent = argv[1];
-	FILE *tf = fopen(torrent, "a+b");
+	FILE *tf = fopen(torrent, "r+b");
 	if (!tf) {
 		fprintf(stderr, "torrent \"%s\": fopen: %s\n", torrent, 
 			strerror(errno));
 		return 2;
 	}
-	int ret = fseek(tf, 0, SEEK_SET);
-	if (ret == -1) {
-		fprintf(stderr, "torrent \"%s\": fseek: %s\n", torrent,
-			strerror(errno));
-		return 3;
-	}
-
 
 	char *act = argv[2];
 	if (!strcmp(act, "rm")) {
