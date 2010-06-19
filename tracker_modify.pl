@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#! /usr/bin/env perl
 #
 # tracker_modify.pl 0.01
 # Add/delete trackers recursively from all torrents.
@@ -7,19 +7,22 @@
 
 sub usage {
 	print <<EOF
-Usage: perl tracker_modify.pl [OPTIONS...] <-a add_file> <-d delete_file> <directory>
+Usage: perl tracker_modify.pl [OPTIONS...] <-a add_file> 
+                              <-d delete_file> <directory>
 Requires an add_file or delete_file or both.
 
 Main Options:
 -a add_file	File location of tracker list to add. 
-		(seperate tiers by empty line just like a uTorrent tracker list!)
+		(seperate tiers by empty line)
 -d delete_file	File location of tracker hostname list to delete.
 		(hostnames only, supports regular expression)
 directory	Directory to recursively scan for torrents to modify
 
 Optional flags:
--e .extension	Match files with extension, use null for all files (default .torrent)
--deladd		Add tracker list only to torrents with a delete match (default disabled)
+-e .extension	Match files with extension, use null for all files 
+		(default .torrent)
+-deladd		Add tracker list only to torrents with a delete match 
+		(default disabled)
 -noconfirm 	Do not confirm the modifying process (default disabled)
 
 Examples:
