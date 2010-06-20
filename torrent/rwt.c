@@ -228,10 +228,11 @@ int main(int argc, char **argv)
 	fseek(tf, 0, SEEK_END);
 	long tf_sz = ftell(tf);
 	char *tf_t = malloc(tf_sz);
+	fseek(tf, 0, SEEK_SET);
 	size_t read = fread(tf_t, tf_sz, 1, tf);
 	if (read != 1) {
 		// die
-		fprintf(stderr, "problemz.\n");
+		fprintf(stderr, "problemz %lu.\n", (unsigned long)read);
 	}
 
 	const char *ep;
