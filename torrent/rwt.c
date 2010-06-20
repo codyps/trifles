@@ -29,7 +29,7 @@ struct be_dict {
 struct be_list {
 	size_t len;
 	struct be_node **nodes;
-}
+};
 
 struct be_node {
 	enum be_type type;
@@ -38,18 +38,31 @@ struct be_node {
 		be_node **l;
 		be_dict *d;
 		be_str *s;
-	}
+	} u;
 };
 
 struct be_list *bdecode_list(const char *estr, size_t len, const char **ep)
 {
 	struct be_list *l = malloc(sizeof(*l));
+	l->nodes = 0;
+	l->len = 0;
 
 	/* assert(*estr == 'l'); */
-	for(estr += 1; estr != 'e'; estr) {
-		struct be_node *n = bdecode(estr + 1, &ep);
+	for(estr += 1; estr != 'e' ; len--, estr++) {
+		if (len <= 0) {
+			// die.
+		}
+
+		struct be_node *n = bdecode(estr, len, ep);
 		if (n) {
-		}		
+			l->len ++;
+			l->nodes = realloc(l->nodes, 
+				sizeof(*(l->nodes) * l->len));
+			l->nodes[l->len - 1] = n;
+			estr = *ep;
+		} else {
+			fprintf(stderr, "problem decoding at %p\n", estr);
+		}
 	}
 }
 
@@ -70,6 +83,7 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 		len--;
 		if(len <= 0) {
 			*ep = estr;
+			return 0;
 		} else if (*ppos == ':') {
 			break;
 		}
@@ -103,22 +117,42 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 
 	bstr->len = slen;
 	bstr->str = str;
-	*ep = iep + 1 + slen;
+	*ep = ppos + 1 + slen;
 	return bstr;
 }
 
 struct be_node *bdecode(const char *estr, size_t len, const char **ep)
 {
+	struct be_node *ret;
 	switch(*estr) {
 	case 'd':
-		return bdecode_dict(estr, len, ep);
+		ret = malloc(sizeof(*ret));
+		if (ret) {
+			ret->u.d = bdecode_dict(estr, len, ep);
+			ret->type = BE_DICT;
+		}
+		return ret;
 	case 'i':
-		return bdecode_int(estr, len, ep);
+		ret = malloc(sizeof(*ret));
+		if (ret) {
+			ret->u.i = bdecode_int(estr, len, ep);
+			ret->type = BE_INT;
+		}
+		return ret;
 	case 'l':
-		return bdecode_list(estr, len, ep);
-
+		ret = malloc(sizeof(*ret));
+		if (ret) {
+			ret->u.l = bdecode_list(estr, len, ep);
+			ret->type = BE_LIST;
+		}
+		return ret;
 	case '0'..'9':
-		return bdecode_str(estr, len, ep);
+		ret = malloc(sizeof(*ret));
+		if (ret) {
+			ret->u.s = bdecode_str(estr, len, ep);
+			ret->type = BE_STR;
+		}
+		return ret;
 	default:
 		return 0;
 	}
