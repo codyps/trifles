@@ -58,20 +58,19 @@ EOF
 }
 
 my $ext = '.torrent';
-
+my @add_list;
+my @del_list;
 foreach my $i (@ARGV) {
 	my $argv_enext = 1 if ($i =~ /^-e/);
 	my $argv_anext = 1 if ($i =~ /^-a/);
 	my $argv_dnext = 1 if ($i =~ /^-d$/);
 	my $noconf = 1 if ($i =~ /^-noconfirm/);
 	my $deladd = 1 if ($i =~ /^-deladd/);
-	my $add_list = ''
-	my $del_list = ''
 	next if ($i =~ /^-/);
 	if ($argv_enext) {
 		undef($argv_enext);
-		my $ext = $i;
-		my $ext = '' if ($i eq 'null'); 
+		$ext = $i;
+		$ext = '' if ($i eq 'null'); 
 	}
 	if ($argv_anext) {
 		undef($argv_anext);
@@ -100,9 +99,9 @@ if (!$noconf) {
 	print "Scanning directory (will confirm changes before modifying)\n\n";
 	sleep(2);
 }
-@final = ();
+my @final = ();
 &dirscan($directory);
-$total_files = $#final + 1;
+my $total_files = $#final + 1;
 
 print "\nTotal torrents: $total_files\n";
 if ($add_list[0]) {
@@ -119,7 +118,7 @@ print "File extension: $ext\n" if ($ext);
 print "Run directory: $directory\n";
 if (!$noconf) {
 	print "Continue to modify ? [y/n] ";
-	$yn = <STDIN>;
+	my $yn = <STDIN>;
 	if ($yn !~ /^y/i) {
 		print "Cancelled\n";
 		exit(0);
