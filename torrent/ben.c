@@ -96,15 +96,49 @@ struct be_dict *bdecode_dict(const char *estr, size_t len, const char **ep)
 long long bdecode_int(const char *estr, size_t len, const char **ep)
 {
 	const char *ppos = estr;
-	if (len <= 0)
+	if (len < 3) {
+		/* at least 3 characters for a valid  int */
+		*ep = estr;
 		return 0;
-	if (*ppos != 'i')
+	}
+
+	if (*ppos != 'i') {
+		/* first must be a 'i' */
+		*ep = estr;
 		return 0;
+	}
 	ppos++;
+	len--;
 
+	/* handle the sign */
+	uint8_t sign;
+	long long num = 0;
+	if (*ppos == '-') {
+		ppos++;
+		len--;
+		sign = -1;
+	} else {
+		sign = 1;
+	}
 
+	for(;;ppos++, len--) {
+		if (len <= 0) {
+			*ep = estr;
+			return 0;
+		}
+	
+		if (*ppos == 'e') {
+			*ep = ppos;
+			return sign * num;
+		} else if (!isdigit(*ppos)) {
+			*ep = estr;
+			return 0;
+		}
 
-	return 0;
+		num *= 10;
+		num += *ppos - '0';
+	}
+
 }
 
 struct be_node *bdecode(const char *estr, size_t len, const char **ep)
