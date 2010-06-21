@@ -1,11 +1,13 @@
-CC=gcc
-LD=gcc
-RM=rm -f
-rwt : rwt.o
-	$(LD) -o $@ $<
+CC = gcc
+LD = gcc
+RM = rm -f
+SRC = rwt.c ben.c
+OBJ = $(SRC:=.o)
+rwt : $(OBJ)
+	$(LD) -o $@ $^
 
-%.o : %.c
+%.c.o : %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean :
-	$(RM) rwt rwt.o
+	$(RM) rwt $(OBJ)
