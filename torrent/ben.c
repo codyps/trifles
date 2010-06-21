@@ -10,22 +10,27 @@ struct be_list *bdecode_list(const char *estr, size_t len, const char **ep)
 	l->len = 0;
 
 	/* assert(*estr == 'l'); */
-	for(estr += 1; *estr != 'e' ; len--, estr++) {
+	char *ppos;
+	for(ppos = estr + 1; *ppos != 'e' ; len--, ppos++) {
 		if (len <= 0) {
-			// die.
+			*ep = estr;
+			return 0;
 		}
 
-		struct be_node *n = bdecode(estr, len, ep);
+		struct be_node *n = bdecode(ppos, len, ep);
 		if (n) {
 			l->len ++;
 			l->nodes = realloc(l->nodes, 
 				sizeof(*(l->nodes)) * l->len);
 			l->nodes[l->len - 1] = n;
-			estr = *ep;
+			ppos = *ep;
 		} else {
-			fprintf(stderr, "problem decoding at %p\n", estr);
+			fprintf(stderr, "problem decoding at %p\n", ppos);
 		}
 	}
+
+	*ep = estr;
+	return l;
 }
 
 /* parses a bencoded str from the encoded string buffer.
@@ -90,6 +95,15 @@ struct be_dict *bdecode_dict(const char *estr, size_t len, const char **ep)
 
 long long bdecode_int(const char *estr, size_t len, const char **ep)
 {
+	const char *ppos = estr;
+	if (len <= 0)
+		return 0;
+	if (*ppos != 'i')
+		return 0;
+	ppos++;
+
+
+
 	return 0;
 }
 
