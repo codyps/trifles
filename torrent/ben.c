@@ -10,7 +10,7 @@ struct be_list *bdecode_list(const char *estr, size_t len, const char **ep)
 	l->len = 0;
 
 	/* assert(*estr == 'l'); */
-	char *ppos;
+	const char *ppos;
 	for(ppos = estr + 1; *ppos != 'e' ; len--, ppos++) {
 		if (len <= 0) {
 			*ep = estr;
