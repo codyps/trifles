@@ -3,6 +3,54 @@
 #include <stdlib.h>
 #include "ben.h"
 
+void spaces(size_t num, FILE *out)
+{
+	for(; num != 0; num--) {
+		fputc(' ', out);
+	}
+}
+
+void be_print_indent(struct be_node *be, FILE *out, size_t indent)
+{
+	size_t i;
+	spaces(indent, out);
+
+	switch(be->type) {
+	case BE_INT:
+		fprintf(out, "%d\n", be->u.i);
+		break;
+	case BE_STR:
+		fwrite(be->u.s->str, be->u.s->len, 1, out);
+		fputc('\n', out);
+		break;
+	case BE_DICT:
+		fputs("dict:", out);
+		for(i = 0; i < be->u.d->len; i++) {
+			fputc('\n', out);
+			fputc(' ', out);
+			fwrite(be->u.d->key[i]->str, 
+				be->u.d->key[i]->len, 1, out);
+			fputc(':', out);
+			be_print_indent(be->u.d->val[i], out, indent + 1);
+		}
+		break;
+	case BE_LIST:
+		fputs("list:", out);
+		for(i = 0; i < be->u.l->len; i++) {
+			fputc('\n', out);
+			be_print_indent(be->u.l->nodes[i], out, indent + 1);
+		}
+		break;
+	default:
+		fprintf(stderr, "unknown BE type %d\n", be->type);
+	}
+}
+
+void be_print(struct be_node *be, FILE *out)
+{
+	be_print_indent(be, out, 0);
+}
+
 struct be_list *bdecode_list(const char *estr, size_t len, const char **ep)
 {
 	struct be_list *l = malloc(sizeof(*l));

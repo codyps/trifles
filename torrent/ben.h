@@ -16,8 +16,9 @@ struct be_str {
 
 struct be_node;
 struct be_dict {
-	char **key;
+	struct be_str **key;
 	struct be_node **val;
+	size_t len;
 };
 
 struct be_list {
@@ -36,5 +37,6 @@ struct be_node {
 };
 
 struct be_node *bdecode(const char *estr, size_t len, const char **ep);
+void be_print(struct be_node *be, FILE *out);
 
 #endif /* BEN_H_ */
