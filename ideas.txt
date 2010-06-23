@@ -29,4 +29,15 @@
   -- Fixed wdfs in my branch on github. It wasn't setting its useragent.
      and somehow that broke it, though it isn't clear why.
 
+* Decent note taking.
+	* gpg encryption
+	* all stored as plain text (or retrevable as such)
+	* versioning (now it seems like I should write a front end on git to
+	  impliment this
+  'note' writen in perl, supports encryption.
+  	* cmdline options not documented (as far as I could see)
+	* interactive thing not too fun (i'd prefer `note add [note name]` or
+	  some such
+	* defualts to binary storage, no 'show' command visible (can edit and
+	  save somewhere else
 
