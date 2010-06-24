@@ -1,0 +1,43 @@
+
+* command line driven torrent metadata editor.
+  'torrentinfo' - command line metadata viewer in python.
+  http://wiki.theory.org/BitTorrentSpecification
+    describes format and gives links to code to read it.
+  bencoding:
+    byte strings: <strlen in ascii base 10>:<strdata>
+    lists: l<items>e
+    int: i<int ascii base 10>e
+    dict: d<bencoded str><bencoded elem>e
+  editing in vim possible, with careful keystrokes.
+  added 'tracker_modify.pl', which does what I need.
+
+* webdav fuse fs without the need for root perms.
+  i'm unsure the reason, but it appears that davfs2 has decided it would be
+  jolly good idea to need root perms for mounting a network fs. with fuse.
+  Current fuse davfs projects:
+  * 'davfs2' - needs root perms, expects the use of mount.
+  * 'wdfs' - last release 2007
+      fails to mount rutgers sakai "reasources" webdav. Complains that it
+      could not be mounted due to internal server error (500). Possibly an
+      issue with neon. Compare it's use of neon with cadaver (a realy nice
+      almost usable command line client, just needs some fixes to tab
+      completion).
+  * 'fusedav' - last release 2006, not in gentoo repo.
+  wdfs & fusedav use 'neon' to interface with the webdav protocol.
+  I might be calling this up without cause, lacking new releases is not
+  nesicarilly a sign of bad software. Some testing is in order.
+  -- Fixed wdfs in my branch on github. It wasn't setting its useragent.
+     and somehow that broke it, though it isn't clear why.
+
+* Decent note taking.
+	* gpg encryption
+	* all stored as plain text (or retrevable as such)
+	* versioning (now it seems like I should write a front end on git to
+	  impliment this
+  'note' writen in perl, supports encryption.
+  	* cmdline options not documented (as far as I could see)
+	* interactive thing not too fun (i'd prefer `note add [note name]` or
+	  some such
+	* defualts to binary storage, no 'show' command visible (can edit and
+	  save somewhere else
+
