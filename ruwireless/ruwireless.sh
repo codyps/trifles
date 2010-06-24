@@ -1,7 +1,6 @@
 #!/bin/sh
 LOGIN_SCRIPT_URL=https://login.ruw.rutgers.edu/login.pl
 
-
 usage () {
 	echo "usage: 	"
 	echo "	$0 login [username [password]]"
@@ -70,7 +69,12 @@ ruw_login () {
 		usage
 	fi
 
-	login_page=$(curl -k -s                 \
+	login_page=$(wget -q \
+		--postdata="bs_name=$ru_user&bs_password=$ru_pass"
+		${LOGIN_URL}'?which_form="reg";_FORM_SUBMIT="1"'
+		)
+		
+	#login_page=$(curl -k -s                 \
 		--form-string bs_name="$ru_user"	\
 		--form-string bs_password="$ru_pass"\
 		-F which_form="reg"	                \
