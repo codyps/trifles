@@ -3,6 +3,13 @@
 #include <stdlib.h>
 #include "ben.h"
 
+#define DIE(...) do {\
+	fprintf(stderr, "%s:%d : ", __FILE__, __LINE__);\
+	fprintf(stderr, __VA_ARGS__);\
+	fputc('\n', stderr);\
+	exit(1);\
+} while(0)
+
 void spaces(size_t num, FILE *out)
 {
 	for(; num != 0; num--) {
@@ -62,6 +69,7 @@ struct be_list *bdecode_list(const char *estr, size_t len, const char **ep)
 	for(ppos = estr + 1; *ppos != 'e' ; len--, ppos++) {
 		if (len <= 0) {
 			*ep = estr;
+			DIE("list decode barf.");
 			return 0;
 		}
 
