@@ -96,6 +96,7 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 {
 	if (len == 0) {
 		*ep = estr;
+		DIE("no length");
 		return 0;
 	}
 
@@ -106,6 +107,7 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 		len--;
 		if(len <= 0) {
 			*ep = estr;
+			DIE("no length");
 			return 0;
 		} else if (*ppos == ':') {
 			break;
@@ -118,7 +120,9 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 
 	/* ppos points to the ':' */
 	if (slen == 0 || slen > len) {
+		
 		/* not a valid string. */
+		DIE("i don't know .");
 		*ep = estr;
 		return 0;
 	}
@@ -126,6 +130,7 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 	char *str = malloc(len);
 	if (!str) {
 		*ep = estr;
+		DIE("");
 		return 0;
 	}
 
@@ -135,6 +140,7 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 	if (!bstr) {
 		*ep = estr;
 		free(str);
+		DIE("alloc fail.");
 		return 0;
 	}
 
@@ -146,6 +152,48 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 
 struct be_dict *bdecode_dict(const char *estr, size_t len, const char **ep)
 {
+	/* *estr = 'd' */
+	char *ppos = estr + 1;
+	len --;
+
+	struct be_dict *dict = malloc(sizeof(*dict));
+	dict->key = 0;
+	dict->val = 0;
+	dict->len = 0;
+
+	for(;;) {
+		if (len <= 0) {
+			free(dict->key);
+			free(dict->val);
+			free(dict);
+			DIE("dict ran out.");
+			*ep = ppos;
+			return 0;
+		} else if(*ppos == 'e') {
+			/* dict done */
+			*ep = ppos;
+			return dict;
+		}
+
+		dict->len++;
+		dict->key = realloc(dict->key, sizeof(dict->key) * dict->len);
+		dict->val = realloc(dict->val, sizeof(dict->val) * dict->len);
+
+		/* now decode string */
+		dict->key[dict->len - 1] = bdecode_str(ppos, len, ep);
+
+		len -= *ep - ppos;
+		ppos = *ep;
+
+		/* decode node */
+		dict->val[dict->len - 1] = bdecode(ppos, len, ep);
+
+		len -= *ep - ppos;
+		ppos = *ep;
+	}
+
+
+	DIE("attempt dict decode.");
 	return 0;
 }
 
@@ -155,11 +203,13 @@ long long bdecode_int(const char *estr, size_t len, const char **ep)
 	if (len < 3) {
 		/* at least 3 characters for a valid  int */
 		*ep = estr;
+		DIE("not enough chars for int");
 		return 0;
 	}
 
 	if (*ppos != 'i') {
 		/* first must be a 'i' */
+		DIE("");
 		*ep = estr;
 		return 0;
 	}
@@ -179,6 +229,7 @@ long long bdecode_int(const char *estr, size_t len, const char **ep)
 
 	for(;;ppos++, len--) {
 		if (len <= 0) {
+			DIE("");
 			*ep = estr;
 			return 0;
 		}
@@ -188,6 +239,7 @@ long long bdecode_int(const char *estr, size_t len, const char **ep)
 			return sign * num;
 		} else if (!isdigit(*ppos)) {
 			*ep = estr;
+			DIE("");
 			return 0;
 		}
 
@@ -239,6 +291,7 @@ struct be_node *bdecode(const char *estr, size_t len, const char **ep)
 		}
 		return ret;
 	default:
+		DIE("invalid type.");
 		return 0;
 	}
 }
