@@ -4,16 +4,20 @@
 #include "ben.h"
 
 #define DIE(...) do {\
+	fflush(stdout);\
 	fprintf(stderr, "%s:%d:%s : ", __FILE__, __LINE__,__func__);\
 	fprintf(stderr, __VA_ARGS__);\
 	fputc('\n', stderr);\
+	fflush(stderr);\
 	exit(1);\
 } while(0)
 
 #define INFO(...) do {\
+	fflush(stdout);\
 	fprintf(stderr, "%s:%d:%s : ", __FILE__, __LINE__,__func__);\
 	fprintf(stderr, __VA_ARGS__);\
 	fputc('\n', stderr);\
+	fflush(stderr);\
 } while(0)
 
 void be_print_indent(struct be_node *be, FILE *out, size_t indent);
@@ -26,7 +30,7 @@ void spaces(size_t num, FILE *out)
 
 void be_print_str(struct be_str *str, FILE *out)
 {
-	fprintf(out, "str : ");
+	fprintf(out, "str %llu: ", (unsigned long long)str->len);
 	fwrite(str->str, str->len, 1, out);
 }
 
@@ -185,7 +189,8 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 	*ep = ppos + 1 + slen;
 
 	INFO("str parsed:");
-	be_print_str(bstr, 0);
+	be_print_str(bstr, stdout);
+	putc('\n', stdout);
 	return bstr;
 }
 
