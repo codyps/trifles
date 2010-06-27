@@ -16,7 +16,6 @@
 	fputc('\n', stderr);\
 } while(0)
 
-
 void be_print_indent(struct be_node *be, FILE *out, size_t indent);
 void spaces(size_t num, FILE *out)
 {
@@ -29,7 +28,6 @@ void be_print_str(struct be_str *str, FILE *out)
 {
 	fprintf(out, "str : ");
 	fwrite(str->str, str->len, 1, out);
-	fputc('\n', out);	
 }
 
 void be_print_int(long long num, FILE *out)
@@ -44,12 +42,10 @@ void be_print_dict(struct be_dict *dict, FILE *out, size_t indent)
 	for(i = 0; i < dict->len; i++) {
 		fputc('\n', out);
 		fputc(' ', out);
-		fwrite(dict->key[i]->str, 
-			dict->key[i]->len, 1, out);
+		be_print_str(dict->key[i], out);
 		fputc(':', out);
 		be_print_indent(dict->val[i], out, indent + 1);
 	}
-	
 }
 
 void be_print_list(struct be_list *list, FILE *out, size_t indent)
@@ -81,7 +77,7 @@ void be_print_indent(struct be_node *be, FILE *out, size_t indent)
 		be_print_list(be->u.l, out, indent);
 		break;
 	default:
-		fprintf(stderr, "unknown BE type %d\n", be->type);
+		DIE("unknown BE type %d\n", be->type);
 	}
 }
 
@@ -148,6 +144,7 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 			DIE("no length");
 			return 0;
 		} else if (*ppos == ':') {
+			INFO("got to ':'");
 			break;
 		}
 
@@ -167,25 +164,24 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 		return 0;
 	}
 
-	char *str = malloc(len);
-	if (!str) {
-		*ep = estr;
-		DIE("");
-		return 0;
-	}
-
-	memcpy(str, ppos + 1, len);
-
 	struct be_str *bstr = malloc(sizeof(*bstr));
 	if (!bstr) {
 		*ep = estr;
-		free(str);
 		DIE("alloc fail.");
 		return 0;
 	}
 
 	bstr->len = slen;
-	bstr->str = str;
+	bstr->str = malloc(bstr->len);
+	if (!bstr->str) {
+		*ep = estr;
+		free(bstr);
+		DIE("");
+		return 0;
+	}
+
+	memcpy(bstr->str, ppos + 1, bstr->len);
+
 	*ep = ppos + 1 + slen;
 
 	INFO("str parsed:");
