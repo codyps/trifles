@@ -4,16 +4,61 @@
 #include "ben.h"
 
 #define DIE(...) do {\
-	fprintf(stderr, "%s:%d : ", __FILE__, __LINE__);\
+	fprintf(stderr, "%s:%d:%s : ", __FILE__, __LINE__,__func__);\
 	fprintf(stderr, __VA_ARGS__);\
 	fputc('\n', stderr);\
 	exit(1);\
 } while(0)
 
+#define INFO(...) do {\
+	fprintf(stderr, "%s:%d:%s : ", __FILE__, __LINE__,__func__);\
+	fprintf(stderr, __VA_ARGS__);\
+	fputc('\n', stderr);\
+} while(0)
+
+
+void be_print_indent(struct be_node *be, FILE *out, size_t indent);
 void spaces(size_t num, FILE *out)
 {
 	for(; num != 0; num--) {
 		fputc(' ', out);
+	}
+}
+
+void be_print_str(struct be_str *str, FILE *out)
+{
+	fprintf(out, "str : ");
+	fwrite(str->str, str->len, 1, out);
+	fputc('\n', out);	
+}
+
+void be_print_int(long long num, FILE *out)
+{
+	fprintf(out, "int: %lld\n", num);
+}
+
+void be_print_dict(struct be_dict *dict, FILE *out, size_t indent)
+{
+	fputs("dict:", out);
+	size_t i;
+	for(i = 0; i < dict->len; i++) {
+		fputc('\n', out);
+		fputc(' ', out);
+		fwrite(dict->key[i]->str, 
+			dict->key[i]->len, 1, out);
+		fputc(':', out);
+		be_print_indent(dict->val[i], out, indent + 1);
+	}
+	
+}
+
+void be_print_list(struct be_list *list, FILE *out, size_t indent)
+{
+	size_t i;
+	fputs("list:", out);
+	for(i = 0; i < list->len; i++) {
+		fputc('\n', out);
+		be_print_indent(list->nodes[i], out, indent + 1);
 	}
 }
 
@@ -24,29 +69,16 @@ void be_print_indent(struct be_node *be, FILE *out, size_t indent)
 
 	switch(be->type) {
 	case BE_INT:
-		fprintf(out, "%d\n", be->u.i);
+		be_print_int(be->u.i, out);
 		break;
 	case BE_STR:
-		fwrite(be->u.s->str, be->u.s->len, 1, out);
-		fputc('\n', out);
+		be_print_str(be->u.s, out);
 		break;
 	case BE_DICT:
-		fputs("dict:", out);
-		for(i = 0; i < be->u.d->len; i++) {
-			fputc('\n', out);
-			fputc(' ', out);
-			fwrite(be->u.d->key[i]->str, 
-				be->u.d->key[i]->len, 1, out);
-			fputc(':', out);
-			be_print_indent(be->u.d->val[i], out, indent + 1);
-		}
+		be_print_dict(be->u.d, out, indent);
 		break;
 	case BE_LIST:
-		fputs("list:", out);
-		for(i = 0; i < be->u.l->len; i++) {
-			fputc('\n', out);
-			be_print_indent(be->u.l->nodes[i], out, indent + 1);
-		}
+		be_print_list(be->u.l, out, indent);
 		break;
 	default:
 		fprintf(stderr, "unknown BE type %d\n", be->type);
@@ -60,17 +92,20 @@ void be_print(struct be_node *be, FILE *out)
 
 struct be_list *bdecode_list(const char *estr, size_t len, const char **ep)
 {
+	INFO("decode list");
 	struct be_list *l = malloc(sizeof(*l));
 	l->nodes = 0;
 	l->len = 0;
 
 	/* assert(*estr == 'l'); */
 	const char *ppos;
-	for(ppos = estr + 1; *ppos != 'e' ; len--, ppos++) {
+	for(ppos = estr + 1; ; len--, ppos++) {
 		if (len <= 0) {
 			*ep = estr;
 			DIE("list decode barf.");
 			return 0;
+		} else if (*ppos == 'e') {
+			break;
 		}
 
 		struct be_node *n = bdecode(ppos, len, ep);
@@ -81,11 +116,11 @@ struct be_list *bdecode_list(const char *estr, size_t len, const char **ep)
 			l->nodes[l->len - 1] = n;
 			ppos = *ep;
 		} else {
-			fprintf(stderr, "problem decoding at %p\n", ppos);
+			DIE("malloc");
 		}
 	}
 
-	*ep = estr;
+	*ep = estr + 1;
 	return l;
 }
 
@@ -94,6 +129,7 @@ struct be_list *bdecode_list(const char *estr, size_t len, const char **ep)
  */
 struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 {
+	INFO("decode str");
 	if (len == 0) {
 		*ep = estr;
 		DIE("no length");
@@ -102,6 +138,8 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 
 	const char *ppos = estr;
 	size_t slen = *ppos - '0';
+	INFO("%c => strlen dig. curr slen = %d",
+				*ppos, slen);
 	for(;;) {
 		ppos++;
 		len--;
@@ -113,6 +151,8 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 			break;
 		}
 
+		INFO("%c => strlen dig. curr slen = %d",
+				*ppos, slen);
 		slen *= 10;
 		slen += *ppos - '0';
 		/* TODO: detect overflow. */
@@ -120,7 +160,7 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 
 	/* ppos points to the ':' */
 	if (slen == 0 || slen > len) {
-		
+		printf("slen : %d; len : %d\n", slen, len);
 		/* not a valid string. */
 		DIE("i don't know .");
 		*ep = estr;
@@ -147,13 +187,17 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 	bstr->len = slen;
 	bstr->str = str;
 	*ep = ppos + 1 + slen;
+
+	INFO("str parsed:");
+	be_print_str(bstr, 0);
 	return bstr;
 }
 
 struct be_dict *bdecode_dict(const char *estr, size_t len, const char **ep)
 {
+	INFO("decode dict.");
 	/* *estr = 'd' */
-	char *ppos = estr + 1;
+	const char *ppos = estr + 1;
 	len --;
 
 	struct be_dict *dict = malloc(sizeof(*dict));
@@ -199,6 +243,7 @@ struct be_dict *bdecode_dict(const char *estr, size_t len, const char **ep)
 
 long long bdecode_int(const char *estr, size_t len, const char **ep)
 {
+	INFO("decode int");
 	const char *ppos = estr;
 	if (len < 3) {
 		/* at least 3 characters for a valid  int */
@@ -236,6 +281,7 @@ long long bdecode_int(const char *estr, size_t len, const char **ep)
 	
 		if (*ppos == 'e') {
 			*ep = ppos;
+			INFO(" int: %lld", sign * num);
 			return sign * num;
 		} else if (!isdigit(*ppos)) {
 			*ep = estr;
@@ -251,6 +297,7 @@ long long bdecode_int(const char *estr, size_t len, const char **ep)
 
 struct be_node *bdecode(const char *estr, size_t len, const char **ep)
 {
+	INFO("decode node");
 	struct be_node *ret;
 	switch(*estr) {
 	case 'd':
