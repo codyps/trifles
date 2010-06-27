@@ -71,11 +71,11 @@ int main(int argc, char **argv)
 
 	char *act = argv[2];
 	if (!strcmp(act, "rm")) {
-		return t_rm(tf_be, argc - 1, argv + 1) + 5;
+		return t_rm(tf_be, argc - 1, argv + 1);
 	} else if (!strcmp(act, "add")) {
-		return t_add(tf_be, argc - 1, argv + 1) + 5;
+		return t_add(tf_be, argc - 1, argv + 1);
 	} else if (!strcmp(act, "show")) {
-		return t_show(tf_be, argc - 1, argv + 1) + 5;
+		return t_show(tf_be, argc - 1, argv + 1);
 	} else {
 		fprintf(stderr, "unknown action: \"%s\"\n",act);
 		usage(argv[0]);
