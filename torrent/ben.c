@@ -4,6 +4,8 @@
 #include <ctype.h>
 #include "ben.h"
 
+int debug = 0;
+
 #define DIE(...) do {\
 	fflush(stdout);\
 	fprintf(stderr, "%s:%d:%s : ", __FILE__, __LINE__,__func__);\
@@ -14,11 +16,13 @@
 } while(0)
 
 #define INFO(...) do {\
-	fflush(stdout);\
-	fprintf(stderr, "%s:%d:%s : ", __FILE__, __LINE__,__func__);\
-	fprintf(stderr, __VA_ARGS__);\
-	fputc('\n', stderr);\
-	fflush(stderr);\
+	if (debug) {\
+		fflush(stdout);\
+		fprintf(stderr, "%s:%d:%s : ", __FILE__, __LINE__,__func__);\
+		fprintf(stderr, __VA_ARGS__);\
+		fputc('\n', stderr);\
+		fflush(stderr);\
+	}\
 } while(0)
 
 void be_print_indent(struct be_node *be, FILE *out, size_t indent);
@@ -33,6 +37,7 @@ void be_print_str(struct be_str *str, FILE *out)
 {
 	fprintf(out, "str %llu: ", (unsigned long long)str->len);
 	fwrite(str->str, str->len, 1, out);
+	fputc('\n', out);
 }
 
 void be_print_int(long long num, FILE *out)
@@ -42,12 +47,12 @@ void be_print_int(long long num, FILE *out)
 
 void be_print_dict(struct be_dict *dict, FILE *out, size_t indent)
 {
-	fputs("dict:", out);
+	fputs("dict:\n", out);
 	size_t i;
 	for(i = 0; i < dict->len; i++) {
-		fputc('\n', out);
-		fputc(' ', out);
-		be_print_str(dict->key[i], out);
+		spaces(indent + 1, out);
+		struct be_str *bstr = dict->key[i];
+		fwrite(bstr->str, bstr->len, 1, out);
 		fputc(':', out);
 		be_print_indent(dict->val[i], out, indent + 1);
 	}
@@ -65,7 +70,6 @@ void be_print_list(struct be_list *list, FILE *out, size_t indent)
 
 void be_print_indent(struct be_node *be, FILE *out, size_t indent)
 {
-	size_t i;
 	spaces(indent, out);
 
 	switch(be->type) {
@@ -183,7 +187,7 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 	if (!bstr->str) {
 		*ep = estr;
 		free(bstr);
-		DIE("");
+		DIE("malloc");
 		return 0;
 	}
 
@@ -191,9 +195,7 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 
 	*ep = ppos + 1 + slen;
 
-	INFO("str parsed:");
-	be_print_str(bstr, stdout);
-	putc('\n', stdout);
+	INFO("str parsed");
 	return bstr;
 }
 
@@ -241,7 +243,6 @@ struct be_dict *bdecode_dict(const char *estr, size_t len, const char **ep)
 		ppos = *ep;
 	}
 
-
 	DIE("attempt dict decode.");
 	return 0;
 }
@@ -249,22 +250,16 @@ struct be_dict *bdecode_dict(const char *estr, size_t len, const char **ep)
 long long bdecode_int(const char *estr, size_t len, const char **ep)
 {
 	INFO("decode int");
-	const char *ppos = estr;
+	/* *estr == 'i' */
+
+	const char *ppos = estr + 1;
+	len --;
 	if (len < 3) {
 		/* at least 3 characters for a valid  int */
 		*ep = estr;
 		DIE("not enough chars for int");
 		return 0;
 	}
-
-	if (*ppos != 'i') {
-		/* first must be a 'i' */
-		DIE("");
-		*ep = estr;
-		return 0;
-	}
-	ppos++;
-	len--;
 
 	/* handle the sign */
 	int sign;
@@ -279,7 +274,7 @@ long long bdecode_int(const char *estr, size_t len, const char **ep)
 
 	for(;;ppos++, len--) {
 		if (len <= 0) {
-			DIE("");
+			DIE("ran out of len");
 			*ep = estr;
 			return 0;
 		}
@@ -290,7 +285,7 @@ long long bdecode_int(const char *estr, size_t len, const char **ep)
 			return sign * num;
 		} else if (!isdigit(*ppos)) {
 			*ep = estr;
-			DIE("");
+			DIE("got non-digit in int.");
 			return 0;
 		}
 
