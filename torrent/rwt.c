@@ -22,6 +22,7 @@ static void usage(char *name)
 int t_show(struct be_node *tf, int argc, char **argv)
 {
 	be_print(tf, stdout);
+	return 0;
 }
 
 int t_rm(struct be_node *tf, int argc, char **argv)
