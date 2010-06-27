@@ -99,7 +99,7 @@ struct be_list *bdecode_list(const char *estr, size_t len, const char **ep)
 
 	/* assert(*estr == 'l'); */
 	const char *ppos;
-	for(ppos = estr + 1; ; len--, ppos++) {
+	for(ppos = estr + 1; ;) {
 		if (len <= 0) {
 			*ep = estr;
 			DIE("list decode barf.");
@@ -114,6 +114,7 @@ struct be_list *bdecode_list(const char *estr, size_t len, const char **ep)
 			l->nodes = realloc(l->nodes, 
 				sizeof(*(l->nodes)) * l->len);
 			l->nodes[l->len - 1] = n;
+			len -= *ep - ppos;
 			ppos = *ep;
 		} else {
 			DIE("malloc");
@@ -121,6 +122,7 @@ struct be_list *bdecode_list(const char *estr, size_t len, const char **ep)
 	}
 
 	*ep = estr + 1;
+	INFO("got list, len = %llu", (unsigned long long) l->len);
 	return l;
 }
 
