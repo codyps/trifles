@@ -11,13 +11,13 @@ enum be_type {
 
 struct be_str {
 	size_t len;
-	char *str;
+	char *data;
 };
 
 struct be_node;
 struct be_dict {
-	struct be_str **key;
-	struct be_node **val;
+	struct be_str **keys;
+	struct be_node **vals;
 	size_t len;
 };
 

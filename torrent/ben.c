@@ -36,7 +36,7 @@ void spaces(size_t num, FILE *out)
 void be_print_str(struct be_str *str, FILE *out)
 {
 	fprintf(out, "str %llu: ", (unsigned long long)str->len);
-	fwrite(str->str, str->len, 1, out);
+	fwrite(str->data, str->len, 1, out);
 	fputc('\n', out);
 }
 
@@ -51,10 +51,10 @@ void be_print_dict(struct be_dict *dict, FILE *out, size_t indent)
 	size_t i;
 	for(i = 0; i < dict->len; i++) {
 		spaces(indent + 1, out);
-		struct be_str *bstr = dict->key[i];
-		fwrite(bstr->str, bstr->len, 1, out);
+		struct be_str *bstr = dict->keys[i];
+		fwrite(bstr->data, bstr->len, 1, out);
 		fputc(':', out);
-		be_print_indent(dict->val[i], out, indent + 1);
+		be_print_indent(dict->vals[i], out, indent + 1);
 	}
 }
 
@@ -87,6 +87,37 @@ void be_print_indent(struct be_node *be, FILE *out, size_t indent)
 		break;
 	default:
 		DIE("unknown BE type %d\n", be->type);
+	}
+}
+
+int be_str_cmp(const void *a1, const void *a2)
+{
+	/* a1 < a2 = -num
+	 * a1 = a2 = 0
+	 * a1 > a2 = +num
+	 */
+
+	const struct be_str *b1 = a1, *b2 = a2;
+	ssize_t ldiff = b1->len - b2->len;
+
+	if (ldiff) {
+		return ldiff;
+	} else {
+		return memcmp(b1->data, b2->data, b1->len);
+	}
+}
+
+struct be_dict *be_dict_lookup(const struct be_dict *dict, struct be_str *key)
+{
+	struct be_str *lkey = lsearch(key, dict->keys, 
+			dict->len, sizeof(*dict->keys), be_str_cmp);
+
+	if (lkey) {
+		size_t i = dict->keys - lkey;
+		struct be_node *val = dict->vals[i];
+		return val;
+	} else {
+		return 0;
 	}
 }
 
@@ -183,15 +214,15 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 	}
 
 	bstr->len = slen;
-	bstr->str = malloc(bstr->len);
-	if (!bstr->str) {
+	bstr->data = malloc(bstr->len);
+	if (!bstr->data) {
 		*ep = estr;
 		free(bstr);
 		DIE("malloc");
 		return 0;
 	}
 
-	memcpy(bstr->str, ppos + 1, bstr->len);
+	memcpy(bstr->data, ppos + 1, bstr->len);
 
 	*ep = ppos + 1 + slen;
 
@@ -207,14 +238,14 @@ struct be_dict *bdecode_dict(const char *estr, size_t len, const char **ep)
 	len --;
 
 	struct be_dict *dict = malloc(sizeof(*dict));
-	dict->key = 0;
-	dict->val = 0;
+	dict->keys = 0;
+	dict->vals = 0;
 	dict->len = 0;
 
 	for(;;) {
 		if (len <= 0) {
-			free(dict->key);
-			free(dict->val);
+			free(dict->keys);
+			free(dict->vals);
 			free(dict);
 			DIE("dict ran out.");
 			*ep = ppos;
@@ -227,17 +258,19 @@ struct be_dict *bdecode_dict(const char *estr, size_t len, const char **ep)
 		}
 
 		dict->len++;
-		dict->key = realloc(dict->key, sizeof(dict->key) * dict->len);
-		dict->val = realloc(dict->val, sizeof(dict->val) * dict->len);
+		dict->keys = realloc(dict->keys, 
+				sizeof(dict->keys) * dict->len);
+		dict->vals = realloc(dict->vals, 
+				sizeof(dict->vals) * dict->len);
 
 		/* now decode string */
-		dict->key[dict->len - 1] = bdecode_str(ppos, len, ep);
+		dict->keys[dict->len - 1] = bdecode_str(ppos, len, ep);
 
 		len -= *ep - ppos;
 		ppos = *ep;
 
 		/* decode node */
-		dict->val[dict->len - 1] = bdecode(ppos, len, ep);
+		dict->vals[dict->len - 1] = bdecode(ppos, len, ep);
 
 		len -= *ep - ppos;
 		ppos = *ep;
