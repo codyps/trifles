@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "ben.h"
 
 #define DIE(...) do {\
@@ -121,7 +122,7 @@ struct be_list *bdecode_list(const char *estr, size_t len, const char **ep)
 		}
 	}
 
-	*ep = estr + 1;
+	*ep = ppos + 1;
 	INFO("got list, len = %llu", (unsigned long long) l->len);
 	return l;
 }
@@ -218,7 +219,8 @@ struct be_dict *bdecode_dict(const char *estr, size_t len, const char **ep)
 			return 0;
 		} else if(*ppos == 'e') {
 			/* dict done */
-			*ep = ppos;
+			INFO("dict parsed");
+			*ep = ppos + 1;
 			return dict;
 		}
 
@@ -265,7 +267,7 @@ long long bdecode_int(const char *estr, size_t len, const char **ep)
 	len--;
 
 	/* handle the sign */
-	uint8_t sign;
+	int sign;
 	long long num = 0;
 	if (*ppos == '-') {
 		ppos++;
@@ -283,7 +285,7 @@ long long bdecode_int(const char *estr, size_t len, const char **ep)
 		}
 	
 		if (*ppos == 'e') {
-			*ep = ppos;
+			*ep = ppos + 1;
 			INFO(" int: %lld", sign * num);
 			return sign * num;
 		} else if (!isdigit(*ppos)) {
