@@ -108,12 +108,12 @@ int be_str_cmp(const void *a1, const void *a2)
 	}
 }
 
-struct be_dict *be_dict_lookup(const struct be_dict *dict, struct be_str *key)
+struct be_node *be_dict_lookup(const struct be_dict *dict, struct be_str *key)
 {
 	struct be_str *lkey = lfind(key, dict->keys, 
 			&(dict->len), sizeof(*dict->keys), be_str_cmp);
 	if (lkey) {
-		size_t i = dict->keys - lkey;
+		size_t i = *dict->keys - lkey;
 		struct be_node *val = dict->vals[i];
 		return val;
 	} else {
@@ -127,15 +127,15 @@ void be_print(struct be_node *be, FILE *out)
 }
 
 struct be_node *be_dict_insert(const struct be_dict *dict,
-		const struct *be_node *data)
+		const struct be_node *data)
 {
-
-h}
+	return 0;
+}
 
 struct be_node *be_dict_remove(const struct be_dict *dict,
 		const struct be_str *key) 
 {
-
+	return 0;
 }
 
 struct be_list *bdecode_list(const char *estr, size_t len, const char **ep)
@@ -170,7 +170,7 @@ struct be_list *bdecode_list(const char *estr, size_t len, const char **ep)
 	}
 
 	*ep = ppos + 1;
-	INFO("got list, len = %llu", (unsigned long long) l->len);
+	INFO("got list, len = %zd", l->len);
 	return l;
 }
 
@@ -188,7 +188,7 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 
 	const char *ppos = estr;
 	size_t slen = *ppos - '0';
-	INFO("%c => strlen dig. curr slen = %d",
+	INFO("%c => strlen dig. curr slen = %zd",
 				*ppos, slen);
 	for(;;) {
 		ppos++;
@@ -202,7 +202,7 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 			break;
 		}
 
-		INFO("%c => strlen dig. curr slen = %d",
+		INFO("%c => strlen dig. curr slen = %zd",
 				*ppos, slen);
 		slen *= 10;
 		slen += *ppos - '0';
@@ -211,7 +211,7 @@ struct be_str *bdecode_str(const char *estr, size_t len, const char **ep)
 
 	/* ppos points to the ':' */
 	if (slen == 0 || slen > len) {
-		printf("slen : %d; len : %d\n", slen, len);
+		printf("slen : %zd; len : %zd\n", slen, len);
 		/* not a valid string. */
 		DIE("i don't know .");
 		*ep = estr;
