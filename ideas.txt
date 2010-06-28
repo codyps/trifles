@@ -46,3 +46,5 @@
 	  `git log ^HEAD@{1}^ HEAD` do not function as expected.
 	  The '^' on head does not move it back at all.
 	  the syntax appears to function correctly with `git show`.
+	-- seems this works in 1.7.1 (I think it was cygwin's current version
+	that I found non-working)
