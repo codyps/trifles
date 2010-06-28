@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <search.h>
 #include "ben.h"
 
 int debug = 0;
@@ -109,9 +110,8 @@ int be_str_cmp(const void *a1, const void *a2)
 
 struct be_dict *be_dict_lookup(const struct be_dict *dict, struct be_str *key)
 {
-	struct be_str *lkey = lsearch(key, dict->keys, 
-			dict->len, sizeof(*dict->keys), be_str_cmp);
-
+	struct be_str *lkey = lfind(key, dict->keys, 
+			&(dict->len), sizeof(*dict->keys), be_str_cmp);
 	if (lkey) {
 		size_t i = dict->keys - lkey;
 		struct be_node *val = dict->vals[i];
@@ -124,6 +124,18 @@ struct be_dict *be_dict_lookup(const struct be_dict *dict, struct be_str *key)
 void be_print(struct be_node *be, FILE *out)
 {
 	be_print_indent(be, out, 0);
+}
+
+struct be_node *be_dict_insert(const struct be_dict *dict,
+		const struct *be_node *data)
+{
+
+h}
+
+struct be_node *be_dict_remove(const struct be_dict *dict,
+		const struct be_str *key) 
+{
+
 }
 
 struct be_list *bdecode_list(const char *estr, size_t len, const char **ep)
