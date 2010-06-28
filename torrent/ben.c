@@ -108,10 +108,11 @@ int be_str_cmp(const void *a1, const void *a2)
 	}
 }
 
-struct be_node *be_dict_lookup(const struct be_dict *dict, struct be_str *key)
+struct be_node *be_dict_lookup(const struct be_dict *dict,
+		const struct be_str *key)
 {
 	struct be_str *lkey = lfind(key, dict->keys, 
-			&(dict->len), sizeof(*dict->keys), be_str_cmp);
+			(size_t *)&(dict->len), sizeof(*dict->keys), be_str_cmp);
 	if (lkey) {
 		size_t i = *dict->keys - lkey;
 		struct be_node *val = dict->vals[i];
