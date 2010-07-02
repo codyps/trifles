@@ -12,8 +12,8 @@ static const char usage_str[] =
 "actions: rm <regex>        - remove trackers that \n"
 "                               match the given regex\n"
 "         add <tracker url> - add the given tracker\n"
-"         show              - show current trackers\n"
-;
+"         show              - show current trackers\n";
+
 static void usage(char *name)
 {
 	fprintf(stderr, usage_str, name);
@@ -22,6 +22,14 @@ static void usage(char *name)
 int t_show(struct be_node *tf, int argc, char **argv)
 {
 	be_print(tf, stdout);
+
+	/*
+	if (argc == 2) {
+		struct be_node *val = be_dict_match(tf, argv[1]);
+		be_print(val, stdout);
+	}
+	*/
+
 	return 0;
 }
 
@@ -71,11 +79,11 @@ int main(int argc, char **argv)
 
 	char *act = argv[2];
 	if (!strcmp(act, "rm")) {
-		return t_rm(tf_be, argc - 1, argv + 1);
+		return t_rm(tf_be, argc - 2, argv + 2);
 	} else if (!strcmp(act, "add")) {
-		return t_add(tf_be, argc - 1, argv + 1);
+		return t_add(tf_be, argc - 2, argv + 2);
 	} else if (!strcmp(act, "show")) {
-		return t_show(tf_be, argc - 1, argv + 1);
+		return t_show(tf_be, argc - 2, argv + 2);
 	} else {
 		fprintf(stderr, "unknown action: \"%s\"\n",act);
 		usage(argv[0]);
