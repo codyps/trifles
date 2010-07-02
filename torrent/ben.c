@@ -114,18 +114,22 @@ int be_str_cmp(const void *a1, const void *a2)
 	}
 }
 
+/* Returns the first value with a matching key */
 struct be_node *be_dict_lookup(const struct be_dict *dict,
 		const struct be_str *key)
 {
-	struct be_str *lkey = lfind(key, dict->keys, 
-			(size_t *)&(dict->len), sizeof(*dict->keys), be_str_cmp);
-	if (lkey) {
-		size_t i = *dict->keys - lkey;
-		struct be_node *val = dict->vals[i];
-		return val;
-	} else {
-		return 0;
+	size_t i;
+	for(i = 0; i < dict->len; i++) {
+		const struct be_str *lkey = dict->keys[i];
+		ssize_t diff = lkey->len - key->len;
+		if(diff) {
+			int x = memcmp(lkey->data, key->data, key->len);
+			if (!x)
+				return dict->vals[i];
+		}
 	}
+	
+	return 0;
 }
 
 void be_print(struct be_node *be, FILE *out)
