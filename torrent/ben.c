@@ -26,6 +26,7 @@ int debug = 0;
 	}\
 } while(0)
 
+void be_print_node(struct be_node *be, FILE *out, size_t indent);
 void be_print_indent(struct be_node *be, FILE *out, size_t indent);
 void spaces(size_t num, FILE *out)
 {
@@ -36,43 +37,42 @@ void spaces(size_t num, FILE *out)
 
 void be_print_str(struct be_str *str, FILE *out)
 {
-	fprintf(out, "str %llu: ", (unsigned long long)str->len);
+	fprintf(out, "%zu:", str->len);
 	fwrite(str->data, str->len, 1, out);
 	fputc('\n', out);
 }
 
 void be_print_int(long long num, FILE *out)
 {
-	fprintf(out, "int: %lld\n", num);
+	fprintf(out, " i %lld\n", num);
 }
 
 void be_print_dict(struct be_dict *dict, FILE *out, size_t indent)
 {
-	fputs("dict:\n", out);
+	fputs("d\n", out);
 	size_t i;
 	for(i = 0; i < dict->len; i++) {
 		spaces(indent + 1, out);
 		struct be_str *bstr = dict->keys[i];
+		fprintf(out, "%zu:", bstr->len);
 		fwrite(bstr->data, bstr->len, 1, out);
 		fputc(':', out);
-		be_print_indent(dict->vals[i], out, indent + 1);
+		be_print_node(dict->vals[i], out, indent + 1);
 	}
 }
 
 void be_print_list(struct be_list *list, FILE *out, size_t indent)
 {
 	size_t i;
-	fputs("list:", out);
+	fputs("l", out);
 	for(i = 0; i < list->len; i++) {
 		fputc('\n', out);
 		be_print_indent(list->nodes[i], out, indent + 1);
 	}
 }
 
-void be_print_indent(struct be_node *be, FILE *out, size_t indent)
+void be_print_node(struct be_node *be, FILE *out, size_t indent)
 {
-	spaces(indent, out);
-
 	switch(be->type) {
 	case BE_INT:
 		be_print_int(be->u.i, out);
@@ -89,6 +89,12 @@ void be_print_indent(struct be_node *be, FILE *out, size_t indent)
 	default:
 		DIE("unknown BE type %d\n", be->type);
 	}
+}
+
+void be_print_indent(struct be_node *be, FILE *out, size_t indent)
+{
+	spaces(indent, out);
+	be_print_node(be, out, indent);
 }
 
 int be_str_cmp(const void *a1, const void *a2)
@@ -108,18 +114,22 @@ int be_str_cmp(const void *a1, const void *a2)
 	}
 }
 
+/* Returns the first value with a matching key */
 struct be_node *be_dict_lookup(const struct be_dict *dict,
 		const struct be_str *key)
 {
-	struct be_str *lkey = lfind(key, dict->keys, 
-			(size_t *)&(dict->len), sizeof(*dict->keys), be_str_cmp);
-	if (lkey) {
-		size_t i = *dict->keys - lkey;
-		struct be_node *val = dict->vals[i];
-		return val;
-	} else {
-		return 0;
+	size_t i;
+	for(i = 0; i < dict->len; i++) {
+		const struct be_str *lkey = dict->keys[i];
+		ssize_t diff = lkey->len - key->len;
+		if(diff) {
+			int x = memcmp(lkey->data, key->data, key->len);
+			if (!x)
+				return dict->vals[i];
+		}
 	}
+	
+	return 0;
 }
 
 void be_print(struct be_node *be, FILE *out)
