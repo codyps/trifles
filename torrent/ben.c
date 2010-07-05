@@ -122,7 +122,7 @@ struct be_node *be_dict_lookup(const struct be_dict *dict,
 	for(i = 0; i < dict->len; i++) {
 		const struct be_str *lkey = dict->keys[i];
 		ssize_t diff = lkey->len - key->len;
-		if(diff) {
+		if(!diff) {
 			int x = memcmp(lkey->data, key->data, key->len);
 			if (!x)
 				return dict->vals[i];
