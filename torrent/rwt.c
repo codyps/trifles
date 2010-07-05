@@ -5,14 +5,9 @@
 #include <string.h>
 #include "ben.h"
 
-#define NAME "rwtorrent"
+#define NAME "rwt"
 static const char usage_str[] =
-"usage: %s <torrent> <action> [options]\n"
-"\n"
-"actions: rm <regex>        - remove trackers that \n"
-"                               match the given regex\n"
-"         add <tracker url> - add the given tracker\n"
-"         show              - show current trackers\n";
+"usage: %s <torrent> -d <dict_key> -l <list_index>\n";
 
 static void usage(char *name)
 {
@@ -21,26 +16,26 @@ static void usage(char *name)
 
 int t_show(struct be_node *tf, int argc, char **argv)
 {
-	be_print(tf, stdout);
-
-	/*
+	
 	if (argc == 2) {
-		struct be_node *val = be_dict_match(tf, argv[1]);
-		be_print(val, stdout);
+		if (tf->type != BE_DICT) {
+			fprintf(stderr,"not dict.\n");
+			return 1;
+		}
+		struct be_dict *d = tf->u.d;
+
+		struct be_str s = { strlen(argv[1]), argv[1] };
+
+		struct be_node *val = be_dict_lookup(d, &s);
+		if (val) {
+			be_print(val, stdout);
+		} else {
+			fprintf(stderr, "Not found: %s\n", argv[1]);
+		}
+	} else {
+		be_print(tf, stdout);
 	}
-	*/
-
 	return 0;
-}
-
-int t_rm(struct be_node *tf, int argc, char **argv)
-{
-	return -1;
-}
-
-int t_add(struct be_node *tf, int argc, char **argv)
-{
-	return -1;
 }
 
 int main(int argc, char **argv)
@@ -77,16 +72,6 @@ int main(int argc, char **argv)
 	const char *ep;
 	struct be_node *tf_be = bdecode(tf_t, tf_sz, &ep);
 
-	char *act = argv[2];
-	if (!strcmp(act, "rm")) {
-		return t_rm(tf_be, argc - 2, argv + 2);
-	} else if (!strcmp(act, "add")) {
-		return t_add(tf_be, argc - 2, argv + 2);
-	} else if (!strcmp(act, "show")) {
-		return t_show(tf_be, argc - 2, argv + 2);
-	} else {
-		fprintf(stderr, "unknown action: \"%s\"\n",act);
-		usage(argv[0]);
-		return 4;
-	}
+	//char *spec = argv[2];
+	return t_show(tf_be, argc-1, argv+1);
 }
