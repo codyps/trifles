@@ -16,9 +16,9 @@ struct be_str {
 
 struct be_node;
 struct be_dict {
+	size_t len;
 	struct be_str **keys;
 	struct be_node **vals;
-	size_t len;
 };
 
 struct be_list {
@@ -36,6 +36,7 @@ struct be_node {
 	} u;
 };
 
+struct be_node *be_dict_lookup(const struct be_dict *dict, const struct be_str *key);
 struct be_node *bdecode(const char *estr, size_t len, const char **ep);
 void be_print(struct be_node *be, FILE *out);
 
