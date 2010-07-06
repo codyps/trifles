@@ -1,0 +1,19 @@
+music:
+ - moc[p]
+ - cmus 
+
+term managment:
+ - screen
+ - [byobu]
+ - dvtm 
+ - tmux
+
+irc:
+ - irssi
+
+mail client:
+ - mutt
+ - mailx (nail / mailx-heirloom)
+
+todo:
+ - devtodo ( -G )
