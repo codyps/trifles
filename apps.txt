@@ -6,7 +6,7 @@ term managment:
  - screen
  - [byobu]
  - dvtm 
- - tmux
+ - tmux (http://www.dayid.org/os/notes/tm.html)
 
 irc:
  - irssi
@@ -17,3 +17,18 @@ mail client:
 
 todo:
  - devtodo ( -G )
+
+
+filemanager:
+ - ranger (@ savannah.nongnu.org)
+ - mc
+
+::
+terminator: a gnome terminal tiler?
+
+links to pages of interesting apps:
+http://www.reddit.com/r/linux/comments/c71h3/this_is_my_perfect_desktop_post_yours/c0qjj7r
+	GGlucas's desktop. Highly customized awesomewm on multi monitors.
+		- ranger, newsbeuter, WeeChat, Ncmpcpp, mutt, FF + vimperator,
+		- rtorrent, anigrate, cortex, urxvtc
+		- http://git.glacicle.org
