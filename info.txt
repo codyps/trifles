@@ -1,1 +1,2 @@
 xwininfo: information on a current X11 window, including class.
+nodm: automatic display manager (for embeded devices)
