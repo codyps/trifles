@@ -12,8 +12,8 @@
 int main(int argc, char **argv)
 {
 	int fd;
-	char palette[16][3];
-	int idx, r, g, b;
+	unsigned char palette[16][3];
+	int idx;
 
 	if ((fd = open("/dev/tty0", O_RDWR)) < 0) {
 		perror("open");
@@ -25,9 +25,9 @@ int main(int argc, char **argv)
 	}
 	
 	for(idx = 0; idx < 16; idx++) {
-		printf("%02x%02x%02x\n", palette[idx][0] & 0xFF,
-				palette[idx][1] & 0xFF,
-				palette[idx][2] & 0xFF);
+		printf("%02x%02x%02x\n", palette[idx][0],
+				palette[idx][1],
+				palette[idx][2]);
 	}
 	/*
 	while(fscanf(stdin, "%d %02x%02x%02x\n", &idx, &r, &g, &b) == 4) {
