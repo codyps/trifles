@@ -1,5 +1,3 @@
-/* Copyright (C) 2008 Paul Collins <paul@ondioline.org> */
-
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -17,7 +15,7 @@ int main(int argc, char **argv)
 	char palette[16][3];
 	int idx, r, g, b;
 
-	if ((fd = open("/dev/console", O_RDWR)) < 0) {
+	if ((fd = open("/dev/tty0", O_RDWR)) < 0) {
 		perror("open");
 		exit(1);
 	}
