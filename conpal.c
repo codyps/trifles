@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 	}
 	
 	for(idx = 0; idx < 16; idx++) {
-		printf("%02x%02x%02x\n", palette[idx][0],
+		printf("#%02x%02x%02x\n", palette[idx][0],
 				palette[idx][1],
 				palette[idx][2]);
 	}

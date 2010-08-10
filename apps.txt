@@ -23,6 +23,10 @@ filemanager:
  - ranger (@ savannah.nongnu.org)
  - mc
 
+fuzzing:
+ - buffy : instruments programs to explore all code paths.
+ - zzuf
+
 ::
 terminator: a gnome terminal tiler?
 
