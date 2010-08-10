@@ -10,22 +10,28 @@
     dict: d<bencoded str><bencoded elem>e
   editing in vim possible, with careful keystrokes.
   added 'tracker_modify.pl', which does what I need.
+  --
+  -- 'rwt' [partially] writen an on github. 
 
 * webdav fuse fs without the need for root perms.
   i'm unsure the reason, but it appears that davfs2 has decided it would be
   jolly good idea to need root perms for mounting a network fs. with fuse.
-  Current fuse davfs projects:
+  Current webdav client projects:
   * 'davfs2' - needs root perms, expects the use of mount.
   * 'wdfs' - last release 2007
       fails to mount rutgers sakai "reasources" webdav. Complains that it
       could not be mounted due to internal server error (500). Possibly an
-      issue with neon. Compare it's use of neon with cadaver (a realy nice
+      issue with neon. Compare it's use of neon with cadaver.(a realy nice
       almost usable command line client, just needs some fixes to tab
       completion).
+  * 'cadaver' - a realy nice
+      almost usable command line client, just needs some fixes to tab
+      completion.
   * 'fusedav' - last release 2006, not in gentoo repo.
   wdfs & fusedav use 'neon' to interface with the webdav protocol.
   I might be calling this up without cause, lacking new releases is not
   nesicarilly a sign of bad software. Some testing is in order.
+  --
   -- Fixed wdfs in my branch on github. It wasn't setting its useragent.
      and somehow that broke it, though it isn't clear why.
 
@@ -41,10 +47,8 @@
 	* defualts to binary storage, no 'show' command visible (can edit and
 	  save somewhere else
 
-* Git issues:
-	* `git log HEAD@{1}^..HEAD` and its equivalent 
-	  `git log ^HEAD@{1}^ HEAD` do not function as expected.
-	  The '^' on head does not move it back at all.
-	  the syntax appears to function correctly with `git show`.
-	-- seems this works in 1.7.1 (I think it was cygwin's current version
-	that I found non-working)
+* command line ADC client
+  protocol docs: http://adc.sourceforge.net/ADC.html
+  Could use the 'it's all files' style for the backend, one could write a
+  ncurses frontend if needed.
+  name: 'u[a]dcc' -- micro direct connect client
