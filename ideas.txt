@@ -1,3 +1,17 @@
+* command line ADC client
+  protocol docs: http://adc.sourceforge.net/ADC.html
+  Could use the 'it's all files' style for the backend, one could write a
+  ncurses frontend if needed.
+  name: 'u[a]dcc' -- micro direct connect client
+
+* icc profile loader that can use '{g,r,b}TRC' when lacking 'vcgt'
+  current icc profile loaders:
+   - dispwin (argyllcms): nice enough to show errors when it can't use the icc
+   - xcalib: never shows an error even when it fails horribly.
+  icc specs: http://www.color.org/icc_specs2.xalter
+  libs: 
+   - libicc (argyllcms)
+   - SampleICC (color.org), C++
 
 * command line driven torrent metadata editor.
   'torrentinfo' - command line metadata viewer in python.
@@ -16,18 +30,18 @@
 * webdav fuse fs without the need for root perms.
   i'm unsure the reason, but it appears that davfs2 has decided it would be
   jolly good idea to need root perms for mounting a network fs. with fuse.
-  Current webdav client projects:
-  * 'davfs2' - needs root perms, expects the use of mount.
-  * 'wdfs' - last release 2007
+  webdav client projects:
+   - 'davfs2' - needs root perms, expects the use of mount.
+   - 'wdfs' - last release 2007
       fails to mount rutgers sakai "reasources" webdav. Complains that it
       could not be mounted due to internal server error (500). Possibly an
       issue with neon. Compare it's use of neon with cadaver.(a realy nice
       almost usable command line client, just needs some fixes to tab
       completion).
-  * 'cadaver' - a realy nice
+   - 'cadaver' - a realy nice
       almost usable command line client, just needs some fixes to tab
       completion.
-  * 'fusedav' - last release 2006, not in gentoo repo.
+   - 'fusedav' - last release 2006, not in gentoo repo.
   wdfs & fusedav use 'neon' to interface with the webdav protocol.
   I might be calling this up without cause, lacking new releases is not
   nesicarilly a sign of bad software. Some testing is in order.
@@ -47,8 +61,4 @@
 	* defualts to binary storage, no 'show' command visible (can edit and
 	  save somewhere else
 
-* command line ADC client
-  protocol docs: http://adc.sourceforge.net/ADC.html
-  Could use the 'it's all files' style for the backend, one could write a
-  ncurses frontend if needed.
-  name: 'u[a]dcc' -- micro direct connect client
+
