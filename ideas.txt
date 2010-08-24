@@ -1,8 +1,4 @@
-* command line ADC client
-  protocol docs: http://adc.sourceforge.net/ADC.html
-  Could use the 'it's all files' style for the backend, one could write a
-  ncurses frontend if needed.
-  name: 'u[a]dcc' -- micro direct connect client
+* python 2.6 deompiler
 
 * icc profile loader that can use '{g,r,b}TRC' when lacking 'vcgt'
   current icc profile loaders:
@@ -12,6 +8,26 @@
   libs: 
    - libicc (argyllcms)
    - SampleICC (color.org), C++
+
+* command line ADC client
+  protocol docs: http://adc.sourceforge.net/ADC.html
+  Could use the 'it's all files' style for the backend, one could write a
+  ncurses frontend if needed.
+  name: 'u[a]dcc' -- micro direct connect client
+
+* Decent note taking.
+	* gpg encryption
+	* all stored as plain text (or retrevable as such)
+	* versioning (now it seems like I should write a front end on git to
+	  impliment this
+  'note' writen in perl, supports encryption.
+  	* cmdline options not documented (as far as I could see)
+	* interactive thing not too fun (i'd prefer `note add [note name]` or
+	  some such
+	* defualts to binary storage, no 'show' command visible (can edit and
+	  save somewhere else
+
+===============================================================================
 
 * command line driven torrent metadata editor.
   'torrentinfo' - command line metadata viewer in python.
@@ -48,17 +64,4 @@
   --
   -- Fixed wdfs in my branch on github. It wasn't setting its useragent.
      and somehow that broke it, though it isn't clear why.
-
-* Decent note taking.
-	* gpg encryption
-	* all stored as plain text (or retrevable as such)
-	* versioning (now it seems like I should write a front end on git to
-	  impliment this
-  'note' writen in perl, supports encryption.
-  	* cmdline options not documented (as far as I could see)
-	* interactive thing not too fun (i'd prefer `note add [note name]` or
-	  some such
-	* defualts to binary storage, no 'show' command visible (can edit and
-	  save somewhere else
-
 
