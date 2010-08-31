@@ -8,13 +8,15 @@ OBJ    = $(SRC:=.o)
 
 all: build
 
+rebuild : | clean build
+
 build: $(TARGET)
 
 %.c.o : %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(TARGET): $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $<
+	$(CC) $(CFLAGS) -o $@ $^
 
 
 clean:
@@ -24,10 +26,10 @@ test: junk.png
 	gpicview $<
 
 %.dot: $(TARGET)
-	./$(TARGET) 2> $@
+	./$(TARGET) > $@
 
 %.png : %.dot
 	dot -Tpng -o $@ $<
 
 
-.PHONY: all build clean test
+.PHONY: all build clean test rebuild

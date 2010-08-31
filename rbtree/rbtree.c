@@ -2,16 +2,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-typedef struct rb_node rbnode_t;
-struct rb_node {
-	int data;
-	bool red;
-	struct rb_node *leaf[2];
-};
-
-struct rb_tree {
-	struct rb_node *root;
-};
+#include "rbtree.h"
 
 #define lt 0
 #define rt 1
@@ -55,6 +46,10 @@ static void flip_color(struct rb_node *n)
 	n->leaf[1]->red = !n->leaf[1]->red;
 }
 
+static bool is_red(struct rb_node *n) {
+	return n && n->red;
+}
+
 struct rb_node *rb_mknode(int data)
 {
 	struct rb_node *n = malloc(sizeof(*n));
@@ -81,11 +76,7 @@ struct rb_node *rb_search(struct rb_node *root, int sdata)
 	}
 }
 
-static bool is_red(struct rb_node *n) {
-	return n && n->red;
-}
-
-struct rb_node *rb_insert_r(struct rb_node *root, int data)
+static struct rb_node *rb_insert_r(struct rb_node *root, int data)
 {
 	if (root == 0)
 		return rb_mknode(data);
@@ -114,13 +105,13 @@ void rb_insert(struct rb_tree *tree, int data)
 	tree->root->red = false;
 }
 
-void dot_print_edge(struct rb_node *parent, struct rb_node *child, FILE *out)
+static void dot_print_edge(struct rb_node *parent, struct rb_node *child, FILE *out)
 {
 	if (child)
 		fprintf(out, "\tP_%d -> P_%d;\n", parent->data, child->data);
 }
 
-void rb_print_r(struct rb_node *n, FILE *out)
+static void rb_print_r(struct rb_node *n, FILE *out)
 {
 	if (!n)
 		return;
@@ -152,6 +143,49 @@ void rb_print(struct rb_tree *tree, FILE *out)
 	fprintf(out, "}\n");
 }
 
+static size_t rb_assert_r(struct rb_node *root)
+{
+	if (!root) {
+		return 1;
+	}
+
+	struct rb_node *ln = root->leaf[0];
+	struct rb_node *rn = root->leaf[1];
+
+	/* consecutive red links */
+	if (is_red(root) &&
+	    (is_red(ln) || is_red(rn))) {
+		fprintf(stderr, "red violation\n");
+		return 0;
+	}
+
+	size_t lh = rb_assert_r(ln);
+	size_t rh = rb_assert_r(rn);
+
+	/* invalid binary search tree */
+	if ((ln && ln->data >= root->data)
+	    || (rn && rn->data <= root->data)) {
+		fprintf(stderr, "binary tree violation\n");
+		return 0;
+	}
+
+	/* black height messup */
+	if (lh && rh && lh != rh) {
+		fprintf(stderr, "black violation: %zu != %zu\n", lh, rh);
+		return 0;
+	}
+
+	/* count blacks */
+	if (lh && rh)
+		return is_red(root) ? lh : (lh + 1);
+	else
+		return 0;
+}
+
+bool rb_assert(struct rb_tree *t)
+{
+	return rb_assert_r(t->root);
+}
 
 struct rb_tree *rb_mktree(void)
 {
@@ -162,42 +196,3 @@ struct rb_tree *rb_mktree(void)
 	return t;
 }
 
-struct rb_tree *rb_gentree(size_t len, int *datas)
-{
-	struct rb_tree *t = rb_mktree();
-	while(++datas, --len) {
-		rb_print(t, stderr);
-		rb_insert(t, *datas);
-	}
-	return t;
-}
-
-struct rb_tree *rand_tree(int ct)
-{
-	int i;
-	struct rb_tree *t = rb_mktree();
-	for(i = 0; i < ct; i++) {
-		rb_insert(t, rand());
-	}
-	return t;
-}
-
-struct rb_tree *inc_tree(int max)
-{
-	int i;
-	struct rb_tree *t = rb_mktree();
-	for(i = 0; i < max; i++) {
-		rb_insert(t, i);
-	}
-	return t;
-}
-
-#define ALEN(A) (sizeof(A)/sizeof(*A))
-int d [] = { 10, 12, 13, 14, 15, 16, 17, 18, 19 }; 
-
-int main(int argc, char **argv)
-{	
-	struct rb_tree *t = rand_tree(100);
-	rb_print(t, stderr);
-	return 0;
-}
