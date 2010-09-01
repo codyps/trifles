@@ -1,3 +1,4 @@
+
 * python 2.6 deompiler
 
 * icc profile loader that can use '{g,r,b}TRC' when lacking 'vcgt'
@@ -14,6 +15,12 @@
   Could use the 'it's all files' style for the backend, one could write a
   ncurses frontend if needed.
   name: 'u[a]dcc' -- micro direct connect client
+  - dctc : exsisting text client for DC proto. (no ADC)
+  - microdc
+  - microdc2
+  - cccp
+  - valknut
+  - dc++
 
 * Decent note taking.
 	* gpg encryption
