@@ -19,6 +19,7 @@ struct peer_data {
 
 int main(int argc, char **argv)
 {
+	char *listen_port;
 	struct peer_data *peers = 0;
 	size_t peer_ct = 0;
 	int opt;
@@ -40,6 +41,8 @@ int main(int argc, char **argv)
 			break;
 
 		case 'l':
+			listen_port = optarg;
+			break;
 
 		default: /* '?' */
 			fprintf(stderr, "usage: %s [-l listen_port]"
@@ -54,6 +57,8 @@ int main(int argc, char **argv)
 	for (i = 0; i < peer_ct; i++) {
 		fprintf(stderr, " name: %s:%s\n", peers[i].name, peers[i].port);
 	}
+
+	/* TODO: bind */
 
 	/* seed-peer data population */
 	struct addrinfo hints;
@@ -71,6 +76,18 @@ int main(int argc, char **argv)
 					r, gai_strerror(r));
 		}
 	}
+
+	/* TODO: connect to peers */
+
+	/* TODO: main loop { */
+
+	/* TODO: deal with new incomming conections */
+	/* TODO: form outgoing connections */
+	/* TODO: deal with data from connected peers */
+	/* TODO: request data from connected peers */
+	/* TODO: send data to peers */
+
+	/* } */
 
 	return 0;
 }
