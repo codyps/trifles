@@ -1,3 +1,4 @@
+/* HW2, P1 */
 
 module Combo_str(output Y, input A, B, C, D);
 	wire n, m, p, q;
