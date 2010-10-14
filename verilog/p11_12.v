@@ -28,7 +28,7 @@ module full_adder(output S, Cout, input A,B,Cin);
 	or carry(Cout, c1,c2);
 endmodule
 
-module r4_adder(output [3:0]S, Cout, input [3:0]A, [3:0]B, Cin);
+module r4_adder(output [3:0]S, output Cout, input [3:0]A, B, input Cin);
 	wire c1, c2, c3;
 
 	full_adder fa1(S[0], c1,   A[0], B[0], Cin),
@@ -37,7 +37,7 @@ module r4_adder(output [3:0]S, Cout, input [3:0]A, [3:0]B, Cin);
 		fa4(S[3], Cout, A[3], B[3], c3);
 endmodule
 
-module r16_adder(output S[15:0], Cout, input A[15:0], B[15:0], Cin);
+module r16_adder(output [15:0]S, output Cout, input [15:0] A, B, input Cin);
 	wire c1, c2, c3;
 	r4_adder a1(S[ 3: 0], c1,   A[ 3: 0], B[ 3: 0], Cin),
 	         a2(S[ 7: 4], c2,   A[ 7: 4], B[ 7: 4], c1),
@@ -86,7 +86,7 @@ module fa_test();
 
 		$dumpfile("full_adder.vcd");
 		$dumpvars(1,fa);
-		$monitor("A=%b B=%b Cin=%b A+B+Cin=S=%b C=%b", A,B,Cin,S,C);
+		$monitor("A=%b B=%b Cin=%b A+B+Cin=S=%b Cout=%b", A,B,Cin,S,Cout);
 		for(ct = 0; ct <= 'b111; ct = ct + 1) begin
 			#10 { A, B, Cin } = ct[2:0];
 		end
@@ -100,8 +100,10 @@ module r4a_test();
 	 * the circuit (a higher level connecting to a lower level) that would
 	 * make them necissary. */
 
-	reg A[3:0], B[3:0], Cin;
-	wire S[3:0], Cout;
+	reg [3:0] A, B;
+	reg Cin;
+	wire [3:0] S;
+	wire Cout;
 	integer ct_a, ct_b;
 	r4_adder r4a(S,Cout, A,B,Cin);
 

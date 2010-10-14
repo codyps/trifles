@@ -14,7 +14,7 @@ build: $(OBJ)
 rebuild: | clean build
 
 clean:
-	$(RM) $(TARGET)
+	$(RM) $(OBJ)
 
 %.v.out : %.v
 	$(VERILOG) -o $@ $<

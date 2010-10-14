@@ -1,4 +1,4 @@
-module mux(output Y, input sel, A, B);
+module mux(output reg Y, input sel, A, B);
 	always@(sel or A or B)
 		case(sel)
 			0: Y <= A;
@@ -25,7 +25,7 @@ module tb();
 	p4_15 device(Y, Sel, A,B,C,D);
 
 	initial begin
-		A = B = C = D = Sel = 0;
+		{A, B, C, D, Sel} = 0;
 
 		$monitor("Sel=%b A(%b)&B(%b)=%b C(%b)&D(%b)=%b Y=%b",
 			Sel, A, B, A&B, C, D, C&D, Y);
