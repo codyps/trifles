@@ -24,5 +24,11 @@ clean:
 %.v.out : %.v
 	$(VERILOG) -o $@ $<
 
+.PHONY: test
+test: $(SRC:=.test)
+
+.PHONY: %.v.test
+%.v.test : %.v.out
+	./$<
 
 
