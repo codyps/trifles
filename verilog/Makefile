@@ -1,4 +1,9 @@
-SRC = p1.v p7.v p7b.v p11_12.v p15.v
+SRC = p1.v p7.v p7b.v p15.v \
+      p11_12_test_half_adder.v \
+      p11_12_test_full_adder.v \
+      p11_12_test_4bit_adder.v \
+      p11_12_test_16bit_adder.v
+
 OBJ = $(SRC:=.out)
 
 VERILOG = iverilog
