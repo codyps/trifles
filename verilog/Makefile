@@ -1,4 +1,4 @@
-SRC = p1.v
+SRC = p1.v p7.v p7b.v p11_12.v p15.v
 OBJ = $(SRC:=.out)
 
 VERILOG = iverilog

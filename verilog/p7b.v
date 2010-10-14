@@ -23,8 +23,12 @@ module t_Y();
 	reg A,B,C,D;
 	wire Y;
 	integer inp;
+	
+	Y2 device(Y,A,B,C,D);
 
 	initial begin
+		$dumpfile("p7b.vcd");
+		$dumpvars(1,device);
 		$monitor("A=%b B=%b, C=%b, D=%b, Y=%b",A,B,C,D,Y);
 		for(inp = 0; inp <= 'b1111; inp = inp + 1) begin
 			#10 {A,B,C,D} = inp[3:0];
@@ -32,7 +36,6 @@ module t_Y();
 		$finish();
 	end
 
-	Y2(Y,A,B,C,D);
 
 endmodule
 
