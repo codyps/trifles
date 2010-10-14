@@ -19,10 +19,10 @@ build: $(OBJ)
 rebuild: | clean build
 
 clean:
-	$(RM) $(OBJ)
+	$(RM) $(OBJ) *.vcd
 
 %.v.out : %.v
-	$(VERILOG) -o $@ $<
+	$(VERILOG) -D__FILE__=$^ -o $@ $<
 
 .PHONY: test
 test: $(SRC:=.test)

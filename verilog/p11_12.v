@@ -1,3 +1,4 @@
+/* == HW1 P11 & P12 == */
 
 /* 11: Develope a small set of test patterns that will (1) test a half-adder
  * circuit, (2) test a full-adder circuit, (3) exahausively test a 4-bit ripple

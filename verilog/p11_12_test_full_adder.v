@@ -1,3 +1,5 @@
+/* HW1 P11 & P12 */
+
 `include "p11_12.v"
 
 module fa_test();

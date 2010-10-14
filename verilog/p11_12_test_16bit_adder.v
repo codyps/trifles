@@ -1,3 +1,5 @@
+/* HW1 P11 & P12 */
+
 `include "p11_12.v"
 
 module a16_test();
@@ -6,12 +8,24 @@ module a16_test();
 	 * are 4) to triger in all possible arrangments (16)
 	 */
 
-	reg ra1[3:0], ra2[3:0], ra3[3:0], ra4[3:0];
-	reg rb1[3:0], rb2[3:0], rb3[3:0], rb4[3:0];
+	wire [15:0] Y;
+	wire Cout;
+	reg [3:0] ra3, ra2, ra1, ra0;
+	reg [3:0] rb3, rb2, rb1, rb0;
+	reg Cin;
 
+	r16_adder device(Y, Cout, {ra3, ra2, ra1, ra0}, {rb3, rb2, rb1, rb0}, Cin);
+
+	integer ct;
 
 	initial begin
+		{ ra3, ra2, ra1, ra0 } = 'heeee;
+		{ rb3, rb2, rb1, rb0 } = 'h0000;
 
-
+		$dumpfile("test_16.vcd");
+		$dumpvars(1, device);
+		for (ct = 0; ct <= 'b11111; ct = ct + 1) begin
+			#10 { Cin, ra3[0], ra2[0], ra1[0], ra0[0] } = ct;
+		end
 	end
 endmodule
