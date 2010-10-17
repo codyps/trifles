@@ -27,29 +27,67 @@ read_pass () {
 	return 0
 }
 
+warn () {
+	printf "%s\n" "$1" >> /dev/stderr
+}
+
+contains () {
+	echo "$1" | grep -q "$2"
+}
+
+
+check_status2 () {
+	error=`echo "$1" | grep "\"error\"" \
+		| cut -d'=' -f 4 | sed 's. />..' \
+		| tr -d '\n'`
+
+	case "$error" in
+	"*You are already logged in*")
+		warn "logged in already"
+		return 1
+		;;
+	"*This link is not valid*")
+		warn "invalid logout link"
+		return 1
+		;;
+	"Thank you for signing in.")
+		warn "successfully logged in"
+		return 0
+		;;
+	"A valid IP address could not be determined.  Please seek help from your Systems Administrator.")
+		warn "probably not on RUWireless (no valid ip)"
+		return 1
+		;;
+	*)	
+		printf "RUWireless says: "
+		echo "$error"
+		return 2
+		;;
+	esac
+}
+
 # takes 1 param: the ruwireless page.
 check_status () {
-	if echo "$1" \
-		| grep "You are already logged in" \
-		> /dev/null ; then
-		echo "logged in already"
+	if contains "$1" "You are already logged in"; then
+		warn "logged in already"
+		return 1
+	elif contains "$1" "This link is not valid"; then
+		warn "invalid logout link"
+		return 1
+	elif contains "$1" "Thank you for signing in."; then
+		warn "successfully logged in"
+		return 0
+	elif contains "$1" "A valid IP address could not be determined.  Please seek help from your Systems Administrator."; then
+		warn "probably not on RUWireless (no valid ip)"
+		return 1
+	else	
+		printf "RUWireless says: "
+		echo "$1" | grep "\"error\"" \
+			| cut -d'=' -f 4 | sed 's. />..' \
+			| tr -d '\n'
+
+		return 2
 	fi
-	
-	if echo "$1" \
-		| grep "This link is not valid" \
-		> /dev/null; then
-		echo "invalid logout link"
-	fi
-	
-	if echo "$1" \
-		| grep "Thank you for signing in." \
-		> /dev/null; then
-		echo "successfully logged in"
-	fi
-	
-	echo "$1" | grep "\"error\"" \
-		| cut -d'=' -f 4 | sed 's. />..' \
-		| tr -d '\n'
 }
 
 ruw_login () {
@@ -70,12 +108,12 @@ ruw_login () {
 		usage
 	fi
 
-	login_page=$(wget -q \
-		--postdata="bs_name=$ru_user&bs_password=$ru_pass"
-		${LOGIN_URL}'?which_form="reg";_FORM_SUBMIT="1"'
-		)
+	#login_page=$(wget -q \
+	#	--postdata="bs_name=$ru_user&bs_password=$ru_pass"
+	#	${LOGIN_URL}'?which_form="reg";_FORM_SUBMIT="1"'
+	#	)
 		
-	#login_page=$(curl -k -s                 \
+	login_page=$(curl -k -s                 \
 		--form-string bs_name="$ru_user"	\
 		--form-string bs_password="$ru_pass"\
 		-F which_form="reg"	                \
@@ -87,7 +125,7 @@ ruw_login () {
 		)
 	
 	echo -n "your ip is : "
-    echo "$login_page" \
+	echo "$login_page" \
 		| grep -E -o \
 			'([0-9]{1,3}\.){3}[0-9]{1,3}' \
 	    | tr '\n' '\t' | cut -f 1
@@ -150,13 +188,7 @@ ruw_logout () {
 }
 
 get_page () {
-	if [ $http_prog = "curl" ]; then
-		curl -k -m 1 -s $1
-	elif [ $http_prog = "wget"]; then
-		wget -T 1 -q -O - $1
-	else
-		echo "wat"
-	fi		
+	curl $*
 }
 
 get_ip_and_uid () {
@@ -186,18 +218,22 @@ ruw_status () {
 	source_ip=$(echo "\'$first_page\'" \
 		| grep -E -o \
 			'([0-9]{1,3}\.){3}[0-9]{1,3}')
+
+	printf "%s\n" "$first_page"
 	echo -n "Source IP : "
 	echo $source_ip
+
 }
 
 find_reqs () {
 	if [[ $(which "curl") ]]; then
 		http_prog="curl"
-		return 1
-	elif [[ $(which "wget") ]]; then
-		return 1
-	else
 		return 0
+	elif [[ $(which "wget") ]]; then
+		return 0
+	else
+		echo blah
+		return 1
 	fi		
 }
 
@@ -218,7 +254,7 @@ case $1 in
 "login")  ruw_login $@;;
 
 "status") ruw_status;;
-*)echo "error: unrecognized action"
+*)	echo "error: unrecognized action"
 	usage;;
 esac
 
