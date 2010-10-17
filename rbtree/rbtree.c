@@ -34,8 +34,8 @@ static struct rb_node *rot_dir(struct rb_node *root, bool dir)
 	struct rb_node *save = root->leaf[!dir];
 	root->leaf[!dir] = save->leaf[dir];
 	save->leaf[dir] = root;
+	save->red = root->red;
 	root->red = true;
-	save->red = false;
 	return save;
 }
 
