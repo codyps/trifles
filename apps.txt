@@ -27,6 +27,10 @@ fuzzing:
  - buffy : instruments programs to explore all code paths.
  - zzuf
 
+static web generator:
+ - HAKYLL
+ - 
+
 ::
 terminator: a gnome terminal tiler?
 
