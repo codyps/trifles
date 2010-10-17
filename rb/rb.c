@@ -52,7 +52,7 @@ size_t assert_h(rb_node *nd) {
 
 	if ( lbh && rbh && lbh != rbh ) {
 		LOG("black violation. (data = %d, lbh = %d, rbh = %d)\n"
-			,nd->data,lbh,rbh);
+			,(int)nd->data,(int)lbh,(int)rbh);
 		return 0;
 	}
 
@@ -151,14 +151,13 @@ static rb_node *fix_up(rb_node *n)
 
 static rb_node *delete_min_h(rb_node *n)
 {
-	rb_node *h;
 	if (n->leaf[0] == 0) return 0;
 	if (!is_red(n->leaf[0]) && !is_red(n->leaf[0]->leaf[0]))
-		h = move_red(h,0);
+		n = move_red(n,0);
 
-	h->leaf[0] = delete_min_h(h->leaf[0]);
+	n->leaf[0] = delete_min_h(n->leaf[0]);
 
-	return fix_up(h);
+	return fix_up(n);
 }
 
 void rb_delete_min(rb_tree *t)
@@ -304,12 +303,12 @@ const int tests[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 void rand_test(void)
 {
 	rb_tree *test = mk_tree();
-	size_t i;
-	unsigned  i_max = rand() % UINT_MAX;
+	unsigned i;
+	unsigned i_max = rand() % UINT_MAX;
 	for( i = 0; i < i_max; i++ ) {
 		int r = rand() % 1000;
 		char *file;
-		asprintf(&file,"gr-rand-%03d",i);
+		asprintf(&file,"gr-rand-%03u",i);
 		FILE *fp = fopen(file,"w");
 		fprintf(stderr,"insert: %d",r);
 		fprintf(stderr,"  %i\n",rb_insert(test,r));
@@ -335,12 +334,12 @@ void rand_test(void)
 void iter_test(void)
 {
 	rb_tree *test = mk_tree();
-	size_t i;
+	unsigned i;
 	for( i = 0; i < 2000; i++ ) {
 		char *file;
-		asprintf(&file,"gr-iter-%03d",i);
+		asprintf(&file,"gr-iter-%03u",i);
 		FILE *fp = fopen(file,"w");
-		fprintf(stderr,"insert: %d\n",i);
+		fprintf(stderr,"insert: %u\n",i);
 		rb_insert(test,i);
 		gprint_tree(test,fp);
 		rb_assert(test);
@@ -352,8 +351,8 @@ void iter_test(void)
 int main(int argc, char **argv)
 {
 	LOG("start\n");
-	rand_test();
+	//rand_test();
 	iter_test();
-	
+
 	return 0;
 }
