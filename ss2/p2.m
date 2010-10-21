@@ -7,8 +7,8 @@ f = sin(3*t) .* rectpuls(t - 30/2,30) + ...
     sin(2*t) .* rectpuls(t-30 - 40/2,40) + ...
     sin(3*t) .* rectpuls(t-70 - 30 /2,30);
 wo = 2;
-%a = .1;
-a = .3;
+a = .1;
+%a = .3;
 wr = sqrt(wo.^2 - a.^2 / 4);
 
 g = a * exp(-a * t / 2) .* (cos(wr * t) - a/(2*wr) * sin(wr*t));
@@ -47,10 +47,10 @@ title('notch filter impulse response');
 xlabel('Time (seconds)');
 axis([0,100,-.4,.3]);
 
-paper_size = [3 3.5];
+paper_size = [5 6];
 set (gcf, "paperunits", "inches")
 set (gcf, "papertype", "<custom>")
 set (gcf, "papersize", paper_size)
 set (gcf, "paperposition", [0, 0, paper_size])
-print('-dpng', 'P2_A.png');
-%print('-dpng', 'P2_B.png');
+%print('-dpng', 'P2_A.png');
+print('-dpng', 'P2_B.png');
