@@ -2,11 +2,15 @@
 
 module ff_tb();
 	wire Q, Qn;
-	reg D, clk;
+	reg D, clk, clr, pr;
 
-	D_posedge device(Q, Qn, D, clk);
+	D_posedge2 device(Q, Qn, clr, pr, D, clk);
 
 	initial begin
+		clr = 0; pr = 1;
+		#10 clr = 1;
+		$dumpfile("ff_test.vcd");
+		$dumpvars(0, device);
 		$monitor("D:%b clk:%b Q:%b", D, clk, Q);
 		D = 0;
 		clk = 0;

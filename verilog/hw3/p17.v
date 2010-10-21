@@ -11,8 +11,9 @@ module p17_tb();
 		clk = 0;
 		dir = 0;
 
-		$monitor("Q = %b (%d) | dir %b | clk %b | rst %b", Q, Q,
-			dir, clk, device.rst);
+		$monitor("Q = %b (%d) | dir %b | clk %b | rst %b",
+			Q, Q, dir, clk,
+			device.rst );
 
 		for (i = 0; i < 10; i = i + 1) begin
 			#10
