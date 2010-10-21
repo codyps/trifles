@@ -8,11 +8,16 @@ module SR_ff(output Q, Qn, input S, R);
 	    n2(Qn, S, Q);
 endmodule
 
-module D_ff(output Q, Qn, input D, clk);
-	wire ns, nr;
+/* D, posedge triggered */
+module D_posedge(output Q, Qn, input D, clk);
+	wire Aqn, Bqn, Bq;
 
 	SRn_ff	srA(_, Aqn, Bqn, clk),
 		srB(Bq, Bqn, clk, D),
 		srC(Q, Qn, Aqn, Bq);
 endmodule
 
+/*
+module T_posedge(output Q, Qn, input clk);
+endmodule
+*/

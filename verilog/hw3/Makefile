@@ -1,8 +1,4 @@
-SRC = p1.v p7.v p7b.v p15.v \
-      p11_12_test_half_adder.v \
-      p11_12_test_full_adder.v \
-      p11_12_test_4bit_adder.v \
-      p11_12_test_16bit_adder.v
+SRC = p17.v ff_test.v
 
 OBJ = $(SRC:=.out)
 
