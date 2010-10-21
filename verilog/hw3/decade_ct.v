@@ -1,7 +1,7 @@
-`include "adder.v"
+`include "ff.v"
 
 module decade_ct(output [3:0]Q, Qn, input clk);
-	wire [3:0]d_ex,
+	wire [3:0]d_ex;
 	wire n_rst, rst, rst_or;
 	D_posedge
 		d0(Q[0], Qn[0], d_ex[0], clk),

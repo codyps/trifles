@@ -1,5 +1,11 @@
 `include "ring_ct.v"
 
+/* For some reason, dispite the circuit seeming completely correct, verilog
+ * never realizes that it will make it out of an undefined state (x), as it
+ * gets out of the undefined state at an undefined time. This was an issue
+ * on all of the problems in this HW3 (17,18,19)
+ */
+
 module p17_tb();
 	wire [3:0]Q, Qn;
 	reg  clk, dir;

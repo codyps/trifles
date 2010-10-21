@@ -33,7 +33,30 @@ module D_posedge_async(output Q, Qn, input clr_l, pre_l, D, clk);
 endmodule
 
 
+/* rst_l makes Q = 1 */
 module T_posedge(output Q, Qn, input rst_l, T, clk);
 	xor (D, T, Q);
-	D_posedge_async d(Q, Qn, rst_l, 1, D, clk);
+	D_posedge_async d(Q, Qn, 1, rst_l, D, clk);
 endmodule
+
+/*
+primitive D_udp (output reg Q, input clr_l, pre_l, D, clk);
+	initial Q = 1'b0;
+
+	table
+	//	clr_l pre_l D clk : Q : Q
+		0     0     ? ?   : ? : x;
+		1     0     ? ?   : ? : 1;
+		0     1     ? ?   : ? : 0;
+
+		1     1     1 (01): ? : 1;
+		1     1     0 (01): ? : 0;
+
+		1     1     1 (0?): 1 : 1;
+		1     1     0 (0?): 0 : 0;
+
+		1     1     ? (?0): ? : -;
+		1     1     ? (??): ? : -;
+	endtable
+endprimitive
+*/
