@@ -17,8 +17,6 @@ module divide_by_11(output clk_by_11, input rst_b, clk);
 	buf (rst, clk_by_11, Qn_f);
 endmodule
 
-
-
 module p19_tb();
 	wire out_clk;
 	reg rst_l, clk;

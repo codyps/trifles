@@ -1,4 +1,4 @@
-SRC = p15.v
+SRC = p15.v p16.v p24a.v p24b.v
 
 OBJ = $(SRC:=.out)
 
