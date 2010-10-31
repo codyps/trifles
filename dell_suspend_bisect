@@ -1,0 +1,33 @@
+git bisect start
+# good: [60b341b778cc2929df16c0a504c91621b3c6a4ad] Linux 2.6.33
+git bisect good 60b341b778cc2929df16c0a504c91621b3c6a4ad
+# bad: [9fe6206f400646a2322096b56c59891d530e8d51] Linux 2.6.35
+git bisect bad 9fe6206f400646a2322096b56c59891d530e8d51
+# bad: [ff65e8275f6c96a5eda57493bd84c4555decf7b3] bridge: Use hlist_for_each_entry_rcu() in br_multicast_add_router()
+git bisect bad ff65e8275f6c96a5eda57493bd84c4555decf7b3
+# bad: [35c2e967d067ff02dc944f2434f024419c2fe83a] Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/viro/vfs-2.6
+git bisect bad 35c2e967d067ff02dc944f2434f024419c2fe83a
+# bad: [79da01d79e0f2c8d2d6f1b823fce429877c423a7] USB: serial: option.c: Add chipset information for 4G W14
+git bisect bad 79da01d79e0f2c8d2d6f1b823fce429877c423a7
+# bad: [8d37a371b6869920e6c40c495c68eabba1ef3909] Merge git://git.kernel.org/pub/scm/linux/kernel/git/brodo/pcmcia-2.6
+git bisect bad 8d37a371b6869920e6c40c495c68eabba1ef3909
+# good: [654451748b779b28077d9058442d0f354251870d] Merge git://git.kernel.org/pub/scm/linux/kernel/git/jejb/scsi-misc-2.6
+git bisect good 654451748b779b28077d9058442d0f354251870d
+# good: [f6b22e5e8e93d03046d3878664a9ba375ccded96] V4L/DVB: gspca - sonixj: Add vertical flip control for sensor hv7131r
+git bisect good f6b22e5e8e93d03046d3878664a9ba375ccded96
+# bad: [06a79b82b2a3e4bebb9a20638ca208c780e9e507] Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/rafael/suspend-2.6
+git bisect bad 06a79b82b2a3e4bebb9a20638ca208c780e9e507
+# good: [41630959ed5ce694ec2e8c0f3c69743e011394c8] Merge branch 'ibft-fixes' of git://git.kernel.org/pub/scm/linux/kernel/git/konrad/ibft-2.6
+git bisect good 41630959ed5ce694ec2e8c0f3c69743e011394c8
+# good: [20026d92013d7bb3abb295337191def6758fc086] xfs: kill the unused XFS_QMOPT_* flush flags V2
+git bisect good 20026d92013d7bb3abb295337191def6758fc086
+# good: [98723153dc32106e5be701da15551853c9f785a9] Merge branch 'for_linus' of git://git.kernel.org/pub/scm/linux/kernel/git/mjg59/platform-drivers-x86
+git bisect good 98723153dc32106e5be701da15551853c9f785a9
+# good: [b694e52ebdd439e4591d4a6651658026196174f6] PM / Hibernate: Really deprecate deprecated user ioctls
+git bisect good b694e52ebdd439e4591d4a6651658026196174f6
+# bad: [4cb077d93a57fb8bb64c277ec4ce637823cd76f4] PM: Allow SCSI devices to suspend/resume asynchronously
+git bisect bad 4cb077d93a57fb8bb64c277ec4ce637823cd76f4
+# good: [a1e4d72cd3024999bfb6703092ea271438805c89] PM: Allow PCI devices to suspend/resume asynchronously
+git bisect good a1e4d72cd3024999bfb6703092ea271438805c89
+# good: [927bc9165d3cd01054b472f9b25d91a8707209c8] PM: Allow USB devices to suspend/resume asynchronously
+git bisect good 927bc9165d3cd01054b472f9b25d91a8707209c8
