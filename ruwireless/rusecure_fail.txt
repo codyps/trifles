@@ -1,0 +1,14 @@
+> <2>CTRL-EVENT-SCAN-RESULTS
+> <2>Trying to associate with 16:06:03:84:30:9c (SSID='RUWireless_Secure'
+> freq=2437 MHz)
+> <2>Associated with 16:06:03:84:30:9c
+> <2>CTRL-EVENT-EAP-STARTED EAP authentication started
+> <2>CTRL-EVENT-EAP-PROPOSED-METHOD vendor=0 method=21
+> <2>CTRL-EVENT-EAP-METHOD EAP vendor 0 method 21 (TTLS) selected
+> <2>CTRL-EVENT-EAP-TLS-CERT-ERROR reason=1 depth=0 subject='/C=US/ST=New
+> Jersey/L=New Brunswick/O=Rutgers The State University of New
+> Jersey/OU=OIT/CCF/CN=login.ruw.rutgers.edu' err='unable to get local issuer
+> certificate'
+> <2>CTRL-EVENT-EAP-FAILURE EAP authentication failed
+> <2>CTRL-EVENT-DISCONNECTED bssid=16:06:03:84:30:9c reason=0
+
