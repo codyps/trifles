@@ -1,7 +1,14 @@
 
-* python 2.6 deompiler
+* ssh -R & -L without GatewayPorts enabled. Can easily be run on the remote
+	host.
 
-* icc profile loader that can use '{g,r,b}TRC' when lacking 'vcgt'
+* CRC magic
+	* algebraic simplification.
+	* polynomial %error curve determination.
+
+* Python 2.6 deompiler
+
+* icc profile loader that can use `{g,r,b}TRC' when lacking `vcgt'
   current icc profile loaders:
    - dispwin (argyllcms): nice enough to show errors when it can't use the icc
    - xcalib: never shows an error even when it fails horribly.
@@ -12,12 +19,12 @@
 
 * command line ADC client
   protocol docs: http://adc.sourceforge.net/ADC.html
-  Could use the 'it's all files' style for the backend, one could write a
+  Could use the `it's all files' style for the backend, one could write a
   ncurses frontend if needed.
-  name: 'u[a]dcc' -- micro direct connect client
+  name: `u[a]dcc' -- micro direct connect client
   - dctc : exsisting text client for DC proto. (no ADC)
   - microdc
-  - microdc2
+  - microdc2 : built on top of dcpp libs
   - cccp
   - valknut
   - dc++
@@ -33,6 +40,8 @@
 	  some such
 	* defualts to binary storage, no 'show' command visible (can edit and
 	  save somewhere else
+  'devtodo': written towards todo list tracking, not general note taking.
+  	* nice interface
 
 ===============================================================================
 
