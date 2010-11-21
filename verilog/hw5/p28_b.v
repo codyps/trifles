@@ -48,7 +48,7 @@ module alu_reg #(parameter word_sz = 8, addr_sz = 5)
 		input [2:0] opcode,
 		input c_in, wr_enable, clk);
 
-	wire [word_sz-1:0]do_1, do_2;
+	wire [word_sz-1:0] do_1, do_2;
 
 	reg_file #(word_sz, addr_sz) rfile(do_1, do_2, di, raddr_1, raddr_2,
 		waddr, wr_enable, clk);
@@ -68,17 +68,17 @@ module tb_reg_alu();
 		waddr, opcode, c_in, wr_en, clk);
 
 	initial begin
+		#500 $finish();
+	end
+
+	initial begin
 		clk = 0;
 		forever clk = ~clk;
 	end
 
-	initial begin
-		#500 $finish();
-	end
-
 	integer i;
 	initial begin
-		opcode = dev.alu.OP_ADD;
+		opcode = 0;
 		di = 1;
 		c_in = 0;
 		wr_en = 1;
@@ -89,15 +89,15 @@ module tb_reg_alu();
 		$dumpfile("p28_b.vcd");
 		$dumpvars(0, tb_reg_alu);
 
-		for( i = 0; i < word_sz; i = i + 1) begin
-			@(negedge clk)
-			waddr <= waddr + 1;
-			raddr_1 <= raddr_1 + 1;
-			raddr_2 <= raddr_2 + 1;
+		for( i = 0; i < addr_sz; i = i + 1) begin
+			@(negedge clk) begin
+				waddr <= waddr + 1;
+				raddr_1 <= raddr_1 + 1;
+				raddr_2 <= raddr_2 + 1;
+			end
 		end
 
 		$finish();
 	end
-
 endmodule
 
