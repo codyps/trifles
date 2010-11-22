@@ -15,10 +15,17 @@ build: $(OBJ)
 rebuild: | clean build
 
 clean:
-	$(RM) $(OBJ) *.vcd
+	$(RM) $(OBJ)
+
+
+proper: |clean
+	$(RM) *.vcd
+
+#mrproper: |proper
+#	$(RM) *.png
 
 %.v.out : %.v
-	$(VERILOG) -D__FILE__=$^ -o $@ $<
+	$(VERILOG) -D__FILE__=$^ -Wall -o $@ $<
 
 .PHONY: test
 test: $(SRC:=.test)
