@@ -10,11 +10,11 @@ int main(int argc, char **argv)
 	keypad(stdscr, TRUE);
 
 	int ct;
-	int x, y;
-	getmaxyx(w, y, x);
+	int mx, my;
+	getmaxyx(w, my, mx);
 	for(ct = 0;;) {
-		move(y-1,ct);
-		refresh();
+		wmove(w, my-1,ct);
+		wrefresh(w);
 		int c = 'a'; //wgetch(w);
 		if (c < 0)
 			continue;

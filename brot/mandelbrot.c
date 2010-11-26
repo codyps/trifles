@@ -3,45 +3,37 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
-#define		X_RESN	800	/* x resolution */
-#define		Y_RESN	800	/* y resolution */
+#define		X_RESN	400	/* x resolution */
+#define		Y_RESN	400	/* y resolution */
 
 typedef struct complextype {
 	float real, imag;
 } Compl;
 
-int main()
+
+void draw_pixels(size_t sz_x, size_t sz_y, int *data)
 {
-	Window win;		/* initialization for a window */
-	unsigned
-	int width, height,	/* window size */
+	unsigned int width, height,	/* window size */
 	 x, y,			/* window position */
 	 border_width,		/*border width in pixels */
 	 display_width, display_height,	/* size of screen */
 	 screen;		/* which screen */
-
-	char *window_name = "Mandelbrot Set", *display_name = NULL;
+	Window win;		/* initialization for a window */
 	GC gc;
-	unsigned
-	long valuemask = 0;
 	XGCValues values;
 	Display *display;
 	XSizeHints size_hints;
-	Pixmap bitmap;
-	XPoint points[800];
-	FILE *fp, *fopen();
-	char str[100];
-
+	//Pixmap bitmap;
+	//XPoint points[800];
 	XSetWindowAttributes attr[1];
+	unsigned long valuemask = 0;
 
-	/* Mandlebrot variables */
-	int i, j, k;
-	Compl z, c;
-	float lengthsq, temp;
+	char *window_name = "Mandelbrot Set", *display_name = NULL;
 
 	/* connect to Xserver */
 
@@ -59,8 +51,8 @@ int main()
 
 	/* set window size */
 
-	width = X_RESN;
-	height = Y_RESN;
+	width = sz_x;
+	height = sz_y;
 
 	/* set window position */
 
@@ -105,19 +97,43 @@ int main()
 	XMapWindow(display, win);
 	XSync(display, 0);
 
-	/* Calculate and draw points */
+	sleep(1);
+	int i, j;
+	for (i = 0; i < sz_x; i++)
+		for (j = 0; j < sz_y; j++)
+			if (data[i + j * sz_x] == 1) {
+				XDrawPoint(display, win, gc, j, i);
+			}
 
-	for (i = 0; i < X_RESN; i++)
+	XFlush(display);
+	sleep(30);
+}
+
+int main(int argc, char **argv)
+{
+	/* Mandlebrot variables */
+	unsigned i, j, k;
+	Compl z, c;
+	float lengthsq, temp;
+
+	/* Calculate and draw points */
+	int *srn_data = malloc(sizeof(*srn_data) * X_RESN * Y_RESN);
+	if (!srn_data) {
+		fprintf(stderr,"malloc error.\n");
+		exit(1);
+	}
+
+	for (i = 0; i < X_RESN; i++) {
+		c.imag = ((float)i - (float)X_RESN/2) / ((float)X_RESN)/4;
 		for (j = 0; j < Y_RESN; j++) {
 
 			z.real = z.imag = 0.0;
 			/* scale factors for 800 x 800 window */
-			c.real = ((float)j - 400.0) / 200.0;
-			c.imag = ((float)i - 400.0) / 200.0;
+			c.real = ((float)j - (float)Y_RESN/2) / (float)Y_RESN/4;
 			k = 0;
 
-			do {	/* iterate for pixel color */
-
+			/* noted as "iterate for pixel color" */
+			do {
 				temp =
 				    z.real * z.real - z.imag * z.imag + c.real;
 				z.imag = 2.0 * z.real * z.imag + c.imag;
@@ -127,14 +143,16 @@ int main()
 
 			} while (lengthsq < 4.0 && k < 100);
 
-			if (k == 100)
-				XDrawPoint(display, win, gc, j, i);
-
+			if (k == 100) {
+				srn_data[i + j * X_RESN] = 1;
+			} else {
+				srn_data[i + j * X_RESN] = 0;
+			}
 		}
+	}
 
-	XFlush(display);
-	sleep(30);
+	/* Drawing */
+	draw_pixels(X_RESN, Y_RESN, srn_data);
 
-	/* Program Finished */
-
+	return 0;
 }
