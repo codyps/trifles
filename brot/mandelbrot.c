@@ -19,25 +19,18 @@ typedef struct complextype {
 int timespec_subtract (result, x, y)
 	struct timespec *result, *x, *y;
 {
-	/* Perform the carry for the later subtraction by updating y. */
-	if (x->tv_nsec < y->tv_nsec) {
-		long nsec = (y->tv_nsec - x->tv_nsec) + 1;
-		y->tv_nsec -= nsec;
-		y->tv_sec += nsec;
-	}
-	if (x->tv_nsec - y->tv_nsec > 1000000000) {
-		long nsec = (x->tv_nsec - y->tv_nsec);
-		y->tv_nsec += nsec;
-		y->tv_sec -= nsec;
+	if (y->tv_nsec < x->tv_nsec) {
+		result->tv_sec = y->tv_sec - x->tv_sec - 1;
+		result->tv_nsec = 1000000000 + y->tv_nsec - x->tv_nsec;
+	} else {
+		result->tv_nsec = y->tv_nsec - x->tv_nsec;
+		result->tv_sec = y->tv_sec - x->tv_sec;
 	}
 
-	/* Compute the time remaining to wait.
-	   tv_usec is certainly positive. */
-	result->tv_sec = x->tv_sec - y->tv_sec;
-	result->tv_nsec = x->tv_nsec - y->tv_nsec;
-
-	/* Return 1 if result is negative. */
-	return x->tv_sec < y->tv_sec;
+	if (y->tv_sec > x->tv_sec)
+		return 1;
+	else
+		return 0;
 }
 
 void draw_pixels(size_t sz_x, size_t sz_y, int *data)
