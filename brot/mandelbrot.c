@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 
 #define		X_RESN	400	/* x resolution */
 #define		Y_RESN	400	/* y resolution */
@@ -15,6 +16,29 @@ typedef struct complextype {
 	float real, imag;
 } Compl;
 
+int timespec_subtract (result, x, y)
+	struct timespec *result, *x, *y;
+{
+	/* Perform the carry for the later subtraction by updating y. */
+	if (x->tv_nsec < y->tv_nsec) {
+		long nsec = (y->tv_nsec - x->tv_nsec) + 1;
+		y->tv_nsec -= nsec;
+		y->tv_sec += nsec;
+	}
+	if (x->tv_nsec - y->tv_nsec > 1000000000) {
+		long nsec = (x->tv_nsec - y->tv_nsec);
+		y->tv_nsec += nsec;
+		y->tv_sec -= nsec;
+	}
+
+	/* Compute the time remaining to wait.
+	   tv_usec is certainly positive. */
+	result->tv_sec = x->tv_sec - y->tv_sec;
+	result->tv_nsec = x->tv_nsec - y->tv_nsec;
+
+	/* Return 1 if result is negative. */
+	return x->tv_sec < y->tv_sec;
+}
 
 void draw_pixels(size_t sz_x, size_t sz_y, int *data)
 {
@@ -102,14 +126,21 @@ void draw_pixels(size_t sz_x, size_t sz_y, int *data)
 	for (i = 0; i < sz_x; i++)
 		for (j = 0; j < sz_y; j++)
 			if (data[i + j * sz_x] == 1) {
-				fprintf(stderr, "write -> ");
+				struct timespec ts1, ts2, tsr;
+				clock_gettime(CLOCK_MONOTONIC, &ts1);
 				XDrawPoint(display, win, gc, j, i);
-				fprintf(stderr, "done\n");
+				clock_gettime(CLOCK_MONOTONIC, &ts2);
+				timespec_subtract(&tsr, &ts1, &ts2);
+				fprintf(stderr, "t: %lu %lu\n", 
+					(unsigned long)tsr.tv_sec,
+					tsr.tv_nsec);
 			}
 
 	XFlush(display);
 	sleep(30);
 }
+
+
 
 int main(int argc, char **argv)
 {

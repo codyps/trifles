@@ -4,7 +4,7 @@ CC=gcc
 RM=rm -f
 
 CFLAGS = -ggdb
-CFLAGS+= -Wall -pipe -openmp -lX11
+CFLAGS+= -Wall -pipe -openmp -lX11 -lrt
 
 BIN = brot
 
