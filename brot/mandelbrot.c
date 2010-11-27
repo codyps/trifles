@@ -116,24 +116,28 @@ void draw_pixels(size_t sz_x, size_t sz_y, int *data)
 
 	sleep(1);
 	int i, j;
+	fprintf(stderr,"start -> ");
 	for (i = 0; i < sz_x; i++)
 		for (j = 0; j < sz_y; j++)
 			if (data[i + j * sz_x] == 1) {
+				/*
 				struct timespec ts1, ts2, tsr;
-				clock_gettime(CLOCK_MONOTONIC, &ts1);
+				clock_gettime(CLOCK_REALTIME, &ts1);
+				*/
 				XDrawPoint(display, win, gc, j, i);
-				clock_gettime(CLOCK_MONOTONIC, &ts2);
+				/*
+				clock_gettime(CLOCK_REALTIME, &ts2);
 				timespec_subtract(&tsr, &ts1, &ts2);
 				fprintf(stderr, "t: %lu %lu\n", 
 					(unsigned long)tsr.tv_sec,
 					tsr.tv_nsec);
+				*/
 			}
+	fprintf(stderr,"done\n");
 
 	XFlush(display);
 	sleep(30);
 }
-
-
 
 int main(int argc, char **argv)
 {
