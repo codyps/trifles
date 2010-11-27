@@ -33,110 +33,142 @@ int timespec_subtract (result, x, y)
 		return 0;
 }
 
-void draw_pixels(size_t sz_x, size_t sz_y, int *data)
-{
-	unsigned int width, height,	/* window size */
-	 x, y,			/* window position */
-	 border_width,		/*border width in pixels */
-	 display_width, display_height,	/* size of screen */
-	 screen;		/* which screen */
-	Window win;		/* initialization for a window */
-	GC gc;
-	XGCValues values;
+typedef struct drawing_board {
+	Window win;
 	Display *display;
-	XSizeHints size_hints;
-	//Pixmap bitmap;
-	//XPoint points[800];
-	XSetWindowAttributes attr[1];
-	unsigned long valuemask = 0;
+	int screen;
+	GC gc;
 
-	char *window_name = "Mandelbrot Set", *display_name = NULL;
+	Pixmap main_map;
+	int m_sz_x;
+	int m_sz_y;
+} db_t;
+
+db_t *draw_init(size_t sz_x, size_t sz_y)
+{
+	db_t *d = malloc(sizeof(*d));
+	if (!d)
+		return NULL;
 
 	/* connect to Xserver */
-
-	if ((display = XOpenDisplay(display_name)) == NULL) {
+	if ((d->display = XOpenDisplay(NULL)) == NULL) {
 		fprintf(stderr, "drawon: cannot connect to X server %s\n",
-			XDisplayName(display_name));
+			XDisplayName(NULL));
 		exit(-1);
 	}
 
+	d->screen = DefaultScreen(d->display);
+
 	/* get screen size */
 
-	screen = DefaultScreen(display);
-	display_width = DisplayWidth(display, screen);
-	display_height = DisplayHeight(display, screen);
+	//int display_width = DisplayWidth(d->display, d->screen);
+	//int display_height = DisplayHeight(d->display, d->screen);
 
-	/* set window size */
+	/* create window */
+	int x = 0, y = 0; /* position */
+	int border_width = 4;
+	d->win = XCreateSimpleWindow(d->display,
+			          RootWindow(d->display, d->screen),
+				  x, y, sz_x, sz_y, border_width,
+				  BlackPixel(d->display, d->screen),
+				  WhitePixel(d->display, d->screen));
 
-	width = sz_x;
-	height = sz_y;
-
-	/* set window position */
-
-	x = 0;
-	y = 0;
-
-	/* create opaque window */
-
-	border_width = 4;
-	win = XCreateSimpleWindow(display, RootWindow(display, screen),
-				  x, y, width, height, border_width,
-				  BlackPixel(display, screen),
-				  WhitePixel(display, screen));
-
+	XSizeHints size_hints;
 	size_hints.flags = USPosition | USSize;
 	size_hints.x = x;
 	size_hints.y = y;
-	size_hints.width = width;
-	size_hints.height = height;
+	size_hints.width = sz_x;
+	size_hints.height = sz_y;
 	size_hints.min_width = 300;
 	size_hints.min_height = 300;
 
-	XSetNormalHints(display, win, &size_hints);
-	XStoreName(display, win, window_name);
+	char *window_name = "Mandelbrot Set";
+	XSetNormalHints(d->display, d->win, &size_hints);
+	XStoreName(d->display, d->win, window_name);
 
-	/* create graphics context */
+	/* set up main gc */
+	XGCValues values;
+	unsigned long valuemask = 0;
+	d->gc = XCreateGC(d->display, d->win, valuemask, &values);
 
-	gc = XCreateGC(display, win, valuemask, &values);
+	XSetForeground(d->display, d->gc,
+			BlackPixel(d->display, d->screen));
+	XSetBackground(d->display, d->gc,
+			WhitePixel(d->display, d->screen));
+	XSetLineAttributes(d->display, d->gc,
+			1, LineSolid, CapRound, JoinRound);
 
-	XSetBackground(display, gc, WhitePixel(display, screen));
-	XSetForeground(display, gc, BlackPixel(display, screen));
-	XSetLineAttributes(display, gc, 1, LineSolid, CapRound, JoinRound);
+	/* Funny attributes stuff */
+	XSetWindowAttributes attr;
+	attr.backing_store = Always;
+	attr.backing_planes = 1;
+	attr.backing_pixel = BlackPixel(d->display, d->screen);
 
-	attr[0].backing_store = Always;
-	attr[0].backing_planes = 1;
-	attr[0].backing_pixel = BlackPixel(display, screen);
-
-	XChangeWindowAttributes(display, win,
+	XChangeWindowAttributes(d->display, d->win,
 				CWBackingStore | CWBackingPlanes |
-				CWBackingPixel, attr);
+				CWBackingPixel, &attr);
 
-	XMapWindow(display, win);
-	XSync(display, 0);
+	XWindowAttributes gattr;
+	XGetWindowAttributes(d->display, d->win, &gattr);
 
-	sleep(1);
-	int i, j;
-	fprintf(stderr,"start -> ");
-	for (i = 0; i < sz_x; i++)
-		for (j = 0; j < sz_y; j++)
-			if (data[i + j * sz_x] == 1) {
-				/*
-				struct timespec ts1, ts2, tsr;
-				clock_gettime(CLOCK_REALTIME, &ts1);
-				*/
-				XDrawPoint(display, win, gc, j, i);
-				/*
-				clock_gettime(CLOCK_REALTIME, &ts2);
-				timespec_subtract(&tsr, &ts1, &ts2);
-				fprintf(stderr, "t: %lu %lu\n", 
-					(unsigned long)tsr.tv_sec,
-					tsr.tv_nsec);
-				*/
+	XMapWindow(d->display, d->win);
+
+	/* create main pixmap */
+	d->main_map = XCreatePixmap(d->display, d->win, sz_x, sz_y,
+			gattr.depth);
+	d->m_sz_x = sz_x;
+	d->m_sz_y = sz_y;
+
+	GC bgc = XCreateGC(d->display, d->main_map, valuemask, &values);
+	/* Color the pixmap white */
+	XSetForeground(d->display, bgc,
+			WhitePixel(d->display, d->screen));
+	XSetLineAttributes(d->display, bgc,
+			1, LineSolid, CapRound, JoinRound);
+	XFillRectangle(d->display, d->main_map, bgc, 0, 0,
+			d->m_sz_x, d->m_sz_y);
+
+	/* set GC to BLACK for point drawing */
+
+	XSync(d->display, 0);
+
+	return d;
+}
+
+void draw_done(db_t *db)
+{
+	XFlush(db->display);
+	XSelectInput(db->display, db->win, ButtonPressMask | KeyPressMask);
+
+	/* perform an events loop unit mouse button or keyis presses */
+	{
+		int done = 0;
+		XEvent an_event;
+		while (!done) {
+			XNextEvent(db->display, &an_event);
+			switch (an_event.type) {
+			case KeyPress:
+			case ButtonPress:
+				done = 1;
 			}
-	fprintf(stderr,"done\n");
+		}
+		XCloseDisplay(db->display);
+	}
+}
 
-	XFlush(display);
-	sleep(30);
+void draw_pixels(db_t *db, XPoint *pts, size_t n_pts)
+{
+	fprintf(stderr,"start -> ");
+	XDrawPoints(db->display, db->main_map, db->gc, pts,
+			n_pts, CoordModeOrigin);
+	XDrawPoints(db->display, db->win, db->gc, pts,
+			n_pts, CoordModeOrigin);
+
+	/*
+	XCopyArea(db->display, db->main_map, db->win, db->gc,
+			0, 0, db->m_sz_x, db->m_sz_y, 0,0);
+		*/
+	fprintf(stderr,"done\n");
 }
 
 int main(int argc, char **argv)
@@ -146,13 +178,9 @@ int main(int argc, char **argv)
 	Compl z, c;
 	float lengthsq, temp;
 
-	/* Calculate and draw points */
-	int *srn_data = malloc(sizeof(*srn_data) * X_RESN * Y_RESN);
-	if (!srn_data) {
-		fprintf(stderr,"malloc error.\n");
-		exit(1);
-	}
+	db_t *db = draw_init(X_RESN, Y_RESN);
 
+	/* Calculate and draw points */
 	for (i = 0; i < X_RESN; i++) {
 		c.imag = ((float)i - (float)X_RESN/2) / ((float)X_RESN)/4;
 		for (j = 0; j < Y_RESN; j++) {
@@ -174,15 +202,14 @@ int main(int argc, char **argv)
 			} while (lengthsq < 4.0 && k < 100);
 
 			if (k == 100) {
-				srn_data[i + j * X_RESN] = 1;
-			} else {
-				srn_data[i + j * X_RESN] = 0;
+				XPoint pt = { .x = i, .y = j };
+				draw_pixels(db, &pt, 1);
 			}
 		}
 	}
 
-	/* Drawing */
-	draw_pixels(X_RESN, Y_RESN, srn_data);
+	/* wait for user input to quit */
+	draw_done(db);
 
 	return 0;
 }
