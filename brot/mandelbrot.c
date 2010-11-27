@@ -102,7 +102,9 @@ void draw_pixels(size_t sz_x, size_t sz_y, int *data)
 	for (i = 0; i < sz_x; i++)
 		for (j = 0; j < sz_y; j++)
 			if (data[i + j * sz_x] == 1) {
+				fprintf(stderr, "write -> ");
 				XDrawPoint(display, win, gc, j, i);
+				fprintf(stderr, "done\n");
 			}
 
 	XFlush(display);
