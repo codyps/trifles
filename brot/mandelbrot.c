@@ -25,6 +25,42 @@ typedef struct drawing_board {
 	int m_sz_y;
 } db_t;
 
+
+Window mk_window(Display *display, int screen)
+{
+	XSizeHints size_hints;
+	char *window_name = "Mandelbrot Set";
+	int width = X_RESN;
+	int height = Y_RESN;
+
+	/* set window position */
+
+	int x = 0;
+	int y = 0;
+
+	/* create opaque window */
+
+	int border_width = 4;
+	Window win = XCreateSimpleWindow(display,
+			RootWindow(display, screen),
+				  x, y, width, height, border_width,
+				  BlackPixel(display, screen),
+				  WhitePixel(display, screen));
+
+	size_hints.flags = USPosition | USSize;
+	size_hints.x = x;
+	size_hints.y = y;
+	size_hints.width = width;
+	size_hints.height = height;
+	size_hints.min_width = 300;
+	size_hints.min_height = 300;
+
+	XSetNormalHints(display, win, &size_hints);
+	XStoreName(display, win, window_name);
+
+	return win;
+}
+
 void draw_done(Display *display, Window win)
 {
 	XFlush(display);
@@ -56,13 +92,12 @@ int main()
 	 display_width, display_height,	/* size of screen */
 	 screen;		/* which screen */
 
-	char *window_name = "Mandelbrot Set", *display_name = NULL;
+	char *display_name = NULL;
 	GC gc;
 	unsigned
 	long valuemask = 0;
 	XGCValues values;
 	Display *display;
-	XSizeHints size_hints;
 	Pixmap bitmap;
 	XPoint points[800];
 	FILE *fp, *fopen();
@@ -90,33 +125,7 @@ int main()
 	display_height = DisplayHeight(display, screen);
 
 	/* set window size */
-
-	width = X_RESN;
-	height = Y_RESN;
-
-	/* set window position */
-
-	x = 0;
-	y = 0;
-
-	/* create opaque window */
-
-	border_width = 4;
-	win = XCreateSimpleWindow(display, RootWindow(display, screen),
-				  x, y, width, height, border_width,
-				  BlackPixel(display, screen),
-				  WhitePixel(display, screen));
-
-	size_hints.flags = USPosition | USSize;
-	size_hints.x = x;
-	size_hints.y = y;
-	size_hints.width = width;
-	size_hints.height = height;
-	size_hints.min_width = 300;
-	size_hints.min_height = 300;
-
-	XSetNormalHints(display, win, &size_hints);
-	XStoreName(display, win, window_name);
+	win = mk_window(display, screen);
 
 	/* create graphics context */
 
