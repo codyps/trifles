@@ -1,6 +1,6 @@
 SRC = mandelbrot_mpi_static.c
 
-CC=gcc
+CC=/usr/local/mpich/bin/mpicc
 RM=rm -f
 
 CFLAGS = -ggdb
