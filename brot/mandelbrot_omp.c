@@ -9,7 +9,7 @@
 #include <math.h>
 
 #define		X_RESN	800	/* x resolution */
-#define		Y_RESN	800	/* y resolution */
+#define		Y_RESN	1000	/* y resolution */
 
 typedef struct complextype {
 	float real, imag;

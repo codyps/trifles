@@ -96,55 +96,74 @@ void draw_done(Display *display, Window win)
 	}
 }
 
-int main()
+int main(int argv, char **argc)
 {
 	Window win;		/* initialization for a window */
-	int screen;		/* which screen */
-	int display_width, display_height;
-	char *display_name = NULL;
 	GC gc;
 	Display *display;
-	//Pixmap bitmap;
-	//XPoint points[800];
 
-	/* connect to Xserver */
-	if ((display = XOpenDisplay(display_name)) == NULL) {
-		fprintf(stderr, "drawon: cannot connect to X server %s\n",
-			XDisplayName(display_name));
-		exit(-1);
+	MPI_Init(&argc, &argv);
+
+	int rank;
+	int nprocs;
+
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+
+	if (rank == 0) {
+		char *display_name = NULL;
+		int screen;		/* which screen */
+		int display_width, display_height;
+
+		/* connect to Xserver */
+		if ((display = XOpenDisplay(display_name)) == NULL) {
+			fprintf(stderr, "drawon: cannot connect to X server %s\n",
+				XDisplayName(display_name));
+			exit(-1);
+		}
+
+		/* get screen size */
+		screen = DefaultScreen(display);
+		display_width = DisplayWidth(display, screen);
+		display_height = DisplayHeight(display, screen);
+
+		/* set window size */
+		win = mk_window(display, screen);
+
+		/* create graphics context */
+		gc = mk_black_gc(display, screen, win);
+
+		/* Funny attribute stuff */
+		{
+			XSetWindowAttributes attr[1];
+			attr[0].backing_store = Always;
+			attr[0].backing_planes = 1;
+			attr[0].backing_pixel = BlackPixel(display, screen);
+
+			XChangeWindowAttributes(display, win,
+						CWBackingStore  |
+						CWBackingPlanes |
+						CWBackingPixel, attr);
+
+			XMapWindow(display, win);
+			XSync(display, 0);
+		}
 	}
 
-	/* get screen size */
-	screen = DefaultScreen(display);
-	display_width = DisplayWidth(display, screen);
-	display_height = DisplayHeight(display, screen);
+	int i_rem = X_RESN % nprocs;
+	int i_ct = X_RESN / nprocs;
 
-	/* set window size */
-	win = mk_window(display, screen);
-
-	/* create graphics context */
-	gc = mk_black_gc(display, screen, win);
-
-	/* Funny attribute stuff */
-	{
-		XSetWindowAttributes attr[1];
-		attr[0].backing_store = Always;
-		attr[0].backing_planes = 1;
-		attr[0].backing_pixel = BlackPixel(display, screen);
-
-		XChangeWindowAttributes(display, win,
-					CWBackingStore  |
-					CWBackingPlanes |
-					CWBackingPixel, attr);
-
-		XMapWindow(display, win);
-		XSync(display, 0);
-		sleep(1);
+	int i_start = i_ct * rank;
+	if (rank < i_rem) {
+		i_start += rank;
+		i_ct += 1;
+	} else {
+		i_start += i_rem;
 	}
 
 	/* Calculate and draw points */
 	int i;
-	for (i = 0; i < X_RESN; i++) {
+	for (i = i_start; i < i_ct; i++) {
 		int j;
 		for (j = 0; j < Y_RESN; j++) {
 			Compl z, c;
@@ -176,6 +195,6 @@ int main()
 
 	draw_done(display, win);
 	/* Program Finished */
-
+	MPI_Finalize();
 	return 0;
 }
