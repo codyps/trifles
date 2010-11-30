@@ -97,22 +97,14 @@ void draw_done(Display *display, Window win)
 int main()
 {
 	Window win;		/* initialization for a window */
-	unsigned
-	int width, height,	/* window size */
-	 x, y,			/* window position */
-	 border_width,		/*border width in pixels */
-	 display_width, display_height,	/* size of screen */
-	 screen;		/* which screen */
-
+	int screen;		/* which screen */
+	int display_width, display_height;
 	char *display_name = NULL;
 	GC gc;
 	Display *display;
-	Pixmap bitmap;
-	XPoint points[800];
-	FILE *fp, *fopen();
-	char str[100];
+	//Pixmap bitmap;
+	//XPoint points[800];
 
-	XSetWindowAttributes attr[1];
 
 	/* Mandlebrot variables */
 
@@ -137,6 +129,7 @@ int main()
 
 	/* Funny attribute stuff */
 	{
+		XSetWindowAttributes attr[1];
 		attr[0].backing_store = Always;
 		attr[0].backing_planes = 1;
 		attr[0].backing_pixel = BlackPixel(display, screen);
@@ -148,11 +141,12 @@ int main()
 
 		XMapWindow(display, win);
 		XSync(display, 0);
+		sleep(1);
 	}
 
 	/* Calculate and draw points */
 	int i;
-//#pragma omp parallel for
+#pragma omp parallel for
 	for (i = 0; i < X_RESN; i++) {
 		int j;
 		for (j = 0; j < Y_RESN; j++) {
@@ -166,7 +160,6 @@ int main()
 			int k = 0;
 			float lengthsq = 0;
 			do {	/* iterate for pixel color */
-
 				float temp =
 				    z.real * z.real - z.imag * z.imag + c.real;
 				z.imag = 2.0 * z.real * z.imag + c.imag;
@@ -177,7 +170,7 @@ int main()
 			} while (lengthsq < 4.0 && k < 100);
 
 			if (k == 100) {
-//#pragma omp critical
+#pragma omp critical
 				XDrawPoint(display, win, gc, j, i);
 			}
 

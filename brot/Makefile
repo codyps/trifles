@@ -4,7 +4,7 @@ CC=gcc
 RM=rm -f
 
 CFLAGS = -ggdb
-override CFLAGS+= -Wall -pipe -openmp -lX11
+override CFLAGS+= -Wall -pipe -fopenmp -lX11 -I/usr/include/X11 -L/usr/lib -lm
 
 BIN = brot
 
