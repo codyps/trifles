@@ -96,59 +96,80 @@ void draw_done(Display *display, Window win)
 	}
 }
 
-int main(int argc, char **argv)
+void master(int nprocs)
 {
 	Window win;		/* initialization for a window */
 	GC gc;
 	Display *display;
 
-	MPI_Init(&argc, &argv);
+	double t1 = MPI_Wtime();
 
-	int rank;
-	int nprocs;
+	char *display_name = NULL;
+	int screen;		/* which screen */
+	int display_width, display_height;
 
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-
-	if (rank == 0) {
-		char *display_name = NULL;
-		int screen;		/* which screen */
-		int display_width, display_height;
-
-		/* connect to Xserver */
-		if ((display = XOpenDisplay(display_name)) == NULL) {
-			fprintf(stderr, "drawon: cannot connect to X server %s\n",
-				XDisplayName(display_name));
-			exit(-1);
-		}
-
-		/* get screen size */
-		screen = DefaultScreen(display);
-		display_width = DisplayWidth(display, screen);
-		display_height = DisplayHeight(display, screen);
-
-		/* set window size */
-		win = mk_window(display, screen);
-
-		/* create graphics context */
-		gc = mk_black_gc(display, screen, win);
-
-		/* Funny attribute stuff */
-		{
-			XSetWindowAttributes attr[1];
-			attr[0].backing_store = Always;
-			attr[0].backing_planes = 1;
-			attr[0].backing_pixel = BlackPixel(display, screen);
-
-			XChangeWindowAttributes(display, win,
-						CWBackingStore  |
-						CWBackingPlanes |
-						CWBackingPixel, attr);
-
-			XMapWindow(display, win);
-			XSync(display, 0);
-		}
+	/* connect to Xserver */
+	if ((display = XOpenDisplay(display_name)) == NULL) {
+		fprintf(stderr, "drawon: cannot connect to X server %s\n",
+			XDisplayName(display_name));
+		exit(-1);
 	}
+
+	/* get screen size */
+	screen = DefaultScreen(display);
+	display_width = DisplayWidth(display, screen);
+	display_height = DisplayHeight(display, screen);
+
+	/* set window size */
+	win = mk_window(display, screen);
+
+	/* create graphics context */
+	gc = mk_black_gc(display, screen, win);
+
+	/* Funny attribute stuff */
+	{
+		XSetWindowAttributes attr[1];
+		attr[0].backing_store = Always;
+		attr[0].backing_planes = 1;
+		attr[0].backing_pixel = BlackPixel(display, screen);
+
+		XChangeWindowAttributes(display, win,
+					CWBackingStore  |
+					CWBackingPlanes |
+					CWBackingPixel, attr);
+
+		XMapWindow(display, win);
+		XSync(display, 0);
+	}
+
+	int ct;
+	int *col = malloc((Y_RESN + 1) * sizeof(*col));
+	for (ct = X_RESN; ct > 0; ct--) {
+		MPI_Status status;
+		MPI_Recv(col, Y_RESN + 1, MPI_INT, MPI_ANY_SOURCE, 0,
+				MPI_COMM_WORLD, &status);
+
+		int j;
+		int i = col[Y_RESN];
+		for( j = 0; j < Y_RESN; j++) {
+			if (col[j])
+				XDrawPoint(display, win, gc, j, i);
+		}
+
+	}
+
+	XFlush(display);
+	free(col);
+
+	double t2 = MPI_Wtime();
+	printf("%f\n", t2-t1);
+
+	draw_done(display,win);
+}
+
+void slave(int rank, int nprocs)
+{
+	int *col = malloc((Y_RESN + 1) * sizeof(*col));
 
 	int i_rem = X_RESN % nprocs;
 	int i_ct = X_RESN / nprocs;
@@ -186,14 +207,33 @@ int main(int argc, char **argv)
 			} while (lengthsq < 4.0 && k < 100);
 
 			if (k == 100) {
-				XDrawPoint(display, win, gc, j, i);
+				col[j] = 1;
+			} else {
+				col[j] = 0;
 			}
 		}
+
+		MPI_Send(col, Y_RESN + 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+	}
+}
+
+int main(int argc, char **argv)
+{
+
+	MPI_Init(&argc, &argv);
+
+	int rank;
+	int nprocs;
+
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+
+	if (rank == 0) {
+		master(nprocs);
+	} else {
+		slave(rank, nprocs);
 	}
 
-	XFlush(display);
-
-	draw_done(display, win);
 	/* Program Finished */
 	MPI_Finalize();
 	return 0;
