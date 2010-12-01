@@ -1,4 +1,4 @@
-SUB_PROJ=openmp.mk mpi_static.mk
+SUB_PROJ=openmp.mk mpi_static.mk mpi_dyn.mk
 
 .PHONY: all
 all: build

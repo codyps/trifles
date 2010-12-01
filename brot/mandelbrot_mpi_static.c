@@ -96,7 +96,7 @@ void draw_done(Display *display, Window win)
 	}
 }
 
-int main(int argv, char **argc)
+int main(int argc, char **argv)
 {
 	Window win;		/* initialization for a window */
 	GC gc;
@@ -171,7 +171,7 @@ int main(int argv, char **argc)
 
 			/* scale factors for 800 x 800 window */
 			c.real = ((float)j - (Y_RESN/2)) / (Y_RESN/4);
-			c.imag = ((float)i - (Y_RESN/2)) / (X_RESN/4);
+			c.imag = ((float)i - (X_RESN/2)) / (X_RESN/4);
 
 			int k = 0;
 			float lengthsq = 0;
