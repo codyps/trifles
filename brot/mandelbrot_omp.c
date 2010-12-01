@@ -168,7 +168,7 @@ int main()
 
 	/* Calculate and draw points */
 	int i;
-#pragma omp parallel for
+#pragma omp parallel for schedule(runtime)
 	for (i = 0; i < X_RESN; i++) {
 		int j;
 		for (j = 0; j < Y_RESN; j++) {

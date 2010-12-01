@@ -13,4 +13,42 @@ openmp implimentation
 Contained within mandelbrot_omp.c, built to `brot_omp`.
 Parallelized over the columns.
 
+Some times obtained for various schedulings are shown below.
+(Note that these all contain the 1 second addition mentioned above).
+
+Dynamic Scheduling
+~~~~~~~~~~~~~~~~~~
+1.106686
+1.114315
+1.117982
+1.120328
+1.113071
+1.120215
+1.116418
+
+.Average = 1.1155735714
+
+Guided Scheduling
+~~~~~~~~~~~~~~~~~
+1.151770
+1.141926
+1.139374
+1.172475
+1.134437
+1.095787
+1.141593
+
+.Average = 1.1396231428
+
+Static Scheduling
+~~~~~~~~~~~~~~~~~
+1.163276
+1.160127
+1.144849
+1.126164
+1.161700
+1.166065
+1.167602
+
+.Average = 1.1556832857
 
