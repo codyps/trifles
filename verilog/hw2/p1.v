@@ -16,6 +16,7 @@ module t_Combo_str();
 	wire Y;
 	integer inp;
 
+	reg [3:0] r;
 	Combo_str X(Y,A,B,C,D);
 
 	initial begin

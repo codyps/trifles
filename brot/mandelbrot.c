@@ -5,6 +5,7 @@
 #include <X11/Xos.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <math.h>
 
 #define		X_RESN	800	/* x resolution */
@@ -14,11 +15,10 @@ typedef struct complextype {
 	float real, imag;
 } Compl;
 
-int main()
+int main(int argc, char **argv)
 {
 	Window win;		/* initialization for a window */
-	unsigned
-	int width, height,	/* window size */
+	unsigned int width, height,	/* window size */
 	 x, y,			/* window position */
 	 border_width,		/*border width in pixels */
 	 display_width, display_height,	/* size of screen */
@@ -26,15 +26,12 @@ int main()
 
 	char *window_name = "Mandelbrot Set", *display_name = NULL;
 	GC gc;
-	unsigned
-	long valuemask = 0;
+	unsigned long valuemask = 0;
 	XGCValues values;
 	Display *display;
 	XSizeHints size_hints;
-	Pixmap bitmap;
-	XPoint points[800];
-	FILE *fp, *fopen();
-	char str[100];
+	// Pixmap bitmap;
+	// XPoint points[800];
 
 	XSetWindowAttributes attr[1];
 
@@ -116,14 +113,12 @@ int main()
 			k = 0;
 
 			do {	/* iterate for pixel color */
-
 				temp =
 				    z.real * z.real - z.imag * z.imag + c.real;
 				z.imag = 2.0 * z.real * z.imag + c.imag;
 				z.real = temp;
 				lengthsq = z.real * z.real + z.imag * z.imag;
 				k++;
-
 			} while (lengthsq < 4.0 && k < 100);
 
 			if (k == 100)
@@ -134,6 +129,5 @@ int main()
 	XFlush(display);
 	sleep(30);
 
-	/* Program Finished */
-
+	return 0;
 }
