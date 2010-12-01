@@ -147,6 +147,7 @@ void master(int nprocs)
 
 		XMapWindow(display, win);
 		XSync(display, 0);
+		sleep(1);
 	}
 
 	int slave_i;
@@ -198,7 +199,7 @@ void master(int nprocs)
 		/* draw points */
 		for (j = 0; j < Y_RESN; j++) {
 			if (col[j])
-				XDrawPoint(display, win, gc, i, j);
+				XDrawPoint(display, win, gc, j, i);
 		}
 	}
 
@@ -206,7 +207,7 @@ void master(int nprocs)
 	free(col);
 
 	double t2 = MPI_Wtime();
-	printf("%f", t2 - t1);
+	printf("%f\n", t2 - t1);
 
 	draw_done(display, win);
 }
