@@ -1,3 +1,4 @@
 brot
 brot_omp
 brot_mpi_static
+brot_mpi_dyn
