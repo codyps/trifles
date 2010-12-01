@@ -231,7 +231,7 @@ int main(int argc, char **argv)
 	if (rank == 0) {
 		master(nprocs);
 	} else {
-		slave(rank, nprocs);
+		slave(rank - 1, nprocs - 1);
 	}
 
 	/* Program Finished */
