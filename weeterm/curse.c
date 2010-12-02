@@ -1,4 +1,5 @@
 #include <curses.h>
+#include <ctype.h>
 #include <unistd.h>
 
 int main(int argc, char **argv)
@@ -13,17 +14,29 @@ int main(int argc, char **argv)
 	int mx, my;
 	getmaxyx(w, my, mx);
 	for(ct = 0;;) {
-		wmove(w, my-1,ct);
+		wmove(w, my-1, ct);
 		wrefresh(w);
-		int c = 'a'; //wgetch(w);
-		if (c < 0)
-			continue;
-		if (c == '\n') {
+		int c = wgetch(w);
+
+		switch(c) {
+		case KEY_BACKSPACE:
+			if (ct > 0) {
+				ct --;
+				wmove(w, my-1, ct);
+				waddch(w, ' ');
+			}
+			break;
+		case KEY_ENTER:
+		case '\n':
 			ct = 0;
-			continue;
+			/* XXX: remove line */
+			break;
+		default:
+			if (isascii(c)) {
+				waddch(w, c);
+				ct++;
+			}
 		}
-		sleep(1);
-		ct ++;
 	}
 
 	int ret = endwin();

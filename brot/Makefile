@@ -1,28 +1,24 @@
-SRC = mandelbrot.c
-
-CC=gcc
-RM=rm -f
-
-CFLAGS = -ggdb
-CFLAGS+= -Wall -pipe -openmp -lX11 -lrt
-
-BIN = brot
+SUB_PROJ=openmp.mk mpi_static.mk mpi_dyn.mk mpi_dyn_omp.mk
 
 .PHONY: all
 all: build
 	
 .PHONY: build
-build: $(BIN)
+build: $(SUB_PROJ:=.build)
+
+.PHONY: %.build
+%.build: %
+	$(MAKE) -f $^ build
 
 .PHONY: rebuild
-rebuild: | clean $(BIN)
+rebuild: | clean build
 
 .PHONY: clean
-clean:
-	$(RM) $(BIN)
+clean: $(SUB_PROJ:=.clean)
 
-$(BIN): $(SRC)
-	$(CC) $(CFLAGS) -o $@ --combine $<
+.PHONY: %.clean
+%.clean: %
+	$(MAKE) -f $^ clean
 
 .PHONY: archive
 VER:=$(shell git rev-parse --verify --short HEAD 2>/dev/null)
