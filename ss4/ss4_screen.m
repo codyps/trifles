@@ -131,8 +131,17 @@ x1dem=demod(2*x1modTC', fc, fs, 'amdsb-tc', -0.1);
 figure(5);
 subplot(2,2,1);
 plot(t,x1); axis([-2 3 0 1]);
+ylabel('x1 signal'); xlabel('Time');
+
 subplot(2,2,2);
 plot(t,x1modTC);
+ylabel('amdsb-tc modulated');
+xlabel('Time');
+
 subplot(2,2,3);
 plot(t,x1dem); axis([-2 3 0 1]);
+ylabel('Demodulated signal');
+xlabel('Time');
+
+
 
