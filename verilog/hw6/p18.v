@@ -1,6 +1,6 @@
 
 /* Problem # 18 */
-module Control_Unit(output reg done, Ld_AR_BR, Div_AR_x2_CR, Mul_BR_x2_CR, Clr_CR
+module Control_Unit(output reg done, Ld_AR_BR, Div_AR_x2_CR, Mul_BR_x2_CR, Clr_CR,
 	input reset_b, start, AR_gt_0, AR_lt_0, clk);
 
 	always @(posedge clk) begin
@@ -31,12 +31,12 @@ module Control_Unit(output reg done, Ld_AR_BR, Div_AR_x2_CR, Mul_BR_x2_CR, Clr_C
 	
 endmodule
 
-module Datapath_Unit(output signed reg[15:0]CR, output reg AR_gt_0, AR_lt_0,
+module Datapath_Unit(output reg signed[15:0] CR, output reg AR_gt_0, AR_lt_0,
 	input [15:0] Data_AR, Data_BR,
 	input Ld_AR_BR, Div_AR_x2_CR, Mul_BR_x2_CR, Clr_CR, clk);
 
-	signed reg [15:0] AR;
-	signed reg [15:0] BR;
+	reg signed [15:0] AR;
+	reg signed [15:0] BR;
 	
 	always @(AR) begin
 		AR_lt_0 = (AR < 0);
