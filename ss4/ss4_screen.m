@@ -1,3 +1,12 @@
+dpi = get (0, "screenpixelsperinch");
+paper_size = round ([640, 480]./dpi);
+set (gcf, "paperunits", "inches")
+set (gcf, "papertype", "<custom>")
+set (gcf, "papersize", paper_size)
+set (gcf, "paperposition", [0, 0, paper_size])
+
+
+
 %% 1
 w = 0.01:0.01:10;
 Ts = 0.01;
@@ -41,6 +50,7 @@ subplot(2,2,4);
 plot(w2, abs(X1N2(1:N2/2))); axis([0, 10, 0, 2]);
 xlabel('Frequency [rad/s]');
 ylabel('X1 magnitude, N=5*length(x1)');
+print ('-dpng', sprintf('ss4_%d.png',1 ))
 
 %% 2
 
@@ -69,9 +79,13 @@ xlabel('Time'); ylabel('Modulated signal');
 subplot (224); plot(w, abs(X1mod(1:N/2))); grid; 
 axis([0 120 0 1]);
 xlabel('Frequency [rad/s]');
+print ('-dpng', sprintf('ss4_%d.png',2 ))
+
+%%%%
 
 x1modSSB=modulate(x1,fc,fs,'amssb');
 X1modSSB=Ts*fft(x1modSSB,N);
+
 figure(3);
 subplot(211); plot(w, abs(X1modSSB(1:N/2))); %???
 xlabel('Frequency [rad/s]');
@@ -95,6 +109,7 @@ plot(w,abs(X1modUSSB(1:N/2)));
 grid; axis([0 120 0 1.5]);
 xlabel('Frequenct [rad/s]');
 ylabel('XmodUSSB signal spectrum');
+print ('-dpng', sprintf('ss4_%d.png',3 ))
 
 % carrier 
 
@@ -110,6 +125,7 @@ plot(t,x1demod); axis([-2 3 0 1]);
 subplot(2,2,4);
 plot(w, abs(X1modUSSB(1:N/2)));
 
+print ('-dpng', sprintf('ss4_%d.png',4 ))
 
 %%
 fs = 1/Ts; fc = wc/(2*pi);
@@ -132,4 +148,5 @@ ylabel('Demodulated signal');
 xlabel('Time');
 
 
+print ('-dpng', sprintf('ss4_%d.png',5 ))
 
