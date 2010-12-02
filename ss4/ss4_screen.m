@@ -34,10 +34,12 @@ k2 = 0:1:N2/2-1; w2 = (2*pi*k2/N2)/Ts;
 figure(1);
 subplot(2,2,1);
 plot(w,X1exact);
-
+xlabel('X1 exact magnitude');
+ylabel('Frequency [rad/s]');
 
 subplot(2,2,2);
 plot(t, x1); grid; 
+ylabel('x1 signal');
 xlabel('Time');
 
 subplot(2,2,3);
@@ -45,17 +47,17 @@ plot(w1, abs(X1N1(1:N1/2))); axis([0, 10, 0, 2]);
 xlabel('Frequency [rad/s]');
 ylabel('X1 magnitude, N=length(x1)');
 
-
 subplot(2,2,4);
 plot(w2, abs(X1N2(1:N2/2))); axis([0, 10, 0, 2]);
 xlabel('Frequency [rad/s]');
 ylabel('X1 magnitude, N=5*length(x1)');
 print ('-dpng', sprintf('ss4_%d.png',1 ))
 
+%
 %% 2
+%
 
 %???
-
 wc = 100; fc = wc/(2*pi);
 fs = 1/Ts;
 
@@ -66,28 +68,36 @@ X1mod=Ts*fft( x1mod, N);
 
 k = 0:1:N/2-1; w = (2*pi*k/N)/Ts;
 
-figure(2); subplot(2,2,1); plot(t,hx1);
+figure(2);
+subplot(2,2,1);
+plot(t,hx1);
 grid; axis([-2,3,-1,1]);
 xlabel('Time'); ylabel('Hilbert transform');
-subplot(222); plot(w, abs(X1(1:N/2)));
+
+subplot(2,2,2);
+plot(w, abs(X1(1:N/2)));
 grid; axis([0 120 0 1.5]);
-
 xlabel('Frequency [rad/s]'); ylabel('Signal spectrum');
-subplot(223); plot(t,x1mod); grid; % axis([1 ???
-    
-xlabel('Time'); ylabel('Modulated signal');
-subplot (224); plot(w, abs(X1mod(1:N/2))); grid; 
-axis([0 120 0 1]);
-xlabel('Frequency [rad/s]');
-print ('-dpng', sprintf('ss4_%d.png',2 ))
 
+subplot(2,2,3);
+plot(t,x1mod);
+grid; % axis([1 ???    
+xlabel('Time'); ylabel('Modulated signal');
+
+subplot (2,2,4);
+plot(w, abs(X1mod(1:N/2))); grid; 
+axis([0 120 0 1]);
+xlabel('Frequency [rad/s]'); ylabel('Modulated Signal Spectrum');
+
+print ('-dpng', sprintf('ss4_%d.png',2 ))
 %%%%
 
 x1modSSB=modulate(x1,fc,fs,'amssb');
 X1modSSB=Ts*fft(x1modSSB,N);
 
 figure(3);
-subplot(211); plot(w, abs(X1modSSB(1:N/2))); %???
+subplot(211);
+plot(w, abs(X1modSSB(1:N/2))); %???
 xlabel('Frequency [rad/s]');
 ylabel('XmodSSB signal spectrum');
 
@@ -104,6 +114,7 @@ x1hilc2mod=x1hil.*c2; %modultaion of hilbert
 
 x1mod = x1c1mod-x1hilc2mod;
 X1modUSSB=Ts*fft(x1mod,N);
+
 subplot(212);
 plot(w,abs(X1modUSSB(1:N/2)));
 grid; axis([0 120 0 1.5]);
@@ -117,14 +128,15 @@ x1demod = 4*demod(x1mod,fc,fs,'amssb');
 
 figure(4);
 subplot(2,2,1);
-plot(t,x1); axis([-2 3 0 1]);
+plot(t,x1); axis([-2 3 0 1]); ylabel('x1 signal'); xlabel('Time');
 subplot(2,2,2);
-plot(t,x1mod);
+plot(t,x1mod); ylabel('Modulated signal'); xlabel('Time');
 subplot(2,2,3);
-plot(t,x1demod); axis([-2 3 0 1]);
-subplot(2,2,4);
+plot(t,x1demod); axis([-2 3 0 1]); ylabel('Demodulated signal'); xlabel('Time');
+subplot(2,2,4); 
 plot(w, abs(X1modUSSB(1:N/2)));
 
+axis([0 120 0 1.5]); ylabel('Signal Spectrum'); xlabel('Frequency [rad/s]');
 print ('-dpng', sprintf('ss4_%d.png',4 ))
 
 %%
