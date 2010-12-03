@@ -10,7 +10,7 @@ sch="dynamic guided static"
 for s in $sch; do
 	for ((th=1; th<=16; th=th+1)); do
 		total_time=0;
-		for ((iter=0; iter<1000; iter=iter+1)); do
+		for ((iter=0; iter<500; iter=iter+1)); do
 			t=`OMP_SCHEDULE=$s OMP_NUM_THREADS=$th $1`
 			total_time=`echo scale=50\;$total_time + $t | bc`
 		done
