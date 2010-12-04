@@ -1,0 +1,40 @@
+connect to address 192.168.2.159 port 544: Connection refused
+Trying krb4 rsh...
+connect to address 192.168.2.159 port 544: Connection refused
+trying normal rsh (/usr/bin/rsh)
+connect to address 192.168.2.160 port 544: Connection refused
+Trying krb4 rsh...
+connect to address 192.168.2.160 port 544: Connection refused
+trying normal rsh (/usr/bin/rsh)
+connect to address 192.168.2.161 port 544: Connection refused
+Trying krb4 rsh...
+connect to address 192.168.2.161 port 544: Connection refused
+trying normal rsh (/usr/bin/rsh)
+connect to address 192.168.2.162 port 544: Connection refused
+Trying krb4 rsh...
+connect to address 192.168.2.162 port 544: Connection refused
+trying normal rsh (/usr/bin/rsh)
+connect to address 192.168.2.163 port 544: Connection refused
+Trying krb4 rsh...
+connect to address 192.168.2.163 port 544: Connection refused
+trying normal rsh (/usr/bin/rsh)
+connect to address 192.168.2.164 port 544: Connection refused
+Trying krb4 rsh...
+connect to address 192.168.2.164 port 544: Connection refused
+trying normal rsh (/usr/bin/rsh)
+connect to address 192.168.2.165 port 544: Connection refused
+Trying krb4 rsh...
+connect to address 192.168.2.165 port 544: Connection refused
+trying normal rsh (/usr/bin/rsh)
+connect to address 192.168.2.166 port 544: Connection refused
+Trying krb4 rsh...
+connect to address 192.168.2.166 port 544: Connection refused
+trying normal rsh (/usr/bin/rsh)
+Timeout in waiting for processes to exit, 2 left.  This may be due to a defective
+rsh program (Some versions of Kerberos rsh have been observed to have this
+problem).
+This is not a problem with P4 or MPICH but a problem with the operating
+environment.  For many applications, this problem will only slow down
+process termination.
+
+
