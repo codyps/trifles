@@ -86,6 +86,7 @@ void draw_done(Display *display, Window win)
 	XFlush(display);
 	XSelectInput(display, win, ButtonPressMask | KeyPressMask);
 
+#ifndef GET_DATA
 	/* perform an events loop unit mouse button or keyis presses */
 	{
 		int done = 0;
@@ -100,6 +101,9 @@ void draw_done(Display *display, Window win)
 		}
 		XCloseDisplay(display);
 	}
+#else
+	XCloseDisplay(display);
+#endif
 }
 
 
@@ -147,7 +151,9 @@ void master(int nprocs)
 
 		XMapWindow(display, win);
 		XSync(display, 0);
+#ifndef GET_DATA
 		sleep(1);
+#endif
 	}
 
 	int slave_i;
@@ -274,8 +280,6 @@ int main(int argc, char **argv)
 	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 
 	if (rank == 0) {
-		printf("master %d\n", nprocs);
-		fflush(stdout);
 		master(nprocs);
 	} else {
 		slave(rank);

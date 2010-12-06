@@ -96,6 +96,7 @@ Window mk_window(Display *display, int screen)
 void draw_done(Display *display, Window win)
 {
 	XFlush(display);
+#ifndef GET_DATA
 	XSelectInput(display, win, ButtonPressMask | KeyPressMask);
 
 	/* perform an events loop unit mouse button or keyis presses */
@@ -112,6 +113,9 @@ void draw_done(Display *display, Window win)
 		}
 		XCloseDisplay(display);
 	}
+#else
+	XCloseDisplay(display);
+#endif
 }
 
 int main()
@@ -163,7 +167,9 @@ int main()
 
 		XMapWindow(display, win);
 		XSync(display, 0);
+#ifndef GET_DATA
 		sleep(1);
+#endif
 	}
 
 	/* Calculate and draw points */
