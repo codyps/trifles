@@ -1,0 +1,28 @@
+PSPICE Project #1
+=================
+Cody Schafer <cschafer@eden.rutgers.edu>
+Fall 2010
+
+Problem 1
+---------
+~~~~
+include::p1.spice[]
+~~~~
+.Plot
+image::p1.png[]
+
+Problem 2
+---------
+~~~~
+include::p2.spice[]
+~~~~
+.Plot
+image::p2.png[]
+
+Problem 3
+---------
+~~~~
+include::p3.spice[]
+~~~~
+.Plot
+image::p3.png[]

@@ -1,0 +1,12 @@
+* Spice Project #2, Problem 3
+Rb  2 1   470k
+R1  1 4   38k
+Rc  2 3   3.2k
+RL  3 0   6.8k
+Vin 4 0   DC 0 AC sin( 0 50 50 )
+Vcc 2 0   DC 12
+Q   3 1 0 BM
+
+.model BM NPN (RB=100, VJE=.7, BF=100, IS=1e-16, BR=1, CJC=0, CJE=0)
+.tf v(3,0) Vin
+.end

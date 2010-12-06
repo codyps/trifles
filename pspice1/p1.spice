@@ -1,0 +1,27 @@
+* PEE 3 - Project 1
+D1 1 2 DM1
+D2 0 4 DMZ
+R1 2 3 10
+R2 3 4 100
+Cx  3 0 100u
+Vin 1 0 AC 10 sin( 0 10 50 )
+
+.model DM1 D
+.model DMZ D(IBV=1e-10, BV=6)
+
+.control
+tran .2m 60m
+hardcopy p1.ps v(3) v(4)
+.endc
+.end
+
+*DIODE Parameters
+*
+* Parameter	Description				Default value
+* IS	Saturation Current			10-14A
+* CJO	Junction capacitance at VD = 0		0
+* VJ	Reverse-breakdown voltage		1V
+* BV	Reverse-breakdown voltage		infinite
+* IBV	Current at VD = BV			10-10A
+* RS	Series Ohmic resistance			0
+* N	Emission coefficient (ideality factor)	1

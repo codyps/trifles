@@ -1,0 +1,36 @@
+* PEE 3 - Project 3
+D1 2 4 DM
+D2 0 4 DM
+R1 1 0 10G
+R2 4 3 2k
+Cx 4 3 100u
+
+K12 L1 L2 .5
+K13 L1 L3 .5
+
+Rhack 1 1b 1e-12
+
+L1 1b 0 25u
+L2 2  3 1u
+L3 3  0 1u
+
+Vin 1 0 AC 100 sin( 0 100 50 )
+
+.model DM D
+
+.control
+tran .1m 50m
+hardcopy p3.ps v(2,3) v(4,3)
+.endc
+.end
+
+*DIODE Parameters
+*
+* Parameter	Description				Default value
+* IS	Saturation Current			10-14A
+* CJO	Junction capacitance at VD = 0		0
+* VJ	Reverse-breakdown voltage		1V
+* BV	Reverse-breakdown voltage		infinite
+* IBV	Current at VD = BV			10-10A
+* RS	Series Ohmic resistance			0
+* N	Emission coefficient (ideality factor)	1

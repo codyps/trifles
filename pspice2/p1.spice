@@ -1,0 +1,10 @@
+* Spice Project #2, Problem 1
+Vin 0 1   DC 2
+Ree 1 3   2.2k
+Rcc 2 4   10k
+Vcc 4 0   DC 5
+Q   2 0 3 BM
+
+.model BM NPN (RB=100, BF=50, VJE=.75, IS=1e-16, BR=1, CJC=0, CJE=0)
+.tf V(2,4) Vin
+.end
