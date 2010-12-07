@@ -36,6 +36,7 @@ module alu #(parameter d_width = 32, op_width = 3)
 		input [op_width-1:0]aop);
 
 	always @(ra,rb,aop)
+		(* full_case, parallel_case *)
 		case (aop)
 			op.ADD : res <= ra + rb;
 			op.AND : res <= ra & rb;
