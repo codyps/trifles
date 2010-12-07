@@ -15,13 +15,13 @@ module Control_Unit(output reg done, Ld_AR_BR, Div_AR_x2_CR, Mul_BR_x2_CR, Clr_C
 				Mul_BR_x2_CR = 1;
 				Div_AR_x2_CR = 0;
 				Clr_CR = 0;
-				done = 0;
+				done = 1;
 			end else if (AR_lt_0) begin
 				Ld_AR_BR = 0;
 				Mul_BR_x2_CR = 0;
 				Div_AR_x2_CR = 1;
 				Clr_CR = 0;
-				done = 0;
+				done = 1;
 			end else begin
 				Ld_AR_BR = 0;
 				Mul_BR_x2_CR = 0;
@@ -101,18 +101,20 @@ module tb();
 		reset_b = 0;
 		#2 reset_b = 1;
 
-		for(i = 0; i < 2**32-1; i = i + 3) begin
+		for(i = 0; i < 2**32-1; i = i + 2**31-1) begin
 			Data_BR = i[15:0];
 			Data_AR = i[31:16];
 			
 			start = 1;
 			#10 clk = 1;
-			#10 clk = 0;
+			#5 start = 0;
+			#5 clk = 0;
 
 			while(~done) begin
 				#10 clk = 1;
 				#10 clk = 0;
 			end
 		end
+		#20 $finish;
 	end
 endmodule

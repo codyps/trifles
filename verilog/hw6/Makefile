@@ -24,7 +24,7 @@ proper: |clean
 #	$(RM) *.png
 
 %.v.out : %.v
-	$(VERILOG) -D__FILE__=$^ -Wall -o $@ $<
+	$(VERILOG) -D__FILE__=$^ -Wall -Wimplicit -o $@ $<
 
 .PHONY: test
 test: $(SRC:=.test)
