@@ -1,15 +1,14 @@
 
 module op();
-	localparam ADD = 'b000;
-	localparam AND = 'b001;
+	localparam ADD  = 'b000;
+	localparam AND  = 'b001;
 	localparam NAND = 'b010;
-	localparam OR = 'b011;
-	localparam XOR = 'b100;
-	
-	localparam SGT = 'b101;
+	localparam OR   = 'b011;
+	localparam XOR  = 'b100;
+	localparam SGT  = 'b101;
 
-	localparam SLL = 'b110;
-	localparam SRL = 'b111;
+	localparam SLL  = 'b110;
+	localparam SRL  = 'b111;
 endmodule
 
 module reg_file
@@ -54,10 +53,10 @@ module shifter #(parameter d_width = 32, ra_width = 5)
 		input dir);
 
 	always @(dir, shift, rin)
-		if (dir)
-			res <= rin << shift;
+		if (~dir)
+			res <= (rin << shift);
 		else
-			res <= rin >> shift;
+			res <= (rin >> shift);
 
 endmodule
 
@@ -82,7 +81,7 @@ module mux_out #(parameter d_width = 32)
 		input [d_width-1:0]a, b,
 		input sel);
 
-	always @(a,b) begin
+	always @(a,b,sel) begin
 		if (sel)
 			out <= a;
 		else
@@ -106,8 +105,8 @@ module cpu #(parameter d_width = 32, reg_ct = 32,
 	wire [op_width-1:0] opcode = ins[ins_width-1:opc_end];
 	wire s_alu, shift_dir;
 	wire [ra_width-1:0] 
-		ar1 = ins[ar1_end-1:ar2_end],
-		ar2 = ins[ar_d_end-1:ar1_end],
+		ar1 = ins[ar_d_end-1:ar1_end],
+		ar2 = ins[ar1_end-1:ar2_end],
 		ar_dest = ins[opc_end-1:ar_d_end];
 	wire [d_width-1:0] r1, r2;
 	wire [d_width-1:0] shift_res, alu_res;
@@ -132,7 +131,6 @@ module cpu #(parameter d_width = 32, reg_ct = 32,
 			.addr_b(ar2), .addr_d(ar_dest), .clk(clk));
 
 endmodule
-
 
 module tb();
 	reg [17:0] ins;
@@ -187,8 +185,18 @@ module tb();
 		clk = 0;
 		setr(1, 5);
 		setr(2, 6);
-		/*    add  %0,   %2,   %1, %0 = %1 + %2 */
+		/*    add  %0,   %2,   %1   #  %0 = %1 + %2 */
 		proc('b000_00000_00010_00001);
+		
+		/*    XOR  %3,   %2    %1   # %3 = %0 ^ %2 */
+		proc('b100_00011_00010_00001);
+
+		/*    sll  %4,   %3,   5    # %4 = %3 << 5 */
+		proc('b110_00100_00011_00101);
+		
+		/*    slr  %5,   %4,   4    # %5 = %4 << 4 */
+		proc('b111_00101_00100_00100);
+
 		pregs();
 	end
 endmodule
