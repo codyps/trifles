@@ -39,7 +39,7 @@ module alu #(parameter d_width = 32, op_width = 3)
 		case (aop)
 			op.ADD : res <= ra + rb;
 			op.AND : res <= ra & rb;
-			op.NAND: res <= ~(ra & rb);
+			op.NAND: res <= ra ~& rb;
 			op.OR  : res <= ra | rb;
 			op.XOR : res <= ra ^ rb;
 			op.SGT : res <= (ra > rb) ? 1 : 0;
@@ -196,6 +196,21 @@ module tb();
 		
 		/*    slr  %5,   %4,   4    # %5 = %4 << 4 */
 		proc('b111_00101_00100_00100);
+
+		/*    sgt  %6,   %5,   %4   # %6 = %5 > %4 */
+		proc('b101_00110_00101_00100);
+
+		/*    sgt  %6,   %4,   %5   # %6 = %4 > %5 */
+		proc('b101_00110_00100_00101);
+
+		/*    nand  %7,   %6,   %5   # %7 = %6 ~& %5 */
+		proc('b010_00111_00110_00101);
+
+		/*    or   %8,   %6,   %5   # %8 = %6 | %5 */
+		proc('b011_01000_00110_00101);
+
+		/*    and   %25,   %8,   %5   # %25 = %8 & %5 */
+		proc('b001_11001_01000_00101);
 
 		pregs();
 	end
