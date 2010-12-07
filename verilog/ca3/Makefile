@@ -23,8 +23,11 @@ proper: |clean
 #mrproper: |proper
 #	$(RM) *.png
 
+VFLAGS= -Wall -Wimplicit -Wportbind -Wsensitivity-entire-vector \
+	-Wsensitivity-entire-array
+
 %.v.out : %.v
-	$(VERILOG) -D__FILE__=$^ -Wall -o $@ $<
+	$(VERILOG) $(VFLAGS) -o $@ $<
 
 .PHONY: test
 test: $(SRC:=.test)
