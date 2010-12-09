@@ -66,7 +66,7 @@ module risc_spm #(parameter word_sz=8, sel1_sz=3, sel2_sz=2)
 	mem_unit #() m3_io_space (
 		.data_out(io_word),
 		.data_in(bus_1),
-		.address(addr),
+		.address(addr), /* same address lines */
 		.clk(clk),
 		.write(io_write)
 	);
@@ -172,6 +172,10 @@ module op();
 	localparam MEM = 2'b0x;
 endmodule
 
+/* This isn't used as the specific channel width ones were suffiecient.
+* Of course, without something like this, the model cannot be fully
+* parameterized.
+*//*
 module mux_gen #(parameter word_sz=8, channels=3)
 	(	output [word_sz-1:0] out,
 		input [(word_sz * channels) - 1:0] in,
@@ -188,6 +192,7 @@ module mux_gen #(parameter word_sz=8, channels=3)
 		end
 	endgenerate
 endmodule
+*/
 
 /* changed to 4 ch */
 module mux_4ch #(parameter word_sz=8)
