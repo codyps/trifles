@@ -1,0 +1,23 @@
+* Spice Project #3, Problem 1
+
+Rd 3 2 20k
+Rg 4 2 20M
+R1 5 0 20k
+C1 1 4 100u
+C2 2 5 100u
+
+Vin 1 0 AC sin(0 0.01 1000)
+Vcc 3 0 DC 15
+
+M 2 4 0 0 MM
+
+.tran 4m 0.01m
+.op
+
+.model MM NMOS (VTO=2 KP=0.125e-3 IS=1e-14 CGSO=0 CGDO=0 CGBO=0)
+
+.control
+run
+plot v(5)
+.endc
+.end
