@@ -1,7 +1,7 @@
 
 
 SRC=$(wildcard *.spice)
-OBJ=$(SRC:=.txt)
+OBJ=$(SRC:=.out)
 
 .PHONY:all
 all: $(OBJ)
@@ -10,7 +10,7 @@ all: $(OBJ)
 clean:
 	$(RM) $(OBJ)
 
-%.txt: % Makefile
-	ngspice -b $< | grep -A3 '^Transfer' > $@
+%.out: % Makefile
+	ngspice < $< > $@
 
 

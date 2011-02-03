@@ -10,8 +10,25 @@ error() {
 	exit 1
 }
 
+read_pass () {
+	if [ $# -ne 2 ]; then
+		echo "read_pass: arg count"
+		return 5
+	fi
+
+	trap "stty echo;echo ;exit 1;" INT TERM EXIT	
+
+	stty -echo
+	read -p $1 $2; echo
+	stty echo
+
+	trap - INT TERM EXIT
+
+	return 0
+}
+
 get_page() {
-	`curl -b lawn.cookies -c lawn.cookies -D lawn.header $*`
+	curl -b lawn.cookies -c lawn.cookies -D lawn.header $*
 }
 
 page=`get_page $post_url`

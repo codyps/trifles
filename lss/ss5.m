@@ -1,4 +1,12 @@
 function ss5()
+
+paper_size = [7 5];
+set (gcf, 'paperunits', 'inches');
+set (gcf, 'papertype', '<custom>');
+set (gcf, 'papersize', paper_size);
+set (gcf, 'paperposition', [0, 0, paper_size]);
+
+
 fignum = 1;
 
 %% %%%% P1 (optional)
@@ -22,10 +30,13 @@ X1_analytic = (1 - exp(-1i*4*omega)) ./ (1-exp(-1i*omega));
 
 figure(fignum);
 fignum = fignum + 1;
+subplot(2,2,1);
 plot(omega, abs(X1_analytic));
 
 fignum = P2(x1,fignum);
+print ('-dpng', 'ss5_2b.png')
 
+pause
 
 % Part c
 x2 = ones(1,12);
@@ -33,17 +44,24 @@ X2_analytic = (1 - exp(-1i*length(x2)*omega)) ./ (1-exp(-1i*omega));
 
 figure(fignum);
 fignum = fignum + 1;
+subplot(2,2,1);
 plot(omega, abs(X2_analytic));
 title('X2 Analytic');
 
 fignum = P2(x2,fignum);
+print ('-dpng', 'ss5_2c.png')
 
 % Part d
 x3 = [1,2,3,4,5,4,3,2,1];
+figure(fignum);
+fignum = fignum + 1;
 fignum = P2(x3, fignum);
-
+print ('-dpng', 'ss5_2d.png')
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 %% %%%% Problem 3
+
+
+pause
 
 % (a) Ts=0.1
 % XXX: adjust for Ts=0.01 for (b).
@@ -72,13 +90,51 @@ for i = 1:length(xs);
     ks{i} = 0:1:Ns{i}/2-1;
     ws{i} = (2*pi*ks{i}/Ns{i})/Ts;
     
-    
-   
+    subplot(2,2,i);
+    plot(ws{i},abs(Xs{i}(1:floor(Ns{i}/2))));
+    title(sprintf('FFT Xs{%d}(t)', i));
+end
+
+print('-dpng', 'ss5_3a1.png');
+
+%%%%%% Ts = 0.01
+
+Ts = 0.01;
+t0 = -2:Ts:-Ts;
+t1=-1:Ts:-Ts;
+t2=0:Ts:2;
+t3=0:Ts:1;
+
+xs = cell(4,1);
+xs{1} = [t1+1 1-0.5*t2];
+xs{2} = [ones(1,11*10) -1*ones(1,2*10)];
+xs{3} = [2*t1+2 2-2*t3];
+xs{4} = [ones(1,21*10) -1*ones(1,20*10)];
+
+Ns = cell(size(xs));
+Xs = cell(size(xs));
+ks = cell(size(xs));
+ws = cell(size(xs));
+
+figure(fignum);
+fignum = fignum + 1;
+for i = 1:length(xs);
+    Ns{i} = length(xs{i});
+    Xs{i} = Ts*fft(xs{i}, Ns{i});
+    ks{i} = 0:1:Ns{i}/2-1;
+    ws{i} = (2*pi*ks{i}/Ns{i})/Ts;
     
     subplot(2,2,i);
-    
     plot(ws{i},abs(Xs{i}(1:floor(Ns{i}/2))));
+    title(sprintf('FFT Xs{%d}(t)', i));
 end
+
+print('-dpng', 'ss5_3b.png');
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 w = 0.1:0.1:30;
@@ -96,9 +152,9 @@ fignum = fignum + 1;
 for i = 1:length(xs);
     subplot(2,2,i);
     plot(w,Xs{i});
+    title(sprintf('Analytical Xs{%d}(w)', i));
 end
-
-
+print('-dpng', 'ss5_3a2.png')
 
 figure(fignum);
 fignum = fignum + 1;
@@ -108,6 +164,7 @@ for i = 1:length(xs);
     stem(k,xs{i});
     
 end
+print('-dpng', 'ss5_3a3.png');
 
 % plot ffts and analiticals to compare. You don't need to plot
 % iffts
@@ -127,24 +184,30 @@ function fignum = P2(x, fignum)
         Oms{i}= ( 0:1:Ns(i)/2 )*pi/(Ns(i)/2);
     end
 
+    subplot(2,2,2)
+    hold on;
+    ts = {};
     for i = 1:length(Xs);
-        figure(fignum);
-        fignum = fignum + 1;
         aX = abs(Xs{i});
-        plot(Oms{i}, aX(1:Ns(i)/2+1));
+        plot(Oms{i}, aX(1:Ns(i)/2+1), sprintf('%d',i));
+	ts{i} = sprintf('fft N=%d', i);
     end
+    legend(ts);
+    hold off;
 
     xi = cell(size(Ns));
     for i = 1:length(Xs);
         xi{i} = ifft(Xs{i}, Ns(i));
     end
-
+    subplot(2,2,3);
+    hold on;
+    ts = {};
     for i = 1:length(xi);
-        figure(fignum);
-        fignum = fignum + 1;
-        stem(xi{i});
-        title(sprintf('ifft N=%d',Ns(i)));
+        stem(abs(xi{i}));
+        ts{i} = sprintf('ifft N=%d',Ns(i));
     end
+    legend(ts);
+    hold off;
 end
 % EC to person who tells me what the spectrum of the signal
 % in part D is.

@@ -1,7 +1,7 @@
 * Spice Project #3, Problem 1
 
 Rd 3 2 20k
-Rg 4 2 20M
+Rg 4 2 20Meg
 R1 5 0 20k
 C1 1 4 100u
 C2 2 5 100u
@@ -11,13 +11,13 @@ Vcc 3 0 DC 15
 
 M 2 4 0 0 MM
 
-.tran 4m 0.01m
 .op
 
 .model MM NMOS (VTO=2 KP=0.125e-3 IS=1e-14 CGSO=0 CGDO=0 CGBO=0)
 
 .control
-run
-plot v(5)
+tran 0.01m 4m
+*op
+hardcopy p1.eps v(5) v(1)
 .endc
 .end
