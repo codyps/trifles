@@ -1,0 +1,15 @@
+* Spice Project #3, Problem 2
+
+Vgs  2 0 DC -3
+Vamp 3 1 DC 0
+Vds  3 0
+
+J 1 2 0 JM1
+
+.model JM1 NJF (VTO=-3 IS=1.6e-14, BETA=1e-4, CGD=0, CGS=0)
+
+.control
+dc Vgs -3 0 0.5 Vds 0 10 5
+hardcopy p2.eps I(vamp)
+.endc
+.end
