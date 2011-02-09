@@ -70,13 +70,11 @@ for i = 1:length(xs);
     Ns{i} = length(xs{i});
     Xs{i} = Ts*fft(xs{i}, Ns{i});
     ks{i} = 0:1:Ns{i}/2-1;
+    length(Xs{i})
     ws{i} = (2*pi*ks{i}/Ns{i})/Ts;
-    
-    
-   
-    
+
     subplot(2,2,i);
-    
+
     plot(ws{i},abs(Xs{i}(1:floor(Ns{i}/2))));
 end
 

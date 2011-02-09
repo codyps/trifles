@@ -10,7 +10,12 @@ all: $(OBJ)
 clean:
 	$(RM) $(OBJ)
 
+.PHONY:rebuild
+rebuild: | clean
+	$(MAKE) $(MAKEFLAGS) all
+
+
 %.txt: % Makefile
-	ngspice -b $< | grep -A3 '^Transfer' > $@
+	ngspice -b $< 2>/dev/null | grep -A3 '^Transfer' > $@
 
 
