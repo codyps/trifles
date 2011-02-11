@@ -1,10 +1,8 @@
 #! /usr/bin/env python
 
-from sys import stdout as out
-
 act1_spice = """\
-* Lab 1, Act 1, Diode {diode}, Voltages {Vil}-{Vih}
-Vs 0   Vo1 PULSE({Vil}, {Vih}, 0, 0, 0, {pw}, {period})
+* Lab 1, Act 1, Diode {diode}, Voltages {Vil} to {Vih}
+Vs 0   Vo1 PULSE({Vil}, {Vih}, 0, {ts}, {ts}, {pw}, {period})
 R1 Vo1 Vo2 1K
 D1 Vo2 0   DM1
 
@@ -13,7 +11,7 @@ D1 Vo2 0   DM1
 {extra}
 
 .control
-tran 
+tran {ts} {tl}
 hardcopy {fname}.eps v(Vo1) v(Vo2)
 .endc
 .end
@@ -29,18 +27,19 @@ def a1():
 
 	defs = {
 		'qn': 0,
-		'extra': ''
+		'extra': '',
+		'ts': 0.001
 	}
 
 	models = [
 		{
-			'diode': 'D',
+			'diode': 'd',
 			'freq' : 100e3
 		}, {
-			'diode': '1N4001',
+			'diode': '1n4001',
 			'freq' : 100e3
 		}, {
-			'diode': '6A05',
+			'diode': '6a05',
 			'extra': """\
 *SRC=6A05;DI_6A05;Diodes;Si;  50.0V  6.00A  2.00us   Diodes Inc.
 .MODEL 6A05 D  ( IS=52.4n RS=7.00m BV=50.0 IBV=10.0u
@@ -63,10 +62,13 @@ def a1():
 
 			fname = 'a1_{qn}_{diode}_{Vil}_{Vih}'.format(**m_defs)
 			m_defs['fname'] = fname
+			m_defs['tl'] = m_defs['period'] * 2
 
-			f = open(fname + '.spice', 'w')
+			f = open(fname + '.spice.gen', 'w')
 
 			f.write(act1_spice.format(**m_defs))
+
+		defs['qn'] = m_defs['qn']
 
 if __name__ == "__main__":
 	a1()
