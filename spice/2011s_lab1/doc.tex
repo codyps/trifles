@@ -2,10 +2,10 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{hyperref}
+\usepackage{framed}
 \usepackage{fullpage}
-\usepackage{epstopdf}
 \usepackage{graphicx}
-
+\usepackage{listings}
 \usepackage{float}
 \floatstyle{boxed} 
 \restylefloat{figure}
@@ -18,73 +18,102 @@
 \section{Plots}
 
 \subsection{Normal Diode}
-	\begin{figure}[h!]
+	\begin{figure}[hb!]
 		\centering
 		\includegraphics[height=3.5in]{a1_1_d_0_10.eps}
 		\caption{Normal Diode Model, Volatge 0 to 10}
-		\label{fig:digraph}
+		\label{fig:nd1}
 	\end{figure}
 
-	\begin{figure}[h!]
+	\begin{framed}
+	\lstinputlisting{a1_1_d_0_10.spice.gen}
+	\end{framed}
+
+	\begin{figure}[hb!]
 		\centering
 		\includegraphics[height=3.5in]{a1_2_d_-10_10.eps}
 		\caption{Normal Diode Model, Volatge -10 to 10}
-		\label{fig:digraph}
+		\label{fig:nd2}
 	\end{figure}
 
-	\begin{figure}[h!]
+	\begin{framed}
+	\lstinputlisting{a1_2_d_-10_10.spice.gen}
+	\end{framed}
+
+	\begin{figure}[hb!]
 		\centering
 		\includegraphics[height=3.5in]{a1_3_d_-10_0.eps}
 		\caption{Normal Diode Model, Volatge -10 to 0}
-		\label{fig:digraph}
+		\label{fig:nd3}
 	\end{figure}
 
+	\begin{framed}
+	\lstinputlisting{a1_3_d_-10_0.spice.gen}
+	\end{framed}
 \subsection{1N4001 Diode}
 
-	\begin{figure}[h!]
+	\begin{figure}[hb!]
 		\centering
 		\includegraphics[height=3.5in]{a1_4_1n4001_0_10.eps}
 		\caption{1N4001, Volatge 0 to 10}
-		\label{fig:digraph}
+		\label{fig:1n1}
 	\end{figure}
+	\begin{framed}
+	\lstinputlisting{a1_4_1n4001_0_10.spice.gen}
+	\end{framed}
 
-	\begin{figure}[h!]
+	\begin{figure}[hb!]
 		\centering
 		\includegraphics[height=3.5in]{a1_5_1n4001_-10_10.eps}
 		\caption{1N4001, Volatge -10 to 10}
-		\label{fig:digraph}
+		\label{fig:1n2}
 	\end{figure}
+	\begin{framed}
+	\lstinputlisting{a1_5_1n4001_-10_10.spice.gen}
+	\end{framed}
 
-	\begin{figure}[h!]
+	\begin{figure}[hb!]
 		\centering
 		\includegraphics[height=3.5in]{a1_6_1n4001_-10_0.eps}
 		\caption{1N4001, Volatge -10 to 0}
-		\label{fig:digraph}
+		\label{fig:1n3}
 	\end{figure}
+	\begin{framed}
+	\lstinputlisting{a1_6_1n4001_-10_0.spice.gen}
+	\end{framed}
 
 
 \subsection{6A05 Diode}
 
-	\begin{figure}[h!]
+	\begin{figure}[hb!]
 		\centering
 		\includegraphics[height=3.5in]{a1_7_6a05_0_10.eps}
 		\caption{6A05, Volatge 0 to 10}
-		\label{fig:digraph}
+		\label{fig:6a1}
 	\end{figure}
+	\begin{framed}
+	\lstinputlisting{a1_7_6a05_0_10.spice.gen}
+	\end{framed}
 
-	\begin{figure}[h!]
+	\begin{figure}[hb!]
 		\centering
 		\includegraphics[height=3.5in]{a1_8_6a05_-10_10.eps}
 		\caption{6A05, Volatge -10 to 10}
-		\label{fig:digraph}
+		\label{fig:6a2}
 	\end{figure}
+	\begin{framed}
+	\lstinputlisting{a1_8_6a05_-10_10.spice.gen}
+	\end{framed}
 
-	\begin{figure}[h!]
+	\begin{figure}[hb!]
 		\centering
 		\includegraphics[height=3.5in]{a1_9_6a05_-10_0.eps}
 		\caption{6A05, Volatge -10 to 0}
-		\label{fig:digraph}
+		\label{fig:6a3}
 	\end{figure}
+	\begin{framed}
+	\lstinputlisting{a1_9_6a05_-10_0.spice.gen}
+	\end{framed}
 
 
 \end{document}

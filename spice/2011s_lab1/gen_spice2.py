@@ -2,7 +2,7 @@
 
 act1_spice = """\
 * Lab 1, Act 1, Diode {diode}, Voltages {Vil} to {Vih}
-Vs 0   Vo1 PULSE({Vil}, {Vih}, 0, {ts}, {ts}, {pw}, {period})
+Vs 0   Vo1 PULSE({Vil}, {Vih}, 0, 0, 0, {pw}, {period})
 R1 Vo1 Vo2 1K
 D1 Vo2 0   DM1
 
@@ -62,7 +62,7 @@ def a1():
 
 			fname = 'a1_{qn}_{diode}_{Vil}_{Vih}'.format(**m_defs)
 			m_defs['fname'] = fname
-			m_defs['tl'] = m_defs['period'] * 2
+			m_defs['tl'] = m_defs['period']
 
 			f = open(fname + '.spice.gen', 'w')
 
