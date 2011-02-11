@@ -1,4 +1,6 @@
 
+* bytes:: binary object format convertion: srec - ihex - bin - various IFI formats
+
 * ssh -R & -L without GatewayPorts enabled. Can easily be run on the remote
 	host.
 
