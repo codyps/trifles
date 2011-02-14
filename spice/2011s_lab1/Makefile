@@ -18,7 +18,6 @@ PLOTS=$(SRC:.spice.gen=.eps)
 
 
 .SECONDARY:
-
 .PHONY: all
 all: $(TARGET).pdf ;
 

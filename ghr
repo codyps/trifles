@@ -2,7 +2,14 @@
 user=`git config --get github.user`
 token=`git config --get github.token`
 
-api_url=https://github.com/api/v2/yaml
+api_url="https://github.com/api/v2/yaml"
+
+function check_config() {
+	if [ -z "$user" ] || [ -z "$token" ]; then
+		warn "aborting: github.user or github.token not set"
+		exit 3
+	fi
+}
 
 function api_call() {
 	local call="$1"
@@ -16,7 +23,9 @@ function api_call() {
 
 function create() {
 	local repo="$1"
-	api_call repos/create -F "name=$1" -F 'public=1'
+	local x=`api_call repos/create -F "name=$1" -F 'public=1'`
+	
+	echo "$x"
 }
 
 function delete() {
@@ -27,6 +36,12 @@ function delete() {
 		| sed 's/^.*delete_token: \(.*\)$/\1/'`
 
 	echo $out
+
+	if [ -z "$dtoken"]; then
+		warn "delete token not found."
+		return 1
+	fi
+
 	echo $dtoken
 	
 	local res
@@ -41,11 +56,23 @@ function delete() {
 	esac
 }
 
-function show() {
+function ushow() {
 	local s_user="$1"
 	api_call user/show "$s_user"
 }
 
+function rshow() {
+	local s_user="$1"
+
+	if [ 2 -eq $# ]; then
+		local s_repo="$2"
+
+		api_call repos/show/"$s_user/$s_repo"
+		return 0
+	fi
+
+	api_call repos/show/"$s_user"
+}
 
 function einfo() {
 	echo -ne "\033[1;30m>\033[0;36m>\033[1;36m> \033[0m${@}\n"
@@ -60,11 +87,11 @@ function warn() {
 }
 
 function usage() {
-	warn "usage: $0 <add|new|create|remove|rm|delete> <repo>"
+	warn "usage: $0 <add|rm|repo|user> <repo>"
 }
 
 function req_param() {
-	if [ $1 -ne $2 ]; then
+	if [ $1 -lt $2 ]; then
 		warn "$action needs at least $1 arguments"
 		exit 3
 	fi
@@ -75,17 +102,26 @@ if [ $# -lt 2 ]; then
 	exit 2
 fi
 
+check_config
+
 action=$1
+shift
 case $action in
-add|create|new)
-	req_param 2 $#
-	create "$2"	
-
+add)
+	req_param 1 $#
+	create "$1"	
 	;;
-delete|remove|rm)
+rm)
+	req_param 1 $#
+	delete "$1"
+	;;
+user)
+	req_param 1 $#
+	ushow "$1"
+	;;
+repo*)
 	req_param 2 $#
-	delete "$2"
-
+	rshow $*
 	;;
 *)
 	usage
