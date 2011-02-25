@@ -130,7 +130,6 @@ def proc(defs):
         except:
             pass
 
-        print(defs)
         defs['action'] = defs['action'].format(**defs)
         defs['wave']   = defs['wave'].format(**defs)
         f = open(fname + '.spice.gen', 'w')
