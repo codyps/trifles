@@ -34,7 +34,7 @@ def a1():
 	defs = {
 		'qn': 0,
 		'extra': '',
-		'ts': '2NS'
+		'ts': '10NS'
 	}
 
 	models = [
