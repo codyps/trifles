@@ -4,23 +4,22 @@ TRASH =  $(TARGET).pdf \
 	 $(TARGET).log
 
 TARGET = lab
-SRC = 	a2_01_TIM31_1.spice.gen \
-	a2_02_TIM31_2.spice.gen	\
-	a2_03_TIM31_2.spice.gen	\
-	a2_04_TIM31_2.spice.gen	\
-	a2_05_TIM31_3.spice.gen	\
-	a2_06_TIM31_3.spice.gen	\
-	a2_07_TIM31_3.spice.gen	\
-	a2_08_TIM31_4.spice.gen	\
-	a2_09_2n3904_1.spice.gen	\
-	a2_10_2n3904_2.spice.gen	\
-	a2_11_2n3904_2.spice.gen	\
-	a2_12_2n3904_2.spice.gen	\
-	a2_13_2n3904_3.spice.gen	\
-	a2_14_2n3904_3.spice.gen	\
-	a2_15_2n3904_3.spice.gen	\
-	a2_16_2n3904_4.spice.gen
-
+SRC =   2n3904_1_09.spice.gen\
+	2n3904_2_10.spice.gen\
+	2n3904_2_11.spice.gen\
+	2n3904_2_12.spice.gen\
+	2n3904_3_13.spice.gen\
+	2n3904_3_14.spice.gen\
+	2n3904_3_15.spice.gen\
+	2n3904_4_16.spice.gen\
+	tip31_1_01.spice.gen\
+	tip31_2_02.spice.gen\
+	tip31_2_03.spice.gen\
+	tip31_2_04.spice.gen\
+	tip31_3_05.spice.gen\
+	tip31_3_06.spice.gen\
+	tip31_3_07.spice.gen\
+	tip31_4_08.spice.gen
 PLOTS=$(SRC:.spice.gen=.eps)
 
 .SECONDARY:
