@@ -5,3 +5,7 @@
 *.ps
 *.eps
 *.zip
+*.aux
+*.pdf
+*.dvi
+*.log
