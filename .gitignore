@@ -1,2 +1,7 @@
 *.out
 *.vcd
+*.png
+*.gen
+*.ps
+*.eps
+*.zip
