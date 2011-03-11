@@ -110,7 +110,7 @@
 		\begin{table}[H]
 			\centering
 			\begin{tabular}{*{6}{c|}c}
-			Transistor & $V_{OH}$ & $V_{OL}$ & $t_{d1}$ & $t_f$ & $t_s$ & $t_p$
+			Transistor & $V_{OH}$ & $V_{OL}$ & $t_{d1}$ & $t_f$ & $t_s$ & $t_r$
 			\\ \hline
 
 			TIP31 & 5.08 & 0.320 & 197ns & 549ns & 0 & 3.49us \\
@@ -212,10 +212,30 @@ causes an increase in all the timing parameters for both transistors. This
 is occurs because a larger value for ther input resistance causes the time
 constance to increase, slowing all capacitor charges and discharges.
 
+Part 2.c shows the effect of adjusting the input voltage levels. While
+this does shorten the storage time significantly (by \~100ns out of 131ns
+for the 2N3904 and by \~13us out of 17.3us for the TIP31), this adjustment
+is not feasable in actual circuit design due to the output voltages of the
+gate (and thus the output voltages of other gates in the circuit) still
+being fixed at \~0V and \~5V.
+
 \subsection{Inverter with diode clamping}
 
+Adding the Schottky-barrier diode between the base and collector of the
+BJT prevents the transistor from ever entering saturation, and thus
+preventing the base-collector junction from ever becomming forward biased.
+As that biasing is prevented, the formation of the internal capacitances
+is also prevented to a large degree, cutting down the time constant and
+the storage time directly associated with it.
 
-
+With this modification to the circuit, both storage times were decreased
+to the point of being inmeasurably small. However, in comparison to the
+capacitor addition modification, other time factors were still large. Of
+note, the value for $T_r$ (the rise time, where the output signal is
+rising, imediately following the storage time, where the output signal
+does not change) was increased by around 3 times in this modification
+compared to all the other ones utilized. I expect this was the case due to
+the diodes own internal capacitances forming RC circuits.
 
 \subsection{Inverter with added capacitor}
 
@@ -223,7 +243,14 @@ In the output of the Inverter, we can see that compared to when it was
 lacking in any additional components, the storage time is greatly reduced.
 On the 2N3904 transistor, the storage time was shortened to the extent
 that it was no longer measurable (hence the recorded value of zero). The
-TIP31, as seen in \autoref{fig:tip31-4}, 
+capacitance was not small enough to eliminate the storage time for the
+TIP31, as is observerd in \autoref{fig:tip31-4}, the storage time is
+shortened rather than decreased to the extent that it was unmeasurable.
+The TIP31 retains it's storage time as it's internal capacitances are
+larger than those in the 2N3904. The storage time is decreased as the
+equivalent capacitance is decreased when the additional capacitor is
+placed in series (relative to the AC signal) with the internal
+capacitances.
 
 
 % The SPICE simulation (the prelab)
