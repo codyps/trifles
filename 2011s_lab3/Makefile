@@ -25,6 +25,9 @@ all: $(TARGET).pdf ;
 clean:
 	$(RM) *.gen *.eps *.out *.dvi *.pdf *.aux $(TRASH)
 
-%.pdf : %.tex $(PLOTS)
-	pdflatex -interaction=nonstopmode $<
-	pdflatex -interaction=nonstopmode $<
+%.pdf : %.dvi
+	dvipdf $< $@
+
+%.dvi : %.tex $(PLOTS)
+	latex -interaction=nonstopmode $<
+	latex -interaction=nonstopmode $<

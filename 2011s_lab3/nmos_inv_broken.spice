@@ -1,7 +1,7 @@
 * nmos inverter with a detached Msb.
-
+*.include irf150.spice
 .subckt nmos_inv gnd vin vout vdd
-Ml  vdd  vdd vout gnd
-Msa vout vin gnd  gnd
-Msb vout gnd gnd  gnd
+Ml  vdd  vdd vout gnd NMOS
+Msa vout vin gnd  gnd NMOS
+Msb vout gnd gnd  gnd NMOS
 .ends

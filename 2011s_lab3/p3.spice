@@ -1,19 +1,20 @@
 * Lab 2, Act 1, NMOS inverter, #3
 
 .include 'nmos_inv_2.1.spice'
+.param ts = 2n
 
-nmos_inv 0 vin_r vout vdd
+X1 0 vin_r vout vdd nmos_inv
 
 rin vin vin_r 1k
 Vsdd vdd 0 DC 5
 Vsin vin 0 DC 0
 
-Vsin vin 0 DC 0 PULSE(0 4 0 1n 1n 0.00005 0.0001)
+Vsin vin 0 DC 0 PULSE(0 4 0 2n 2n 0.00005 0.0001)
 
 Cl vout 0 1000p
 
 .control
-tran 1n 0.0002
+tran 2n 0.0002
 hardcopy p3.eps V(vout) V(vin)
 .endc
 .end

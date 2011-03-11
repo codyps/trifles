@@ -2,7 +2,7 @@
 
 .include 'nmos_inv_2.1.spice'
 
-nmos_inv 0 vin_r vout vdd
+X1 0 vin_r vout vdd nmos_inv
 
 rin vin vin_r 1k
 Vsdd vdd 0 DC 5
