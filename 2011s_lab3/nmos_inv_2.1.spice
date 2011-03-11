@@ -1,0 +1,7 @@
+* Normal nmos inverter.
+
+.subckt nmos_inv gnd vin vout vdd
+Ml  vdd  vdd vout gnd
+Msa vout vin gnd  gnd
+Msb vout vin gnd  gnd
+.ends

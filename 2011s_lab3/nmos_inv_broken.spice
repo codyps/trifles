@@ -1,0 +1,7 @@
+* nmos inverter with a detached Msb.
+
+.subckt nmos_inv gnd vin vout vdd
+Ml  vdd  vdd vout gnd
+Msa vout vin gnd  gnd
+Msb vout gnd gnd  gnd
+.ends
