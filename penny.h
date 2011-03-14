@@ -1,5 +1,5 @@
-#ifndef PENNY_H_
-#define PENNY_H_
+#ifndef PENNY_PENNY_H_
+#define PENNY_PENNY_H_
 
 #include <stddef.h>
 
