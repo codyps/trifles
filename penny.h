@@ -14,6 +14,16 @@
 #define barrier() __asm__ __volatile__ ("":::"memory")
 
 
+#ifndef htonll
+# ifdef _BIG_ENDIAN
+#  define htonll(x)   (x)
+#  define ntohll(x)   (x)
+# else
+#  define htonll(x)   ((((uint64_t)htonl(x)) << 32) + htonl(x >> 32))
+#  define ntohll(x)   ((((uint64_t)ntohl(x)) << 32) + ntohl(x >> 32))
+# endif
+#endif
+
 #define MAX(x, y) ((x) > (y)?(x):(y))
 #define MAX4(a, b, c, d) MAX(MAX(a,b),MAX(c,d))
 #define MAX6(a,b,c,d,e,f) MAX(MAX4(a,b,c,d),MAX(e,f))
