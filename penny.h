@@ -9,7 +9,7 @@
 
 /* offsetof is defined in stddef.h */
 #define container_of(item, type, member) \
-		(((type) *)((item) - offsetof(type, member)))
+		(((type) *)((char *)(item) - offsetof(type, member)))
 
 #define barrier() __asm__ __volatile__ ("":::"memory")
 
