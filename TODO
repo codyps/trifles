@@ -1,4 +1,3 @@
-* dynamic array managment
 * linked list
 * circular allocator (based on what I've done in hj's framing code).
 * bsearch/qsort with type warnings/errors (either through templating

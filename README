@@ -1,6 +1,29 @@
-Penny
-=====
+= Penny =
 Nicer things in C, for cheep.
 
-Includes useful non-specific macros and data structures for use within C based projects.
+Includes useful non-specific macros and data structures for use within C
+based projects.
+
+== Parts ==
+
+penny.h::
+	Includes general items that do not warrent their own header. These
+	include the following:
+
+	* barrier
+	* container_of
+	* htonll & ntohll
+	* MAX & MIN
+
+circ_buf.h::
+	Macros for managing a circular buffer.
+
+darray.h::
+	Macros for managing a dynamic array where the array metadata and
+	data sections are contained within the same allocation.
+
+gen_fn.h::
+	Contains a macro which generates a bsearch on a particular type,
+	given a particular comparator.
+
 
