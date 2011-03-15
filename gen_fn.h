@@ -1,5 +1,7 @@
-#ifndef STDPARAM_H_
-#define STDPARAM_H_
+#ifndef PENNY_GEN_FN_H_
+#define PENNY_GEN_FN_H_
+
+#include <stddef.h> /* for size_t */
 
 #define bsearch_fn(name) bsearch_##name
 
