@@ -11,8 +11,14 @@
 #define container_of(item, type, member) \
 		(((type) *)((char *)(item) - offsetof(type, member)))
 
+/* memory barrier */
 #define barrier() __asm__ __volatile__ ("":::"memory")
 
+/* prefetch for reading */
+#define prefetch(x)  __builtin_prefetch(x)
+
+/* prefetch for writing */
+#define prefetchw(x) __builtin_prefetch(x,1)
 
 #ifndef htonll
 # ifdef _BIG_ENDIAN
