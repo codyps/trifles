@@ -34,4 +34,9 @@
 #define MIN6(a,b,c,d,e,f) MIN(MIN4(a,b,c,d),MIN(e,f))
 #define MIN8(a,b,c,d,e,f,g,h) MIN(MIN4(a,b,c,d),MIN4(e,f,g,h))
 
+#define EXPORT(sym) __attribute__((externally_visible)) sym
+#define likely(x)   __builtin_expect(x,1)
+#define unlikely(x) __builtin_expect(x,0)
+#define must_check  __attribute__((warn_unused_result))
+
 #endif
