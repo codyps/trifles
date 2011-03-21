@@ -7,6 +7,8 @@
 
 #define FIELD_SIZE(s,f) (sizeof((s *)0->f))
 
+#define typeof_field(s, f) typeof((s *)0->f)
+
 /* offsetof is defined in stddef.h */
 #define container_of(item, type, member) \
 		(((type) *)((char *)(item) - offsetof(type, member)))
