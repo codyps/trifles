@@ -1,0 +1,67 @@
+% ex: tw=74 
+% ex: tw=74 ts=2 sw=2 noet sts=2
+\documentclass[10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{xkeyval}
+\usepackage[bookmarksnumbered,frenchlinks]{hyperref}
+%\hypersetup{pdfborder=0 0 0}
+\usepackage{multirow}
+\usepackage[english]{babel}
+\usepackage{fullpage}
+\usepackage{tabulary}
+\usepackage{tabularx}
+%\usepackage{natbib}
+\usepackage[all]{hypcap}
+\usepackage{hyperref}
+\usepackage{framed}
+\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{subfig}
+\usepackage{verbatim}
+\usepackage{float}
+\usepackage{datatool}
+%\floatstyle{boxed} 
+%\restylefloat{figure}
+
+\begingroup
+\catcode`\ 12
+\gdef\DTLsettabseparator{%
+\catcode`\ 12
+\DTLsetseparator{ }%
+}
+\endgroup
+
+
+\title{Experiment 3}
+\author{Cody Schafer}
+\date{\today}
+\begin{document}
+\maketitle
+\section{Introduction}
+% An Introduction containing a brief description of the lab
+
+In this lab the experimentors examine the construction of ECL and TTL
+gates as well as the experimental determination
+
+\section{Activities}
+\section{Data}
+
+\begin{table}
+\DTLsettabdelimitor
+\DTLloaddb{act-1-data}{1.csv}
+\DTLdisplaydb{act-1-data}
+
+\ref{tbl:act-1}
+\caption{Activity 1 data.}
+\end{table}
+
+\section{Discussion}
+
+
+% The SPICE simulation (the prelab)
+\section{Spice Simulations}
+%\include{prelab}
+
+\end{document}
