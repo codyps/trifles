@@ -4,27 +4,35 @@ TRASH =  $(TARGET).pdf \
 	 $(TARGET).log
 
 TARGET = lab
-SRC = a1_p1.spice \
-      a1_p2.spice
+SIM_SRC = a1_p1.spice \
+          a1_p2.spice
+PLT_SRC = 1.plot \
+	  2.plot \
+	  3.plot \
+	  4.plot
 
-
-PLOTS=$(SRC:.spice=.eps)
-RM=rm -f
+xOBJ =	$(SIM_SRC:.spice=.eps) \
+	$(PLT_SRC:.plot=.tex)
+OBJ  =  $(addprefix include/, $(xOBJ))
+RM = rm -f
 
 .SECONDARY:
 .PHONY: all
 all: $(TARGET).pdf ;
 
-%.eps: %.spice
+include/%.eps : %.spice
 	-ngspice -b $< -o $@.out
+
+include/%.tex : %.plot
+	gnuplot $<
 
 .PHONY: clean
 clean:
-	$(RM) *.gen *.eps *.out *.dvi *.pdf *.aux $(TRASH)
+	$(RM) *.gen *.eps *.out *.dvi *.pdf *.aux $(TRASH) $(OBJ)
 
 %.pdf : %.dvi
 	dvipdf $< $@
 
-%.dvi : %.tex
+%.dvi : %.tex $(OBJ)
 	latex -interaction=nonstopmode $<
 	latex -interaction=nonstopmode $<
