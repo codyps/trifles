@@ -226,6 +226,10 @@ from the waveform produced by activity 1. This can be attributed to the
 extra level of transistors present in this gate, which should (by our
 general estimation methods) cause a shift of around 0.7v.
 
+The determined $V_{OH}$ and $V_{IH}$ were 4.247 and 1.2 volt, respectively.
+The determined $V_{OL}$ and $V_{IL}$ were 0.072 and 1.0 volts,
+respectively. Noise margins $NM_H$ and $NM_L$ were calculated as 3.047 and
+0.928 volts respectively.
 
 \subsection{ECL 2-input NOR Gate}
 
@@ -236,9 +240,23 @@ plot (as well as the following one), is a change in the rate of change in
 the outputs near the center of the graph. This is probably caused by the
 input voltages crossing the $V_{REF}$ input to the reference transistor.
 
+The determined $V_{OL}$ and $V_{IL}$ were -1.136 and -1.4 volts,
+respectively.  The determined $V_{OH}$ and $V_{IH}$ were -0.709 and -1.2
+volts, respectively. Noise margins $NM_L$ and $NM_H$ were calculated as
+0.264 and 1.11 volts respectively.
+
 \subsection{ECL 2-input OR Gate}
 
 Similar to the above section, $V_{B3}$ closely tracks $V_o$.
+
+The determined $V_{OL}$ and $V_{IL}$ were -1.469 and -1.4 volts,
+respectively.  The determined $V_{OH}$ and $V_{IH}$ were -0.984 and -1.2
+volts, respectively. Noise margins $NM_L$ and $NM_H$ were calculated as
+0.069 and 0.216 volts respectively.
+
+These margins are much lower than the other's encounterd, possibly due to
+the use of an addtional inversion within the gate to obtain the desired
+logical output.
 
 % The SPICE simulation (the prelab)
 \section{Spice Simulations}

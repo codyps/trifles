@@ -5,7 +5,12 @@ TRASH =  $(TARGET).pdf \
 
 TARGET = lab
 SIM_SRC = a1_p1.spice \
-          a1_p2.spice
+          a1_p2.spice \
+	  a2_p1.spice \
+	  a2_p2.spice \
+	  a3_p1.spice \
+	  a3_p2.spice
+
 PLT_SRC = 1.plot \
 	  2.plot \
 	  3.plot \
