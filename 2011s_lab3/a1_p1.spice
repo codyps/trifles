@@ -10,7 +10,7 @@ Vi0 a_e1 0 DC 0  PULSE(0  5  0  2n 2n 1   2)
 
 * .tran tstep tstop < tstart <tmax > > < uic >
 tran 0.02 2
-hardcopy a1_p1.eps v(a_e1) v(b_e1) v(c3) 
+hardcopy include/a1_p1.eps v(a_e1) v(b_e1) v(c3) 
 
 
 .endc

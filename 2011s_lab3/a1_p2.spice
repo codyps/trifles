@@ -11,7 +11,7 @@ Vi1 b_e1 0
 * .dc srcnam vstart vstop vincr [ src2 start2 stop2 incr2 ]
 
 dc Vi1 0 3 0.2
-hardcopy a1_p2.eps v(b_e1) v(c3) 
+hardcopy include/a1_p2.eps v(b_e1) v(c3) 
 
 .endc
 .enc

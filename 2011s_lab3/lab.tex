@@ -62,7 +62,8 @@ $I_{IL}$ and $I_{IH}$ respectivly.
 \subsection{TTL 2-input NOR}
 
 Like the previous activity, this circuit was constructed and verified. The
-DC sweep was then preformed and the data from this recorded. Current
+DC sweep was then preformed and the data from this recorded. Instead of
+fixing the second input high (at 5v), it was set low (0v). Current
 measurements were omited.
 
 \subsection{ECL 2-input NOR}
@@ -211,20 +212,36 @@ expected range of TTL input currents. These rather large currents, even
 when not switching, make TTL a larger power expenditure than some other
 logic setups (with ECL exceeding even TTL in power consumption).
 
+Noise margin calculations were preformed, and the resulting $NM_L$ and
+$NM_H$ were 0.433 and 2.074 volts, respectively. A noise margin is the
+difference between the output and input voltages of the same intended
+level, thus $NM_H = V_{OH} - V_{IH}$ and $NM_L = V_{IL} - V_{OL}$.
+
 \subsection{TTL 2-input NOR Gate}
 
+This transfer curve shows a similar responce to the previous activity, as
+the circuit uses the same design style. Worth noting, however, is that the
+wave form is essentially shifted by some fraction of a volt (~0.5, by eye)
+from the waveform produced by activity 1. This can be attributed to the
+extra level of transistors present in this gate, which should (by our
+general estimation methods) cause a shift of around 0.7v.
 
 
 \subsection{ECL 2-input NOR Gate}
 
-
+The plot generated from the recorded data in this activity shows a closely
+tracking $V_{B4}$ vs $V_o$, as expected due to the clamping between base
+and emitter to 0.7 Volts. Another interesting feature of this activity's
+plot (as well as the following one), is a change in the rate of change in
+the outputs near the center of the graph. This is probably caused by the
+input voltages crossing the $V_{REF}$ input to the reference transistor.
 
 \subsection{ECL 2-input OR Gate}
 
-
+Similar to the above section, $V_{B3}$ closely tracks $V_o$.
 
 % The SPICE simulation (the prelab)
 \section{Spice Simulations}
-%\include{prelab}
+\include{prelab}
 
 \end{document}
