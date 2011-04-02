@@ -1,0 +1,27 @@
+#! /bin/sh
+
+function warn() {
+	printf "%s" "$@" >> /dev/stderr
+	printf "\n" >> /dev/stderr
+}
+
+function usage() {
+	warn "usage: $0 <kernel_dir> <revision>"
+	warn "exmaple: $0 linux-2.4.37.y mykernel.1.0"
+	exit 1
+}
+
+if [ $# -lt 2 ]; then
+	usage
+fi
+
+kern_dir=$1
+rev=$2
+
+{
+	cd "$kern_dir"
+	make dep
+	make-kpkg clean
+	fakeroot make-kpkg --revision=$rev kernel_image
+}
+
