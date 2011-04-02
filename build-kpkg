@@ -5,9 +5,67 @@ function warn() {
 	printf "\n" >> /dev/stderr
 }
 
+function config_replace() {
+	tmp=`tempfile`
+	file=$1
+	cfg=$2
+	val=$3
+
+	grep -v '^.*CONFIG_'"$cfg"'.*$' < "$file" > "$tmp"
+
+	if [ $cfg = "n"]; then
+		printf '# CONFIG_%s is not set\n' "$cfg" >> "$tmp"
+	else
+		printf 'CONFIG_%s=%s\n' "$cfg" "$val" >> "$tmp"
+	fi
+
+	mv "$tmp" "$file"
+}
+
+function change_sched_to() {
+	cfg_file=$1
+	sched=$2
+
+	if   [ "$sched" = "thick" ]; then
+		config_replace "$cfg_file" SCHED_FAT y
+		config_replace "$cfg_file" SCHED_THIN n
+		config_replace "$cfg_file" SCHED_NORMAL n
+	elif [ "$sched" = "thin" ]; then
+		config_replace "$cfg_file" SCHED_FAT y
+		config_replace "$cfg_file" SCHED_THIN n
+		config_replace "$cfg_file" SCHED_NORMAL n
+	elif [ "$sched" = "normal" ]; then
+		config_replace "$cfg_file" SCHED_FAT n
+		config_replace "$cfg_file" SCHED_THIN n
+		config_replace "$cfg_file" SCHED_NORMAL y
+	else
+		warn "error: invalid sched $sched"
+		exit 1
+	fi
+}
+
+function change_version() {
+	makefile=$1
+	ver_post=$2
+	tmpfile=`tmpfile`
+	
+	assign_regex='EXTRAVERSION\( 	\)*='
+
+	old_ver=`grep '^[ 	]*EXTRAVERSION' "$makefile"`
+	old_ver=`printf "%s" "$old_ver" \
+			| sed 's/^EXTRAVERSION[ 	]*=\(.*\)$/\1'`
+
+	minor=`printf "%s" "$old_ver" | cut -f1 -d-`
+
+	new_ver="$minor-$ver_post"
+
+	sed -i 's/^EXTRAVERSION[ 	]*=.*/EXTRAVERSION = '"$new_ver"'/' \
+		"$makefile"
+}
+
 function usage() {
-	warn "usage: $0 <kernel_dir> <revision>"
-	warn "exmaple: $0 linux-2.4.37.y mykernel.1.0"
+	warn "usage: $0 <kernel_dir> <sched={thin,thick,normal}> <revision>"
+	warn "exmaple: $0 linux-2.4.37.y thin 1.0"
 	exit 1
 }
 
@@ -16,12 +74,38 @@ if [ $# -lt 2 ]; then
 fi
 
 kern_dir=$1
-rev=$2
+sched=$2
+rev=$3
+
+if ! [ -d "$kern_dir" ] ; then
+	warn "error: kernel directory $kern_dir is not a directory"
+	exit 1
+fi
+
+if ! [ -f "$kern_dir/.config" ] ; then
+	warn "error: no .config in kern_dir $kern_dir"
+	exit 1
+fi
+
+if ! [ -f "$kern_dir/Makefile" ] ; then
+	warn "error: no Makefile in kern_dir $kern_dir"
+	exit 1
+fi
+
+if printf "%s" "$rev" | grep -q '-' ; then
+	warn "error: probably invalid revision $rev"
+	exit 1
+fi
+
+change_sched_to "$kern_dir/.config"  "$sched"
+change_version  "$kern_dir/Makefile" "$sched"
 
 {
 	cd "$kern_dir"
 	make dep
 	make-kpkg clean
-	fakeroot make-kpkg --revision=$rev kernel_image
+	fakeroot make-kpkg --revision="$sched.$rev" kernel_image
+	cd ..
+	dpkg -i kernel_image 
 }
 

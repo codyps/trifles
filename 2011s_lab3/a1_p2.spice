@@ -1,3 +1,4 @@
+* a1_p2.spice
 .include "a1_fig.spice"
 
 Vs  Vcc 0 DC 5v
@@ -14,4 +15,4 @@ dc Vi1 0 3 0.2
 hardcopy include/a1_p2.eps v(b_e1) v(c3) 
 
 .endc
-.enc
+.end

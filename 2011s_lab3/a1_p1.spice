@@ -1,3 +1,4 @@
+* a1_p1.spice
 .include "a1_fig.spice"
 
 Vs  Vcc 0 DC 5v
