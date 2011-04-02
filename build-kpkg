@@ -13,7 +13,7 @@ function config_replace() {
 
 	grep -v '^.*CONFIG_'"$cfg"'.*$' < "$file" > "$tmp"
 
-	if [ $cfg = "n"]; then
+	if [ $cfg = "n" ] ; then
 		printf '# CONFIG_%s is not set\n' "$cfg" >> "$tmp"
 	else
 		printf 'CONFIG_%s=%s\n' "$cfg" "$val" >> "$tmp"
@@ -31,8 +31,8 @@ function change_sched_to() {
 		config_replace "$cfg_file" SCHED_THIN n
 		config_replace "$cfg_file" SCHED_NORMAL n
 	elif [ "$sched" = "thin" ]; then
-		config_replace "$cfg_file" SCHED_FAT y
-		config_replace "$cfg_file" SCHED_THIN n
+		config_replace "$cfg_file" SCHED_FAT n
+		config_replace "$cfg_file" SCHED_THIN y
 		config_replace "$cfg_file" SCHED_NORMAL n
 	elif [ "$sched" = "normal" ]; then
 		config_replace "$cfg_file" SCHED_FAT n
@@ -47,13 +47,12 @@ function change_sched_to() {
 function change_version() {
 	makefile=$1
 	ver_post=$2
-	tmpfile=`tmpfile`
 	
 	assign_regex='EXTRAVERSION\( 	\)*='
 
 	old_ver=`grep '^[ 	]*EXTRAVERSION' "$makefile"`
 	old_ver=`printf "%s" "$old_ver" \
-			| sed 's/^EXTRAVERSION[ 	]*=\(.*\)$/\1'`
+			| sed 's/^EXTRAVERSION[ 	]*=\(.*\)$/\1/'`
 
 	minor=`printf "%s" "$old_ver" | cut -f1 -d-`
 
