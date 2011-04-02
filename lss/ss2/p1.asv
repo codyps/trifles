@@ -1,0 +1,21 @@
+
+
+
+td = 10; Tmax = 25; a = 0.5; tp = 10; T = Tmax/100;
+t = 0:T:Tmax;
+h = a * exp(-a * t);
+f = rectpuls(t - td,tp);
+
+yexact = exp(-a .* t) .* exp(a .* min([t,tp*ones(length(tp),1)]) - 1);
+y = T .* conv(double(h),double(f));
+
+y = y(1:length(t));
+
+plot(t,y,t,h,t,f,t,yexact)
+legend({'y','h','f','y_{exact}'})
+
+
+Tmax = 100; T= Tmax / 1000; t = 0:T:Tmax;
+f = sin(3*t) .* rectpuls(t,30) + ...
+    sin(2*t) .* rectpuls(t-30,40) + ...
+    sin(3*t) .*

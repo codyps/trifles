@@ -39,19 +39,44 @@ struct list *flip(struct list *l)
 }
 
 // 
-struct list *reverse(struct list *l)
+struct list *reverse(struct list *in_list)
 {
-
-	struct list *cl = l;
-	struct list *n1 = l->next;
+	struct list *cur_list = in_list;
+	struct list *n1 = in_list->next;
 	struct list *n2;
 	while(n1) {
 		n2 = n1->next;
-		n1->next = cl;
-		cl = n1;
+		n1->next = cur_list;
+		cur_list = n1;
 		n1 = n2;
 	}
-	return cl;
+	return cur_list;
 }
 
+struct list *reverse2(struct list *in_list)
+{
+	struct list *temp;
+	struct list *prev = NULL;
+	while(in_list) {
+		temp = in_list->next;
+		in_list->next = prev;
+		prev = in_list;
+		in_list = temp;
+	}
 
+	return prev;
+}
+
+struct list *reverse3(struct list *in_list)
+{
+	struct list *new_list = NULL;
+	struct list *old_nl; /* the previous version of new_list */
+	while(in_list) {
+		old_nl = new_list;
+		new_list = in_list;
+		in_list = in_list->next;
+		new_list->next = old_nl;
+	}
+
+	return new_list;
+}

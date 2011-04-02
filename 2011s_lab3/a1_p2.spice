@@ -1,0 +1,17 @@
+.include "a1_fig.spice"
+
+Vs  Vcc 0 DC 5v
+
+*                PULSE(V1 V2 TD TR TF PW  PER)
+Vi0 a_e1 0 DC 5
+Vi1 b_e1 0
+
+.control
+* .tran tstep tstop [ tstart [ tmax ] ] [ uic ]
+* .dc srcnam vstart vstop vincr [ src2 start2 stop2 incr2 ]
+
+dc Vi1 0 3 0.2
+hardcopy include/a1_p2.eps v(b_e1) v(c3) 
+
+.endc
+.enc

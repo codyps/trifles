@@ -1,0 +1,22 @@
+clf
+clear
+clc
+
+
+Tmax = 100; T= Tmax / 1000; t = 0:T:Tmax; ft = 0:T:(Tma;
+f = sin(3*ft) .* rectpuls(ft,30) + ...
+    sin(2*ft) .* rectpuls(ft-30,40) + ...
+    sin(3*ft) .* rectpuls(ft-70,30);
+w = 2;
+a = .3;
+wr = sqrt(w^2 - a^2 /4);
+
+g = a * exp(-a * t / 2) .* (cos(wr * t) - a/(2*wr) * sin(wr*t));
+h = dirac(t) - g;
+
+y = f - T * conv(g,f);
+
+subplot(2,2,1);
+plot(t,y);
+subplot(2,2,2);
+plot(t,f);

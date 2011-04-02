@@ -1,0 +1,19 @@
+* Lab 2, Act 1, NMOS inverter, #4
+
+.include 'nmos_inv_broken.spice'
+.param ts = 2n
+X1 0 vin_r vout vdd nmos_inv
+
+rin vin vin_r 1k
+Vsdd vdd 0 DC 5
+Vsin vin 0 DC 0
+
+Vsin vin 0 DC 0 PULSE(0 4 0 2n 2n 0.00005 0.0001)
+
+Cl vout 0 1000p
+
+.control
+tran 2n 0.0002
+hardcopy p4.eps V(vout) V(vin)
+.endc
+.end

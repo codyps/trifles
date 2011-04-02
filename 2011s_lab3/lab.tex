@@ -1,0 +1,265 @@
+% ex: tw=74 
+% ex: tw=74 ts=2 sw=2 noet sts=2
+\documentclass[10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{xkeyval}
+\usepackage[bookmarksnumbered,frenchlinks]{hyperref}
+%\hypersetup{pdfborder=0 0 0}
+\usepackage{multirow}
+\usepackage[english]{babel}
+\usepackage{fullpage}
+\usepackage{tabulary}
+\usepackage{tabularx}
+%\usepackage{natbib}
+\usepackage[all]{hypcap}
+\usepackage{hyperref}
+\usepackage{framed}
+\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{subfig}
+\usepackage{verbatim}
+\usepackage{float}
+\usepackage{datatool}
+%\floatstyle{boxed} 
+%\restylefloat{figure}
+
+\begingroup
+\catcode`\ 12
+\gdef\DTLsettabseparator{%
+\catcode`\ 12
+\DTLsetseparator{ }%
+}
+\endgroup
+
+
+\title{Experiment 3}
+\author{Cody Schafer}
+\date{\today}
+\begin{document}
+\maketitle
+\section{Introduction}
+% An Introduction containing a brief description of the lab
+
+In this lab the experimentors examine the construction of ECL and TTL
+gates as well as the approximate experimental determination of $V_{OH}$,
+$V_{OL}$, $V_{IH}$, $V_{IL}$, $NM_{H}$, and $NM_{L}$. For the TTL
+circuits, both NAND and NOR gates were constructed. For the ECL case a
+combination OR and NOR gate was utilized.
+
+\section{Activities}
+
+\subsection{TTL 2-input NAND}
+
+The 2 input NAND of TTL implimentation was constructed and verified. Then
+one of the inputs was fixed high while the other was swept from 0 to 3v in
+0.2V steps. All of the constants mentioned above were determined as each
+of the data points was recorded. An ampmeter was then connected to the
+collector and then high emitter of the input transistor to determine the
+$I_{IL}$ and $I_{IH}$ respectivly.
+
+\subsection{TTL 2-input NOR}
+
+Like the previous activity, this circuit was constructed and verified. The
+DC sweep was then preformed and the data from this recorded. Instead of
+fixing the second input high (at 5v), it was set low (0v). Current
+measurements were omited.
+
+\subsection{ECL 2-input NOR}
+
+The same procedure as the previous circuit was utilized. As this activity
+shares the same circuit as the following one, all data was recorded in a
+single pass. Input voltage was swept from -1.8 to -0.8 with a 0.1V step.
+In addition to measuring the output, the base of 2 intermediate gates (1
+for this activity and the second related to the following activity)
+where also recorded in the data set.
+
+\subsection{ECL 2-input OR}
+
+Construced as part of the previous gate by involving an inverter, this was
+subjected to the same verification and analysis as the previous activity.
+
+\section{Data}
+
+\begin{table}[H]
+	\centering
+	\subfloat[Activity 1, TTL NAND Current recordings]{
+		\qquad
+		\begin{tabular}{c|c}
+			$I_{IH}$ & $I_{IL}$ \\ \hline
+			1.476mA  & 1.697mA
+		\end{tabular}
+	}
+
+	\subfloat[Activity 1, TTL NAND Vin sweep]{
+		\qquad
+		\begin{tabular}{c|c}
+		Vb  & Vo		\\ \hline
+		0   & 3.422	\\
+		0.2 & 3.452	\\
+		0.4	& 3.459	\\
+		0.6	& 3.074	\\
+		0.8	& 0.231	\\
+		1   & 0.167	\\
+		1.2	& 0.167	\\
+		1.4	& 0.167	\\
+		1.6	& 0.166	\\
+		1.8	& 0.166	\\
+		2.0	& 0.166	\\
+		2.2	& 0.166	\\
+		2.4	& 0.166	\\
+		2.6	& 0.166	\\
+		2.8	& 0.165	\\
+		3.0	& 0.165
+		\end{tabular}
+		\label{tbl:act-1}
+		\qquad
+	}
+	\qquad\qquad
+	\subfloat[Activity 2, TTL NOR Vin sweep]{
+		\qquad
+		\begin{tabular}{c|c}
+		Vi  & Vo		\\ \hline
+		0	  & 4.731	\\
+		0.2 &	4.731	\\
+		0.4 &	4.731	\\
+		0.6	& 4.701	\\
+		0.8	& 4.483	\\
+		1	  & 4.247	\\
+		1.2	& 3.725	\\
+		1.4	& 0.072	\\
+		1.6	& 0.068	\\
+		1.8	& 0.068	\\
+		2	  & 0.067	\\
+		2.2	& 0.067	\\
+		2.4	& 0.067	\\
+		2.6	& 0.067	\\
+		2.8	& 0.067	\\
+		3.0	& 0.067
+		\end{tabular}
+		\label{tbl:act-2}
+		\qquad
+	}
+
+	\caption{Activity 1 and 2 data.}
+\end{table}
+
+\begin{figure}[H]
+	\centering
+	\include{include/p1}
+	\caption{TTL NAND, input voltage vs output voltage}
+	\label{fig:act-1}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\include{include/p2}
+	\caption{TTL NOR, input voltage vs output voltage}
+	\label{fig:act-2}
+\end{figure}
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{0.6\linewidth}{X|X|X|X|X}
+	Vi  & Vor   & Vnor  & Vb3   & Vb4		\\ \hline
+	-1.8&	-1.472&	-0.706&	-0.776&	-0.004\\
+	-1.7&	-1.472&	-0.706&	-0.776&	-0.003\\
+	-1.6&	-1.471&	-0.706&	-0.776&	-0.004\\
+	-1.5&	-1.471&	-0.706&	-0.776&	-0.004\\
+	-1.4&	-1.469&	-0.709&	-0.773&	-0.006\\
+	-1.3&	-1.103&	-0.812&	-0.430&	-0.111\\
+	-1.2&	-0.984&	-1.136&	-0.315&	-0.605\\
+	-1.1&	-0.708&	-1.206&	-0.007&	-0.731\\
+	-1.0&	-0.706&	-1.286&	-0.004&	-0.756\\
+	-0.9&	-0.705&	-1.468&	-0.004&	-0.778\\
+	-0.8&	-0.705&	-1.490&	-0.004&	-0.800
+	\end{tabularx}
+	\caption{Activity 3 and 4 data.}
+	\label{tbl:act-3-4}
+\end{table}
+\begin{figure}[H]
+	\centering
+	\include{include/p3}
+	\caption{ECL NOR, $V_{B4}$ and output voltage vs input voltage.}
+	\label{fig:act-3}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\include{include/p4}
+	\caption{ECL OR, $V_{B3}$ and output voltage vs input voltage.}
+	\label{fig:act-4}
+\end{figure}
+
+\section{Discussion}
+
+\subsection{TTL 2-input NAND Gate}
+
+Examination of the plotted data obtained durring the preformance of the
+experiment shows a quickly changing output voltage with respect to the
+input voltage, as expected and desired in logic gates. The high output
+voltage of a gate, also known as $V_{OH}$, is the worst case output value
+which is intended to be read as a high or '1' signal. Similarly, the low
+output voltage, or $V_{OL}$, is the worst case output voltage which is
+intended to be read as a low or '0' signal. For this activity, the $V_{OH}$ and
+$V_{OL}$ were determined to be 3.074 and 0.167 Volts, respectively. These
+choices were based upon the stabilization seen in the output voltage
+around the prior indicated measurments. It was also determined that
+$V_{IH}$ and $V_{IL}$ were 0.6 and 1 Volt, respectively. These were chosen
+as when they are inputed into the gate, they result in voltages near the
+high and low output voltages, respectively.
+
+The input currents measured were rather large, but still within the
+expected range of TTL input currents. These rather large currents, even
+when not switching, make TTL a larger power expenditure than some other
+logic setups (with ECL exceeding even TTL in power consumption).
+
+Noise margin calculations were preformed, and the resulting $NM_L$ and
+$NM_H$ were 0.433 and 2.074 volts, respectively. A noise margin is the
+difference between the output and input voltages of the same intended
+level, thus $NM_H = V_{OH} - V_{IH}$ and $NM_L = V_{IL} - V_{OL}$.
+
+\subsection{TTL 2-input NOR Gate}
+
+This transfer curve shows a similar responce to the previous activity, as
+the circuit uses the same design style. Worth noting, however, is that the
+wave form is essentially shifted by some fraction of a volt (~0.5, by eye)
+from the waveform produced by activity 1. This can be attributed to the
+extra level of transistors present in this gate, which should (by our
+general estimation methods) cause a shift of around 0.7v.
+
+The determined $V_{OH}$ and $V_{IH}$ were 4.247 and 1.2 volt, respectively.
+The determined $V_{OL}$ and $V_{IL}$ were 0.072 and 1.0 volts,
+respectively. Noise margins $NM_H$ and $NM_L$ were calculated as 3.047 and
+0.928 volts respectively.
+
+\subsection{ECL 2-input NOR Gate}
+
+The plot generated from the recorded data in this activity shows a closely
+tracking $V_{B4}$ vs $V_o$, as expected due to the clamping between base
+and emitter to 0.7 Volts. Another interesting feature of this activity's
+plot (as well as the following one), is a change in the rate of change in
+the outputs near the center of the graph. This is probably caused by the
+input voltages crossing the $V_{REF}$ input to the reference transistor.
+
+The determined $V_{OL}$ and $V_{IL}$ were -1.136 and -1.4 volts,
+respectively.  The determined $V_{OH}$ and $V_{IH}$ were -0.709 and -1.2
+volts, respectively. Noise margins $NM_L$ and $NM_H$ were calculated as
+0.264 and 1.11 volts respectively.
+
+\subsection{ECL 2-input OR Gate}
+
+Similar to the above section, $V_{B3}$ closely tracks $V_o$.
+
+The determined $V_{OL}$ and $V_{IL}$ were -1.469 and -1.4 volts,
+respectively.  The determined $V_{OH}$ and $V_{IH}$ were -0.984 and -1.2
+volts, respectively. Noise margins $NM_L$ and $NM_H$ were calculated as
+0.069 and 0.216 volts respectively.
+
+These margins are much lower than the other's encounterd, possibly due to
+the use of an addtional inversion within the gate to obtain the desired
+logical output.
+
+% The SPICE simulation (the prelab)
+\section{Spice Simulations}
+\include{prelab}
+
+\end{document}
