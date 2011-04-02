@@ -57,6 +57,7 @@ function change_version() {
 	minor=`printf "%s" "$old_ver" | cut -f1 -d-`
 
 	new_ver=$minor-$ver_post
+	new_ver=`echo $new_ver`
 
 	sed -i 's/^EXTRAVERSION[ 	]*=.*/EXTRAVERSION = '"$new_ver"'/' \
 		"$makefile"
