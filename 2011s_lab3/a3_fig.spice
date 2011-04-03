@@ -1,4 +1,5 @@
-.include "Q2N3904.spice"
+* a3_fig.spice
+.include 'Q2N3904.spice'
 
 RC1 0 b4 270
 RC2 0 b3 300
@@ -8,8 +9,8 @@ RE2 OR  Vee 2k
 RE3 NOR Vee 2k
 
 *   C  B    E
-Q1A b4 A    ea
-Q1B b4 B    ea
-Q2  b3 Vref ea
-Q3  0  b3   OR
-Q4  0  b4   NOR
+Q1A b4 A    ea  Q2N3904
+Q1B b4 B    ea  Q2N3904
+Q2  b3 Vref ea  Q2N3904
+Q3  0  b3   OR  Q2N3904
+Q4  0  b4   NOR Q2N3904
