@@ -49,6 +49,8 @@ xterm*saveLines:         512
 !urxvt*boldFont:          -proggytiny-*-*-*-*-10-*-*-*-*-*-*-*
 !urxvt.font:              xft:proggytiny:pixelsize=10
 !urxvt*boldFont:          xft:proggytiny:pixelsize=10
+urxvt.font:              xft:Anonymous Pro-8
+urxvt*boldFont:          xft:Anonymous Pro-8
 urxvt.termName:          xterm
 urxvt.scrollBar:         false
 !urxvt.backgroundPixmap:  /home/vermaden/.themes/urxvt.back.xpm
@@ -80,8 +82,8 @@ rxvt*font:*-*-fixed-medium-r-normal--*-110-*-*-*-*-iso8859-1
 rxvt*boldFont:*-*-fixed-medium-r-normal--*-110-*-*-*-*-iso8859-1
 !urxvt.font:              xft:Inconsolata:size=9
 !urxvt*boldFont:          xft:Inconsolata:size=9
-urxvt.font:              xft:MonteCarlo:size=9
-urxvt*boldFont:          xft:MonteCarlo:size=9
+!urxvt.font:              xft:MonteCarlo:size=8
+!urxvt*boldFont:          xft:MonteCarlo:size=8
 !urxvt.font:              xft:profont:pixelsize=12
 !urxvt*boldFont:          xft:profont:pixelsize=12
 rxvt.termName:          rxvt
