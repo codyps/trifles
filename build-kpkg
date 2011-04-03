@@ -68,7 +68,7 @@ function usage() {
 	exit 1
 }
 
-if [ $# -lt 2 ]; then
+if [ $# -lt 3 ]; then
 	usage
 fi
 
@@ -105,6 +105,5 @@ change_version  "$kern_dir/Makefile" "$sched"
 	make-kpkg clean
 	fakeroot make-kpkg --revision="$sched.$rev" kernel_image
 	cd ..
-	dpkg -i kernel_image 
 }
 
