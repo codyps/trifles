@@ -1,0 +1,40 @@
+#! /bin/sh
+
+shapath=$HOME/.boot.sha512
+
+function update() {
+	sha512sum /boot/vm* > $shapath
+}
+
+function check() {
+	if ! sha512sum /boot/vm* | cmp $shapath /dev/stdin; then
+		echo "OMG. DIFFERENT."
+	else
+		echo "Good to go."
+	fi
+}
+
+function usage() {
+	echo "$0 <check|update>"
+	exit 1
+}
+
+if [ $# -ne 1 ] ; then
+	usage
+fi
+
+case $1 in
+check)
+	check
+	;;
+
+update)
+	update
+	;;
+
+*)
+	usage
+	;;
+
+esac
+
