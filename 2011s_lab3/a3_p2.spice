@@ -1,0 +1,16 @@
+* a3_p2.spice
+
+.include "a3_fig.spice"
+
+Vs1 Vee  0 DC -1.8V
+Vs2 Vref 0 DC -1.2V
+
+VsA A 0 DC -1.6
+VsB B 0 DC -1.8
+
+.control
+* .dc srcnam vstart vstop vincr [ src2 start2 stop2 incr2 ]
+dc VsB -0.8 -1.8 0.1
+hardcopy include/a3_p2.eps v(B) v(NOR) 
+.endc
+.end

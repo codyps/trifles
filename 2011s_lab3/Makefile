@@ -9,7 +9,9 @@ SIM_SRC = a1_p1.spice \
 	  a2_p1.spice \
 	  a2_p2.spice \
 	  a3_p1.spice \
-	  a3_p2.spice
+	  a3_p2.spice \
+	  a4_p1.spice \
+	  a4_p2.spice
 
 PLT_SRC = 1.plot \
 	  2.plot \

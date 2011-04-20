@@ -1,0 +1,18 @@
+* a3_p1.spice
+.include "a3_fig.spice"
+
+Vs  Vee  0 DC -1.8V
+Vsr Vref 0 DC -1.2V
+
+*                PULSE(V1 V2 TD TR TF PW  PER)
+Vi0 A 0 DC 0  PULSE(0  -1.6  0  2n 2n 0.5 1)
+Vi1 B 0 DC 0  PULSE(0  -1.6  0  2n 2n 1   2)
+
+.control
+
+* .tran tstep tstop < tstart <tmax > > < uic >
+tran 0.02 2
+hardcopy include/a3_p1.eps v(A) v(B) v(NOR) 
+
+.endc
+.end
