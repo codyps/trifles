@@ -23,15 +23,77 @@
 \usepackage{float}
 %\floatstyle{boxed} 
 %\restylefloat{figure}
-\title{\textbf{Experiment 2} \\
-	Activity 1}
+\title{\textbf{Lab} 4 \\
+NMOS and CMOS inverter}
 \author{Cody Schafer}
 \date{\today}
 \begin{document}
 \maketitle
+\section{Discussion}
+
+\subsection{Activity 1, NMOS inverter}
+
+In tabulating and graphically representing the input voltage versus output
+voltage curves of the NMOS inverter, it's non-symmetric nature became
+readily apparent. As only one side of the system is acting in switching
+mode, the crisp latching to both a steady output high and output low with
+in the same circuit, as seen in CMOS circuits was missing. In the
+particular circuit examined (an NMOS inverter) the high output voltage was
+clearly held at 1.972 volts, as both of the switching transistors (both
+used in pulling down the output) were in cut-off mode (had this been a
+PMOS setup, the low output voltage would have been crisp instead). As the
+input voltage rose, the low output voltage never stabilized, or even
+slowed to the extent seen in CMOS circuits, it continued to drop even as
+we exceeded the highest possible input voltage. The extra switching
+transistor added on the low half of the gate has the purpose of aiding in
+sinking current, as the resistive transistor has the ability to source
+more, due to it having it's gate tied high to an optimal input voltage,
+while the switching transistors have to cope with a potentially (and
+probably) non-optimal input voltage.
+
+The high output voltage of 1.956 causes the experimenter some concern that
+one of the switching transistors may have been damaged and failed open, in
+essence, turning into a resistive transistor pulling down the output
+voltage. Having the high output be somewhat less than half of the expected
+value supports this hypothesis if the design of having 2 switching
+transistors was chosen to source slightly more than the needed current.
+However, the systems response to removing one of the switching
+transistors from the circuit appears to contradict this hypothesis of the
+reason for failure. Still, some other failure mode for at least one of the
+transistors remains probable.
+
+The second transistor additionally appears to aid in reducing the rise and
+fall times. This is attributable to the additional current in sinks
+allowing the parasitic capacitances to drain/charge at a higher rate.
+
+
+
+\subsection{Activity 2, CMOS inverter}
+
+The graphs of data obtained from the tabulations of input and output
+voltages from this gate were nearly symmetrical, as expected. Additionally,
+the rise and fall times neared equality, and their differences were
+significantly lower than the differences in rise and fall times of the
+NMOS circuit. The rise and fall times of the CMOS inverter are comparable
+to those observed in the NMOS inverter circuit, probably due in a large
+part to the use of the same transistor package in both circuits, thus they
+have the same transistor characteristics (K) and parasitic capacitances.
+
+Both the CMOS and NMOS inverter showed the change (rise or fall) of the
+input voltages to proceed at a much higher rate than the change (fall or
+rise) in the output voltages. This occurs due to the output voltage's
+dependence on the transition of the input voltage in determining the flow
+of current away from capacitances attached to the output as well as the
+lack of a serious impediment to the flow of current into the gate
+capacitances. Of course, when the $R_G$ was added, we can clearly see an
+increase in the time for the input voltage to transition, but the output
+voltage transition times were affected as well due to the current flow
+into or away from the output being a function of the gate voltage.
+
+
 
 % The SPICE simulation (the prelab)
-\section{Spice Simulations}
-\include{prelab}
+%\section{Spice Simulations}
+%\include{prelab}
 
 \end{document}
