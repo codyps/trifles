@@ -37,7 +37,7 @@ function delete() {
 
 	echo $out
 
-	if [ -z "$dtoken"]; then
+	if [ -z "$dtoken" ]; then
 		warn "delete token not found."
 		return 1
 	fi

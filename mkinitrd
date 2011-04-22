@@ -1,0 +1,3 @@
+#! /bin/sh
+
+mkinitrd -o /boot/initrd.img-$1 $1

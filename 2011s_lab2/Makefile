@@ -21,6 +21,7 @@ SRC =   2n3904_1_09.spice.gen\
 	tip31_3_07.spice.gen\
 	tip31_4_08.spice.gen
 PLOTS=$(SRC:.spice.gen=.eps)
+RM=rm -f
 
 .SECONDARY:
 .PHONY: all
@@ -39,9 +40,6 @@ spice_gen: gen_spice2.py
 clean:
 	$(RM) *.gen *.eps *.out *.dvi *.pdf *.aux $(TRASH)
 
-%.pdf : %.dvi
-	dvipdf $< $@
-
-%.dvi : %.tex $(PLOTS) prelab.tex
-	latex -interaction=nonstopmode $<
-	latex -interaction=nonstopmode $<
+%.pdf : %.tex
+	pdflatex -interaction=nonstopmode $<
+	pdflatex -interaction=nonstopmode $<

@@ -1,9 +1,105 @@
+#include <address_space.h>
+
+struct ibctx {
+	struct addr_space *as;
+	size_t line_num;
+	char  *file_name;
+	int    line_pos;
+
+	char *start;
+	char *end;
+};
+
+static int tohex(int c)
+{
+	c = tolower(c);
+	if (c > '9')
+		return c - 'a';
+	return c - '0';
+}
+
+static ssize_t get_line_addr(struct ibctx *ctx)
+{
+	size_t line_addr = 0;
+	unsigned addr_len = 0;
+
+	char cur;
+	while((cur = *(ctx->start)) != ' ') {
+		if (!isxdigit(cur)) {
+			WARN_LINE(ctx, "address contains non-hex digit."
+					" assuming address is done.");
+			break;
+		}
+
+		line_addr <<= 4;
+		line_addr |= tohex(cur);
+
+		addr_len ++;
+		ctx->start ++;
+		ctx->line_pos ++;
+
+		if (ctx->start >= ctx->end) {
+			WARN_LINE(ctx, "no more file to parse.");
+			return -1;
+		}
+
+		if (addr_len > (sizeof(line_addr) * CHAR_BIT / 4 - 1)) {
+			WARN_LINE(ctx, "bits in address exceeded allowed "
+				"amount");
+			return -1;
+		}
+	}
+
+	return line_addr;
+}
+
+
+int ifibin_read(struct addr_space *as, char *start, char *end)
+{
+	struct ibctx c;
+	struct ibctx *ctx = &c;
+
+	c.as = as;
+	c.line_num = 1;
+	c.file_name = "unknown_file";
+	c.line_pos = 1;
+	c.start = start;
+	c.end = end;
+
+	/* for each line */
+	for (;;) {
+		ssize_t addr = get_line_addr(ctx);
+		if (addr < 0) {
+			return -1;
+		}
+
+		if (*c.start != ' ') {
+			WARN(ctx, "could not eat space.");
+		} else {
+			c.start ++;
+		}
+
+		if (c.start >= c.end) {
+			WARN(ctx, "out of parsable data.");
+			return -1;
+		}
+
+		/* for each byte pair */
+		while(*(c.start) != '\n') {
+			int b = 0;
+
+			if (!isxdigit(c))
+
+		}
+	}
+
+}
 
 /* tightly bound reader for ifibin.
  * currenly uses their fixed address length (6)
  * and fixed byte grouping (1)
  */
-int ifibin_read(struct addr_space *as, FILE *in)
+int ifibin_read(struct addr_space *as, char *start, char *end)
 {
 	char *line = NULL;
 	size_t line_sz = 0;

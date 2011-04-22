@@ -1,0 +1,14 @@
+* a2_p2.spice
+.include "a2_fig.spice"
+
+Vs  Vcc 0 DC 5v
+
+Vi0 A 0 DC 0
+Vi1 B 0
+
+.control
+* .dc srcnam vstart vstop vincr [ src2 start2 stop2 incr2 ]
+dc Vi1 0 3 0.2
+hardcopy include/a2_p2.eps v(B) v(Y) 
+.endc
+.enc

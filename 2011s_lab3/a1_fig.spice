@@ -1,0 +1,17 @@
+.include "Q2N3904.spice"
+.include "DN4001.spice"
+
+RB1 Vcc b1 4k
+RB3 e2  0  1k
+
+RC2 Vcc c2 1.5k
+RC4 Vcc c4 120
+
+*   C  B  E
+Q1a c1 b1 a_e1 Q2N3904
+Q1b c1 b1 b_e1 Q2N3904
+Q2  c2 c1 e2  Q2N3904
+Q3  c3 e2 0   Q2N3904
+Q4  c4 c2 e4  Q2N3904
+
+D   e4 c3     DN4001

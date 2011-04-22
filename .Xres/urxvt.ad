@@ -1,0 +1,29 @@
+
+URxvt.scrollstyle: plain
+URxvt.scrollBar: off
+
+!URxvt.font: xft:DejaVu Sans Mono-7
+URxvt.font: xft:Anonymous Pro-8
+!URxvt.font: xft:Inconsolata-8
+
+!URxvt.internalBorder: 0
+!URxvt.background: black
+!URxvt.foreground: grey
+
+!URxvt.color0: #000000
+!URxvt.color1: #aa0000
+!URxvt.color2: #00aa00
+!URxvt.color3: #aa5500
+!URxvt.color4: #0000aa
+!URxvt.color5: #aa00aa
+!URxvt.color6: #00aaaa
+!URxvt.color7: #aaaaaa
+!URxvt.color8: #555555
+!URxvt.color9: #ff5555
+!URxvt.color10: #55ff55
+!URxvt.color11: #ffff55
+!URxvt.color12: #5555ff
+!URxvt.color13: #ff55ff
+!URxvt.color14: #55ffff
+!URxvt.color15: #ffffff
+!
