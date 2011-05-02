@@ -28,6 +28,7 @@ clean:
 %.pdf : %.dvi
 	dvipdf $< $@
 
-%.dvi : %.tex $(PLOTS)
+#%.dvi : %.tex $(PLOTS)
+%.dvi : %.tex
 	latex -interaction=nonstopmode $<
 	latex -interaction=nonstopmode $<

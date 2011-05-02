@@ -34,7 +34,7 @@ Ex 2: Act 3; Ex 4: Act 1.1, 2, 3, 4; Ex 5: Act 1.1}
 % An Introduction containing a brief description of the lab
 
 This lab explored the construction and electrical behavior of CMOS logic
-(via constructing a few CMOS gates an measuring transisition times).
+(via constructing a few CMOS gates an measuring transition times).
 Additionally, regenerative logic circuits (latches and flip-flops) 
 were constructed using MOSFETS. Some of these circuits were clocked, and
 thus a clock circuit was constructed. Lastly, a CMOS static ram cell was
@@ -48,14 +48,14 @@ constructed and read and writing to it was examined.
 
 A CMOS NAND gate, CMOS NOR gate, and CMOS XOR gate were constructed. For
 each of these gates, various rise and fall times of the output were
-recoreded.
+recorded.
 
 \subsection{Experiment 4, Activity 1.1, 2, 3, 4}
 
 A SR NOR latch, a SR NAND latch, a clocked JK flip-flop (using the NAND
 latch), and a clocked SR NOR latch were constructed and had their truth
 tables verified. For verifying the clocked logic circuits, a clock circuit
-which emited a controlled pulse from a button press was constructed from
+which emitted a controlled pulse from a button press was constructed from
 BJTs.
 
 \subsection{Experiment 5, Activity 1.1}
@@ -77,7 +77,7 @@ the cell was preformed, as was a read of both a 1 and a 0.
 	$A:0 \rightarrow 1; B:1 \rightarrow 0$ & rise & 128 nS \\
 	\end{tabular}
 	\label{tbl:nand}
-	\caption{NAND gate transisiton times (CMOS)}
+	\caption{NAND gate transition times (CMOS)}
 \end{table}
 
 \begin{table}[H]
@@ -92,7 +92,7 @@ the cell was preformed, as was a read of both a 1 and a 0.
 	17.6nS \\
 	\end{tabular}
 	\label{tbl:nor}
-	\caption{NOR gate transisiton times (CMOS)}
+	\caption{NOR gate transition times (CMOS)}
 \end{table}
 
 \begin{table}[H]
@@ -105,12 +105,12 @@ the cell was preformed, as was a read of both a 1 and a 0.
 	$A:0 \rightarrow 0; B:0 \rightarrow 1$ & fall &	133nS \\
 	\end{tabular}
 	\label{tbl:xor}
-	\caption{XOR gate transisiton times (CMOS)}
+	\caption{XOR gate transition times (CMOS)}
 \end{table}
 
 \subsection{Experiment 4}
 
-No data of signifigance recorded, truth tables merely verified (as
+No data of significance recorded, truth tables merely verified (as
 demanded by the lab manual). All circuits (SR latch via NOR, SR latch via
 NAND, JK Filp-Flop, and Clocked SR Flip-Flop) produced the expected
 output.
@@ -134,27 +134,60 @@ output.
 
 \subsection{Experiment 2}
 
+From the data collected within this experiment, It can be seen that
+different inputs transitioning for the same CMOS logic circuit can cause
+changes in the rise and fall times of the outputs. In particular, it is
+noted that the distinctions in rise and fall times depend on how many
+inputs are transitioning. We can note that in the case of the nor gate,
+when all the inputs go high the fall time is significantly lower than the
+fall time when only one of the inputs transition to the high state. This
+is most likely caused by the much larger current available to charge the
+output capacitances (3 transistors are enabled while the output is
+transitioning rather than 1).
+
+In the XOR gate's case, as the design varies from the standard reorganized
+inverting gates in the NOR and NAND, particularly the use of two
+complimenting MOS gates as a type of disable-able buffer causes significant
+variance in the rise and fall times for different input patterns. In
+addition, it powers one of the inverters contained within it off of an
+input line. From the data recorded, the transition of $A:0 \rightarrow 1;
+B:1 \rightarrow 1$, where in the inverter is initially lacking in a source
+(as A is initially low) requires the largest time to transition, indicating
+that if one wished to redesign this gate to reduce the transition times
+constructing it in a manner that did not have the source of an
+inverter attached to an input would be one of the items to initially
+target.
+
+
 \subsection{Experiment 4}
+
+Each of the circuits constructed within this experiment contain at least a
+single feed back from further in the logic, allowing the output of the
+circuit to, in a sense, reinforce the output of the circuit (as this
+statement appears, the reinforcing is also cyclic). Unlike the static ram
+cell constructed in experiment 5, these circuits are structured such that
+a minimal amount of current may be drawn when attempting to change the
+circuit's state.
 
 \subsection{Experiment 5}
 
 The constructed static ram cell was composed of 2 CMOS inverters fed back into
-one another (a simple bistable multivibrator design) with additional
+one another (a simple bistable multi-vibrator design) with additional
 attached lines to allow setting of the latch state to either the high or
 low values. Additional capacitances were added for load simulation
 purposes (typically the lines drive a large number of cells) but it
 appears that these loads do not accurately (or simply don't consistently)
 model those they are attempting to simulate. The lack of a drop of
-signifigant size while doing the reads of the ram cell, when it was stated
+significant size while doing the reads of the ram cell, when it was stated
 that this was expected, indicated that in reality a much larger leakage
-current exsists in the capacitive load. In this experiment's case it
+current exists in the capacitive load. In this experiment's case it
 appears that the capacitors remained charged to the same voltage that is
-stored in the ram cell. Indeed, as the ram cell will constantly stablize
-itself to 5v, the lack of a constant drop for all times is expected.
+stored in the ram cell. Indeed, as the ram cell will constantly stabilize
+itself to 5V, the lack of a constant drop for all times is expected.
 Instead, the circuit should display (in the worst case, with the load
 capacitances holding charge opposite of that stored in the ram cell) a
-small inital drop in the voltage toward some intermediate value (~2.5)
-prior to recovery to either 0 or 5v, depending on the value stored in the
+small initial drop in the voltage toward some intermediate value (~2.5)
+prior to recovery to either 0 or 5V, depending on the value stored in the
 ram cell.
 
 % The SPICE simulation (the prelab)
