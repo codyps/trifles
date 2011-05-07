@@ -69,6 +69,7 @@ int eat_combos(FILE *in, struct case_data *cd)
 		}
 
 		cd->combos[j][k] = x;
+		cd->combos[k][j] = x;
 	}
 
 	return 0;
@@ -119,7 +120,7 @@ int check_combo(struct case_data *cd)
 	struct invoke *cur = list_entry(lh->prev, typeof(*cur), list);
 	struct invoke *prev = list_entry(lh->prev->prev, typeof(*prev), list);
 
-	char repl = cd->combos[cur->elem][prev->elem];
+	int repl = cd->combos[cur->elem][prev->elem];
 
 	if (repl) {
 		list_del(&prev->list);
