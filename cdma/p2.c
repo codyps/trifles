@@ -57,7 +57,7 @@ int main(__unused int argc, __unused char **argv)
 	unsigned long long iter = 0, show_every = 0;
 	uint32_t pn_sr = 0, pn_sr_orig = 0;
 
-	CHECK_ARGS("./p1", ((char *[]){"initial", "iterations", "show_every"}) );
+	CHECK_ARGS("./p2", ((char *[]){"data file", "initial"}) );
 	pn_sr = arg_ull(argv[1]);
 	iter  = arg_ull(argv[2]);
 	show_every = arg_ull(argv[3]);
