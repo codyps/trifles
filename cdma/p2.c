@@ -177,8 +177,8 @@ int main(__unused int argc, __unused char **argv)
 
 	unsigned long long pi = arg_ull(argv[2]);
 
-	fprintf(stderr, "pi = %llx\n", 0xffffffffllu);
-	fprintf(stderr, "pi = %llx\n", pi);
+	//fprintf(stderr, "pi = %llx\n", 0xffffffffllu);
+	//fprintf(stderr, "pi = %llx\n", pi);
 
 	struct sr sr = { pi , {0} };
 
@@ -204,7 +204,7 @@ int main(__unused int argc, __unused char **argv)
 		if ((j % 256) == 0) {
 			j = 0;
 			next_codeword(&sr);
-			print_array(sr.codeword, ARRAY_SIZE(sr.codeword), "%x", stderr);
+			//print_array(sr.codeword, ARRAY_SIZE(sr.codeword), "%x", stderr);
 
 			long long b_m_k = array_mult_by_bit(r, sr.codeword, 256);
 
