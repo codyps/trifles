@@ -7,34 +7,8 @@
  */
 #define _BSD_SOURCE /* for endian.h */
 
-/* R: "Finally, your messages will be coded in 7-bit ASCII format (MSB first, left to right)." */
-/* 256 % 7 != 0, so 8 makes sense here despite the above statement */
-#define ACSII_CHAR_BITS 8
-#define ACSII_RECV_MSB_FIRST 1
 
-/* R: "That is, using seed Sm , the first 256
-   bits (ordered LSB to MSB) output by the shift register will comprise sm1 ,
-   the next sm2 and so on."
- *
- * What does it mean for the bits to be orderd "[from] LSB to MSB"?
- * Is the LSB the first emitted? Or the MSB?
- */
-#define SHIFT_REG_LSB_EMIT_FIRST 1
-
-/* This should do the same thing as changing the above */
-#define FLIP_RK 0
-
-/* R: During bit interval k, user m has codeword smk composed of ±1s.
- *
- * binary = {1, 0} instead. */
-#define CODEWORD_IS_BINARY 0
-
-#define RAND_INIT_FLIP  0
-#define RAND_INIT_BYTESWAP 0
-#define RAND_INIT_SHIFT 0
-
-/* Enable the use of discrete stepping */
-#define STEP_BY_256 1
+#include "config.h"
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -69,10 +43,49 @@ __unused static uint32_t flip_bits32(uint32_t v)
 
 static uint32_t update_pn(uint32_t cur)
 {
-	return cur << 1 |
-		(BIT_N(cur, 27) ^ BIT_N(cur, 30));
+	return ((cur << 1) |
+		(BIT_N(cur, 27) ^ BIT_N(cur, 30))) & MASK_N(31);
 }
 
+struct sr {
+	uint32_t pn;
+	uint8_t  codeword[256/8];
+};
+
+static bool shift_in_bit(uint8_t *ar, size_t len, bool in)
+{
+	size_t i = len;
+	if (!len)
+		return false;
+
+	bool ret = BIT_N(ar[len - 1], 7);
+
+	for(; i > 1; i--) {
+		ar[i - 1] = ar[i - 1] << 1 | (ar[i - 2] >> 7);
+	}
+
+	ar[0] = ar[0] << 1 | in;
+
+	return ret;
+}
+
+static void update_sr(struct sr *s)
+{
+	uint32_t new_pn = update_pn(s->pn);
+	bool     out_bit = BIT_N(s->pn, 30);
+
+	shift_in_bit(s->codeword, ARRAY_SIZE(s->codeword), out_bit);
+
+	s->pn = new_pn;
+}
+
+static void next_codeword(struct sr *s)
+{
+	size_t i;
+	for(i = 0; i < 256; i++) {
+		update_sr(s);
+	}
+}
 
 static unsigned long long arg_ull(char *arg)
 {
@@ -111,11 +124,6 @@ static long long next_rk(FILE *f)
 }
 
 
-struct sr {
-	uint32_t pn;
-	uint8_t  codeword[256/8];
-	unsigned long long i;
-};
 
 static bool bit_in_array(uint8_t *ar, size_t bit)
 {
@@ -125,57 +133,7 @@ static bool bit_in_array(uint8_t *ar, size_t bit)
 #define type_ptr(t) ((t *) NULL)
 #define sizeof_field(s, f) sizeof(((s *)(NULL))->f)
 
-static bool shift_in_bit(uint8_t *ar, size_t len, bool in)
-{
-	size_t i = len;
-	if (!len)
-		return false;
 
-	bool ret = BIT_N(ar[len - 1], 7);
-
-	for(; i > 1; i--) {
-		ar[i - 1] = ar[i - 1] << 1 | (ar[i - 2] >> 7);
-	}
-
-	ar[0] = ar[0] << 1 | in;
-
-	return ret;
-}
-
-__unused static long long shift_in_ll(long long *ar, size_t len, long long in)
-{
-	size_t i = len;
-	if (!len)
-		return 0;
-
-	long ret = ar[len - 1];
-
-	for(; i > 1; i--) {
-		ar[i - 1] = ar[i - 2];
-	}
-
-	ar[0] = in;
-
-	return ret;
-}
-
-static void update_sr(struct sr *s)
-{
-	s->pn = update_pn(s->pn);
-	bool out = BIT_N(s->pn, 31);
-	s->pn = s->pn & MASK_N(31);
-
-	shift_in_bit(s->codeword, ARRAY_SIZE(s->codeword), out);
-}
-
-static void step_sr(struct sr *s)
-{
-	size_t i;
-	for(i = 0; i < 256; i++) {
-		update_sr(s);
-	}
-	s->i ++;
-}
 
 static long long array_mult_by_bit(long long *a, uint8_t *b, size_t elems)
 {
@@ -194,15 +152,8 @@ static long long array_mult_by_bit(long long *a, uint8_t *b, size_t elems)
 		bool bit = bit_in_array(b, bit_ix);
 
 		long long s_m_k = bit ? 1 : -1;
-#if CODEWORD_IS_BINARY
-		s_m_k = bit ? 1 : 0;
-#endif
 
-		size_t r_ix = i;
-#if FLIP_RK
-		r_ix = elems - i - 1;
-#endif
-		long long r_k   = a[r_ix];
+		long long r_k   = a[i];
 
 		sum += s_m_k * r_k;
 	}
@@ -210,15 +161,13 @@ static long long array_mult_by_bit(long long *a, uint8_t *b, size_t elems)
 	return sum;
 }
 
-void print_array(long long *a, size_t elems, FILE *out)
-{
-	size_t i;
-	for (i = 0; i < elems; i++) {
-		fprintf(out, "%lld ", a[i]);
-	}
-
-	fputc('\n', out);
-}
+#define print_array(a, elems, fmt, out) do {	\
+	size_t i;			\
+	for (i = 0; i < elems; i++) {	\
+		fprintf(out, fmt, a[i]);	\
+	}				\
+	fputc('\n', out);		\
+} while(0)
 
 int main(__unused int argc, __unused char **argv)
 {
@@ -227,57 +176,38 @@ int main(__unused int argc, __unused char **argv)
 	FILE *in = fopen(argv[1], "r");
 
 	unsigned long long pi = arg_ull(argv[2]);
-#if RAND_INIT_BYTESWAP
-	pi = htonl(pi);
-#endif
-
-#if RAND_INIT_FLIP
-	pi = flip_bits32(pi);
-#endif
-
-	/* allows correcting for the previous flip */
-	pi >>= RAND_INIT_SHIFT;
 
 	fprintf(stderr, "pi = %llx\n", 0xffffffffllu);
 	fprintf(stderr, "pi = %llx\n", pi);
 
-	struct sr sr = { pi , {0}, 0 };
+	struct sr sr = { pi , {0} };
 
 	long long r[256] = {};
 
 	char b = 0;
 
 	size_t i = 0;
-#if STEP_BY_256
 	size_t j = 0;
-#endif
-
-#if !STEP_BY_256
-	step_sr(&sr);
-#endif
 
 	while(!feof(in)) {
 		/* r_k = sum(m=1, M, a_m_k * b_m_k * s_m_k)
 		 * b_m_k = 1 | r_k s_m_k > 0, otherwise -1
 		 */
-		long long r_k   = next_rk(in);
-
-#if STEP_BY_256
-		r[j] = r_k;
+		long long r_k = next_rk(in);
+#if RK_FLIP
+		r[256 - j - 1] = r_k;
 #else
-		shift_in_ll(r, ARRAY_SIZE(r), r_k);
+		r[j] = r_k;
 #endif
 
-#if STEP_BY_256
 		j++;
 		if ((j % 256) == 0) {
 			j = 0;
-			step_sr(&sr);
-#endif
+			next_codeword(&sr);
+			print_array(sr.codeword, ARRAY_SIZE(sr.codeword), "%x", stderr);
 
 			long long b_m_k = array_mult_by_bit(r, sr.codeword, 256);
 
-			//print_array(r, ARRAY_SIZE(r), stderr);
 #if ACSII_RECV_MSB_FIRST
 			size_t ix = ACSII_CHAR_BITS - i - 1;
 #else
@@ -293,14 +223,7 @@ int main(__unused int argc, __unused char **argv)
 				b = 0;
 				i = 0;
 			}
-#if STEP_BY_256
 		}
-#endif
-
-#if !STEP_BY_256
-		update_sr(&sr);
-#endif
-
 	}
 
 	return 0;

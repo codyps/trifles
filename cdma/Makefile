@@ -15,6 +15,7 @@ all: build
 TARGETS = p1 p2
 p1: p1.c.o
 p2: p2.c.o
+p2.c.o : config.h
 
 srcdir = .
 VPATH = $(srcdir)
@@ -39,5 +40,11 @@ $(TARGETS) :
 .PHONY: clean
 clean:
 	$(RM) $(TARGETS) *.d *.o
+
+
+ID = 000000000
+.PHONY: test
+test: p2
+	./p2 cdma256teststream.txt $(ID)
 
 -include $(wildcard *.d)
