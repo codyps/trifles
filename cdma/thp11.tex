@@ -1,6 +1,6 @@
 \documentclass{article}
-%\usepackage[utf32]{inputenc}
 \usepackage{listings}
+\usepackage{verbatim}
 \usepackage{cmap}
 \usepackage{hyperref}
 \title{Wireless Communications Systems \\
@@ -10,8 +10,8 @@
 \date{\today}
 
 \begin{document}
-	\titlepage
-
+	\maketitle
+\lstset{breaklines=true}
 \section{Problem 1}
 
 \subsection{a}
@@ -29,7 +29,7 @@ The output is \texttt{7ffffffe: 7ffffff -> 1
 	match
 }
 
-\lstinputlisting{p1.c}
+\lstinputlisting[language=C,style=eclipse]{p1.c}
 
 \section{Problem 2}
 
@@ -39,9 +39,13 @@ The output is \texttt{7ffffffe: 7ffffff -> 1
 
 \subsection{c}
 
-The following code listings impliment a cdma decoder.
+\subsubsection{Code listings impliment a cdma decoder}
 
-\lstinputlisting{config.h}
-\lstinputlisting{p2.c}
+\lstinputlisting[language=C,style=eclipse,caption=config.h]{config.h}
+\lstinputlisting[language=C,style=eclipse,caption=p2.c]{p2.c}
+
+\subsubsection{The obtained output}
+
+\verbatiminput{p2.out}
 
 \end{document}

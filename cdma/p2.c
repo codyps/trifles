@@ -1,13 +1,3 @@
-
-/*
- * 1. Assuming x0 indicates the initial value of the PN Shift register, the output will be 0 continually.
- *
- * 2. 0
- *
- */
-#define _BSD_SOURCE /* for endian.h */
-
-
 #include "config.h"
 
 #include <stdio.h>
@@ -15,31 +5,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include <arpa/inet.h> /* htonl */
-#include <endian.h> /* htole32, be32toh */
-#define swap32(x) htole32(be32toh(x))
-
 #define __unused __attribute__((__unused__))
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 #define BIT_N(A, N) (((A) & (1ull << (N))) >> (N))
 #define MASK_N(N)   ((1ull << ((unsigned long long)(N))) - 1)
-
-/* from http://graphics.stanford.edu/~seander/bithacks.html */
-__unused static uint32_t flip_bits32(uint32_t v)
-{
-	// swap odd and even bits
-	v = ((v >> 1) & 0x55555555) | ((v & 0x55555555) << 1);
-	// swap consecutive pairs
-	v = ((v >> 2) & 0x33333333) | ((v & 0x33333333) << 2);
-	// swap nibbles ... 
-	v = ((v >> 4) & 0x0F0F0F0F) | ((v & 0x0F0F0F0F) << 4);
-	// swap bytes
-	v = ((v >> 8) & 0x00FF00FF) | ((v & 0x00FF00FF) << 8);
-	// swap 2-byte long pairs
-	v = ( v >> 16             ) | ( v               << 16);
-	return v;
-}
 
 static uint32_t update_pn(uint32_t cur)
 {
@@ -169,16 +139,13 @@ static long long array_mult_by_bit(long long *a, uint8_t *b, size_t elems)
 	fputc('\n', out);		\
 } while(0)
 
-int main(__unused int argc, __unused char **argv)
+int main(int argc, char **argv)
 {
 	CHECK_ARGS("./p2", ((char *[]){"data file", "initial"}) );
 
 	FILE *in = fopen(argv[1], "r");
 
 	unsigned long long pi = arg_ull(argv[2]);
-
-	//fprintf(stderr, "pi = %llx\n", 0xffffffffllu);
-	//fprintf(stderr, "pi = %llx\n", pi);
 
 	struct sr sr = { pi , {0} };
 

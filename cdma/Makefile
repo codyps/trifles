@@ -37,10 +37,11 @@ build: $(TARGETS)
 $(TARGETS) :
 	$(QUIET_LD)$(LD) -o $@ $^ $(LDFLAGS)
 
-.PHONY: clean
-clean:
+.PHONY: clean.doc
+clean.doc:
 	$(RM) $(TARGETS) *.d *.o
 
+clean: clean.doc
 
 ID = 000000000
 .PHONY: test
