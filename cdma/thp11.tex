@@ -1,0 +1,47 @@
+\documentclass{article}
+%\usepackage[utf32]{inputenc}
+\usepackage{listings}
+\usepackage{cmap}
+\usepackage{hyperref}
+\title{Wireless Communications Systems \\
+	Take Home Problem}
+
+\author{Cody Schafer}
+\date{\today}
+
+\begin{document}
+	\titlepage
+
+\section{Problem 1}
+
+\subsection{a}
+SR output if $x_0 = 0$ will continually be 0 as the XOR of 0 and 0 is 0.
+
+\subsection{b}
+The state of SR after 31 shifts given an $x_0 = 7ffffff$ is $0x38000004$. This is verified via \texttt{./p1 0x7ffffff 31 31}
+
+\subsection{c}
+It is periodic. The period is 0x7fffffe, meaning that given a time $t$, $x_{t+0x7fffffe} = x{t}$.
+
+\subsection{d}
+This is verified via \texttt{./p1 0x7ffffff -1 -1}. Note that this takes longer to run than it should.
+The output is \texttt{7ffffffe: 7ffffff -> 1
+	match
+}
+
+\lstinputlisting{p1.c}
+
+\section{Problem 2}
+
+\subsection{a}
+
+\subsection{b}
+
+\subsection{c}
+
+The following code listings impliment a cdma decoder.
+
+\lstinputlisting{config.h}
+\lstinputlisting{p2.c}
+
+\end{document}
