@@ -77,13 +77,13 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
         GIO3,   8, 
                 Offset (0x0C), 
             ,   6, 
-        BTEN,   1, 
+        BTEN,   1, /* Bluetooth: used as _STA return for BT */
                 Offset (0x0D), 
             ,   4, 
         GP12,   1, 
                 Offset (0x0E), 
             ,   5, 
-        BTRS,   1, 
+        BTRS,   1, /* Bluetooth: Written by _PTS to 0 */
                 Offset (0x0F), 
         GL03,   8, 
                 Offset (0x18), 
@@ -107,7 +107,7 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
         GIO6,   8, 
         GIO7,   8, 
             ,   4, 
-        BTPR,   1, 
+        BTPR,   1, /* BT Power Reset (?): Written by _PTS to 1 */
             ,   2, 
         GP39,   1, 
         GL05,   8, 
@@ -120,7 +120,7 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
     {
         OSYS,   16, 
         SMIF,   8, 
-        PRM0,   8, 
+        PRM0,   8,  /* Passed by BRTW to PX8H*/
         PRM1,   8, 
         SCIF,   8, 
         PRM2,   8, 
@@ -128,11 +128,11 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
         LCKF,   8, 
         PRM4,   8, 
         PRM5,   8, 
-        P80D,   32, 
+        P80D,   32,  /* _PTS stores Zero */
         LIDS,   8, 
         PWRS,   8, 
         DBGS,   8, 
-        LINX,   8, 
+        LINX,   8, /* Linux is One */
                 Offset (0x14), 
         ACTT,   8, 
         PSVT,   8, 
@@ -315,40 +315,50 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
 
     Name (DSEN, One)
     Name (ECON, Zero)
-    Name (GPIC, Zero)
+    Name (GPIC, Zero) /* OS Interrupt mode: 0 - PIC, 1 - APIC, 2 - SAPIC */
     Name (CTYP, Zero)
-    Name (L01C, Zero)
+    Name (L01C, Zero) /* \_GPE._LO1 counter (counts how many time _L01 executes)  */
     Name (VFN0, Zero)
+
+    /* P_____ interupt C____ */
+    /* _PIC: specify OS interupt mode for ACPI */
+    /* Arg0: 0 - PIC, 1 - APIC, 2 - SAPIC */
     Method (_PIC, 1, NotSerialized)
     {
         Store (Arg0, GPIC)
     }
 
+    /* Prepare to Sleep */
+    /* _PTS: Indicate the intended sleep state to ACPI */
+    /* Arg0: One of 1, 2, 3, or 4 => S1, S2, S3, S4 */
     Method (_PTS, 1, NotSerialized)
     {
-        Store (Zero, P80D)
+        Store (Zero, P80D) /* GNVS, ??? */
         P8XH (Zero, Arg0)
-        If (\_SB.PCI0.LPCB.EC0.BTSW)
+        If (\_SB.PCI0.LPCB.EC0.BTSW) /* ??? */
         {
-            Store (Zero, \_SB.PCI0.LPCB.EC0.BTPW)
-            Store (Zero, BTRS)
-            Store (One, BTPR)
+            Store (Zero, \_SB.PCI0.LPCB.EC0.BTPW) /* EC, ??? */
+            Store (Zero, BTRS) /* GPIO, ??? */
+            Store (One, BTPR)  /* GPIO, ??? */
         }
 
-        If (LEqual (Arg0, 0x03))
+        If (LEqual (Arg0, 0x03)) /* S3 */
         {
-            Store (0x4C, \_SB.BCMD)
-            Store (Zero, \_SB.SMIC)
+            Store (0x4C, \_SB.BCMD) /* SMI1, ???  */
+            Store (Zero, \_SB.SMIC) /* SMI0, ??? */
         }
 
-        If (LEqual (Arg0, 0x04))
+        If (LEqual (Arg0, 0x04)) /* S4 */
         {
-            \_SB.PCI0.LPCB.PHSS (0x0E)
+            \_SB.PCI0.LPCB.PHSS (0x0E) /* ??? */
         }
 
-        If (LEqual (Arg0, 0x05)) {}
+        If (LEqual (Arg0, 0x05)) {} /* S5 (Not In Spec) */
     }
 
+    /* Wake: ???   */
+    /* Arg0: ???   */
+    /* Return: ??? */
     Method (_WAK, 1, NotSerialized)
     {
         P8XH (Zero, 0xAB)
@@ -365,9 +375,9 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
 
         If (LEqual (LINX, One))
         {
-            If (\_SB.PCI0.LPCB.EC0.BTSW)
+            If (\_SB.PCI0.LPCB.EC0.BTSW) /* BT ??? */
             {
-                \_SB.PCI0.LPCB.EC0.BT.BTPO ()
+                \_SB.PCI0.LPCB.EC0.BT.BTPO () /* BT ??? */
             }
         }
 
@@ -422,8 +432,10 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
         })
     }
 
+    /* "General Purpose Events", Root level event handlers */
     Scope (_GPE)
     {
+        /* Level event 0x01 */
         Method (_L01, 0, NotSerialized)
         {
             Add (L01C, One, L01C)
@@ -655,6 +667,10 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                 If (LNotEqual (CADL, PADL))
                 {
                     Store (CADL, PADL)
+                    /* XXX: first condition appears to be true always */
+                    /* || (> OSYS 0x07D0) (< OSYS 0x07D6)
+                       (OSYS > 0x07D0) || (OSYS < 0x07D6)
+                    */
                     If (LOr (LGreater (OSYS, 0x07D0), LLess (OSYS, 0x07D6)))
                     {
                         Notify (\_SB.PCI0, Zero)
@@ -663,7 +679,7 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                     {
                         Notify (\_SB.PCI0.GFX0, Zero)
                     }
-
+                    /* LONG sleep */
                     Sleep (0x02EE)
                 }
 
@@ -701,6 +717,19 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
         }
     }
 
+    /* Called From: */
+    /*  _PTS: (Zero, Sleep state as one of {1,2,3,4})
+        _WAK: first: (Zero, 0xAB), then[in some cases]: (Zero, 0x41)
+	      last: (One, 0xCD) immediately prior to return
+	_GPE:
+	  _L01:
+            P8XH (Zero, One)
+            P8XH (One, L01C)
+          _L1D:
+	    P8XH (Zero, 0xFA)
+	BRTW:
+            P8XH (0x02, Local0) where Local0=PRM0
+    */
     Method (P8XH, 2, Serialized)
     {
         If (LEqual (Arg0, Zero))
@@ -934,13 +963,13 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
         OperationRegion (SMI0, SystemIO, 0x0000FE00, 0x00000002)
         Field (SMI0, AnyAcc, NoLock, Preserve)
         {
-            SMIC,   8
+            SMIC,   8  /* Written by _PTS to Zero */
         }
 
         OperationRegion (SMI1, SystemMemory, 0x7F6E2EBD, 0x00000090)
         Field (SMI1, AnyAcc, NoLock, Preserve)
         {
-            BCMD,   8, 
+            BCMD,   8,  /* Written by _PTS to 0x4C */
             DID,    32, 
             INFO,   1024
         }
@@ -1444,7 +1473,7 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
 
             Method (_PRT, 0, NotSerialized)
             {
-                If (GPIC)
+                If (GPIC) /* If (OS Interrupt Mode != PIC) */
                 {
                     Return (Package (0x11)
                     {
@@ -1585,7 +1614,7 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                         }
                     })
                 }
-                Else
+                Else /* OS Interrupt mode == PIC */
                 {
                     Return (Package (0x11)
                     {
@@ -1954,7 +1983,7 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                             Notify (GFX0, Zero)
                         }
 
-                        Sleep (0x03E8)
+                        Sleep (0x03E8) /* LONG */
                         Notify (GFX0, 0x80)
                     }
 
@@ -2013,6 +2042,7 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                 }
             }
 
+            /* HIDEF (?) */
             Device (HDEF)
             {
                 Name (_ADR, 0x001B0000)
@@ -2040,7 +2070,7 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                     PSP1,   1, 
                             Offset (0x9C), 
                         ,   30, 
-                    HPCS,   1, 
+                    HPCS,   1, /* Written & read by _GPE._L01 */
                     PMCS,   1
                 }
 
@@ -3464,6 +3494,7 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                     IOE1,   8
                 }
 
+                /* AC Adapter */
                 Device (ACAD)
                 {
                     Name (_HID, "ACPI0003")
@@ -3889,6 +3920,10 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                 }
 
                 Mutex (PHMX, 0x00)
+                /* Called by
+                    EC0._REG:
+                        Store (PHMR (0xA3F4), Local0)
+                 */
                 Method (PHMR, 1, NotSerialized)
                 {
                     Acquire (PHMX, 0xFFFF)
@@ -3907,6 +3942,9 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                     Return (Local0)
                 }
 
+                /* Called by
+                    EC0._REG :
+                */
                 Method (PHMW, 2, NotSerialized)
                 {
                     Acquire (PHMX, 0xFFFF)
@@ -3921,11 +3959,12 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                     Return (Arg1)
                 }
 
+                /* Embedded controller */
                 Device (EC0)
                 {
                     Name (_HID, EisaId ("PNP0C09"))
                     Name (_GPE, 0x19)
-                    Name (Z009, Zero)
+                    Name (Z009, Zero) /* Checked to determine if "OK" */
                     Name (_CRS, ResourceTemplate ()
                     {
                         IO (Decode16,
@@ -4001,7 +4040,7 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                         BTPW,   1, 
                         BTDS,   1, 
                         BTPS,   1, 
-                        BTSW,   1, 
+                        BTSW,   1, /* If One, BT.BTPO is called */
                         BTWK,   1, 
                         WMXD,   1, 
                         WMXS,   1, 
@@ -4433,6 +4472,8 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                             Store (One, BTDT)
                         }
 
+                        /* BlueTooth Power On (?)
+                         * Called if LINX is One by _WAK */
                         Method (BTPO, 0, NotSerialized)
                         {
                             Store (One, BTPW)
@@ -4441,6 +4482,8 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                             Store (One, BTRS)
                         }
 
+                        /* BlueTooth Power ofF (?)
+                         */
                         Method (BTPF, 0, NotSerialized)
                         {
                             Store (Zero, BTPW)
@@ -4476,10 +4519,10 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                     Field (CCLK, DWordAcc, NoLock, Preserve)
                     {
                             ,   1, 
-                        DUTY,   3, 
-                        THEN,   1, 
+                        DUTY,   3, /* Read by THRO */
+                        THEN,   1, /* Read by THRO, CLCK, PCLK */
                                 Offset (0x01), 
-                        FTT,    1, 
+                        FTT,    1, /* CLCK, PCLK */
                             ,   8, 
                         TSTS,   1
                     }
@@ -4488,15 +4531,16 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                     Field (ECRM, ByteAcc, Lock, Preserve)
                     {
                                 Offset (0x94), 
-                        ERIB,   16, 
-                        ERBD,   8, 
+                        ERIB,   16, /* Written by FANG Arg0 and FANW Arg0 */
+                        ERBD,   8,  /* Read and returned by FANG,
+                                       Written by FANW Arg1. */
                                 Offset (0xAC), 
                         SDTM,   8, 
                         FSSN,   4, 
                         FANU,   4, 
                         PTVL,   3, 
                             ,   4, 
-                        TTHR,   1, 
+                        TTHR,   1, /* Read by THRO */
                                 Offset (0xBC), 
                         PJID,   8, 
                                 Offset (0xBE), 
@@ -4505,6 +4549,13 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                     }
 
                     Mutex (FAMX, 0x00)
+
+                    /* Fan:  ??
+                       Arg0: ??
+                       Return: ??
+
+                       Not called by internal.
+                    */
                     Method (FANG, 1, NotSerialized)
                     {
                         Acquire (FAMX, 0xFFFF)
@@ -4514,6 +4565,13 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                         Return (Local0)
                     }
 
+                    /* Fan: ??
+                       Arg0: ??
+                       Arg1: ??
+                       Return: ??
+
+                       Not called by internal.
+                    */
                     Method (FANW, 2, NotSerialized)
                     {
                         Acquire (FAMX, 0xFFFF)
@@ -4523,51 +4581,57 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                         Return (Arg1)
                     }
 
+                    /* Not called by internal. */
                     Method (TUVR, 1, NotSerialized)
                     {
                         Return (0x03)
                     }
 
+                    /* Not called by internal. */
                     Method (THRO, 1, NotSerialized)
                     {
                         If (LEqual (Arg0, Zero))
                         {
-                            Return (THEN)
+                            Return (THEN) /* CCLK reg. */
                         }
                         Else
                         {
                             If (LEqual (Arg0, One))
                             {
-                                Return (DUTY)
+                                Return (DUTY) /* CCLK reg. */
                             }
                             Else
                             {
                                 If (LEqual (Arg0, 0x02))
                                 {
-                                    Return (TTHR)
+                                    Return (TTHR) /* EC */
                                 }
                                 Else
                                 {
+                                    /* Some type of failure
+                                    indication */
                                     Return (0xFF)
                                 }
                             }
                         }
                     }
 
+                    /* CLCK:  */
+                    /* Arg0: New DUTY value */
                     Method (CLCK, 1, NotSerialized)
                     {
                         If (LEqual (Arg0, Zero))
                         {
-                            Store (Zero, THEN)
-                            Store (Zero, FTT)
+                            Store (Zero, THEN) /* CCLK */
+                            Store (Zero, FTT)  /* CCLK */
                         }
                         Else
                         {
-                            Store (Arg0, DUTY)
-                            Store (One, THEN)
+                            Store (Arg0, DUTY) /* CCLK */
+                            Store (One, THEN)  /* CCLK */
                         }
 
-                        Return (THEN)
+                        Return (THEN) /* CCLK */
                     }
 
                     Method (PCLK, 0, NotSerialized)
@@ -4575,8 +4639,8 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                         Store (PTVL, Local0)
                         If (LEqual (Local0, Zero))
                         {
-                            Store (Zero, THEN)
-                            Store (Zero, FTT)
+                            Store (Zero, THEN) /* CCLK */
+                            Store (Zero, FTT)  /* CCLK */
                         }
                         Else
                         {
@@ -9321,19 +9385,19 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                     {
                         Name (STAT, Package (0x0D)
                         {
-                            One, 
-                            0x0FA0, 
-                            0x0FA0, 
-                            One, 
-                            0x39D0, 
-                            0x01A4, 
-                            0x9C, 
-                            0x0108, 
-                            0x0EC4, 
-                            "PA3533U ", 
-                            "41167", 
-                            "Li-Ion", 
-                            "TOSHIBA"
+                            One,    // Power Unit (0 = mW, 1 = mA)
+                            0x0FA0, // Design Capacity
+                            0x0FA0, // Last Full Charge Capacity
+                            One,    // Bat. Tech. (0 = non-recharge, 1 = recharge)
+                            0x39D0, // Design Voltage
+                            0x01A4, // Design Capacity of Warning
+                            0x9C,   // Design Capacity of Low
+                            0x0108, // Capacity Granularity 1
+                            0x0EC4, // Capacity Granularity 2
+                            "PA3533U ", // Model Number
+                            "41167",    // Serial Number
+                            "Li-Ion",   // Battery Type
+                            "TOSHIBA"   // OEM info
                         })
                         Name (CMMA, Buffer (0x0C) {})
                         CreateByteField (CMMA, Zero, APN1)
@@ -9414,7 +9478,7 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                         }
 
                         Store (BST1, Index (PBST, Zero))
-                        Store (Zero, Index (PBST, One))
+                        Store (Zero, Index (PBST, One))   // Jerks. (No battry rate for you).
                         Store (Local2, Index (PBST, 0x02))
                         Store (Local3, Index (PBST, 0x03))
                         If (ECOK ())
