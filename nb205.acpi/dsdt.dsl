@@ -118,9 +118,9 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
     OperationRegion (GNVS, SystemMemory, 0x7F6E2CBC, 0x0200)
     Field (GNVS, AnyAcc, Lock, Preserve)
     {
-        OSYS,   16, 
+        OSYS,   16, /* Linux = 0x03E8,  */
         SMIF,   8, 
-        PRM0,   8,  /* Passed by BRTW to PX8H*/
+        PRM0,   8,  /* Passed by BRTW to P8XH*/
         PRM1,   8, 
         SCIF,   8, 
         PRM2,   8, 
@@ -203,14 +203,14 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                 Offset (0xC6), 
         MARK,   16, 
                 Offset (0xE5), 
-        STPH,   8, 
+        STPH,   8, // if not = 0xAA, PHMR & PHMW don't run.
                 Offset (0x100), 
         OEMN,   16, 
         BRAD,   8, 
         VVEN,   8, 
         BGU1,   8, 
-        BST1,   8, 
-        BFC1,   16, 
+        BST1,   8,  // GNVS? SystemMemory
+        BFC1,   16, // Write BFC0 into this.
         WKLN,   8, 
         WAKF,   8, 
         HORZ,   16, 
@@ -245,8 +245,8 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
         ALMD,   8, 
         ALMO,   8, 
         ALMY,   8, 
-        LED1,   8, 
-        LED2,   8, 
+        LED1,   8, /* LED: ?? */
+        LED2,   8, /* LED: ?? */
         CIRE,   8, 
         WWLN,   8, 
         BDN1,   8, 
@@ -3920,7 +3920,9 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                 }
 
                 Mutex (PHMX, 0x00)
-                /* Called by
+
+                /* PHeonix Memory Read??
+                    Called by
                     EC0._REG:
                         Store (PHMR (0xA3F4), Local0)
                  */
@@ -3942,7 +3944,8 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                     Return (Local0)
                 }
 
-                /* Called by
+                /* PHeonix Memory Write??
+                    Called by
                     EC0._REG :
                 */
                 Method (PHMW, 2, NotSerialized)
@@ -4036,6 +4039,7 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                     OperationRegion (ERAM, EmbeddedControl, Zero, 0xFF)
                     Field (ERAM, ByteAcc, Lock, Preserve)
                     {
+                        /* Bluetooth? */
                         BTDT,   1, 
                         BTPW,   1, 
                         BTDS,   1, 
@@ -4045,11 +4049,14 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                         WMXD,   1, 
                         WMXS,   1, 
                         FNSF,   2, 
+
+                        /* 3G modem? */
                         ID3G,   1, 
                         UWBI,   1, 
                             ,   1, 
                         PW3G,   1, 
                         UWBP,   1, 
+                        /* */
                                 Offset (0x02), 
                         ECRD,   1, 
                                 Offset (0x04), 
@@ -4060,7 +4067,7 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                         HKEV,   1, 
                         HKHS,   1, 
                             ,   1, 
-                        LEDO,   1, 
+                        LEDO,   1, /* LED: ?? */
                         CIRF,   1, 
                         KBST,   1, 
                                 Offset (0x06), 
@@ -4168,7 +4175,7 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                         MWAK,   1, 
                         LWAK,   1, 
                             ,   1, 
-                        WLED,   1, 
+                        WLED,   1, /* LED: wireless? */
                                 Offset (0xA5), 
                                 Offset (0xAA), 
                         TCNL,   8, 
@@ -4217,27 +4224,27 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                                 Offset (0xBF), 
                         GHID,   8, 
                             ,   4, 
-                        BMF0,   3, 
-                        BTY0,   1, 
-                        BST0,   8, 
-                        BRC0,   16, 
-                        BSN0,   16, 
-                        BPV0,   16, 
-                        BDV0,   16, 
-                        BDC0,   16, 
-                        BFC0,   16, 
-                        GAU0,   8, 
+                        BMF0,   3,  // Bat. ??
+                        BTY0,   1,  // Bat. Type (--)
+                        BST0,   8,  // Bat. Status (r-)
+                        BRC0,   16, // Bat. Remaining Capacity (r-)
+                        BSN0,   16, // Bat. Serial Number   (--)
+                        BPV0,   16, // Bat. Present Voltage (r-)
+                        BDV0,   16, // Bat. Design Voltage  (r-)
+                        BDC0,   16, // Bat. Design Capacity (r-)
+                        BFC0,   16, // Bat. Full Capacity?
+                        GAU0,   8,  // Bat. ????
                         CYC0,   8, 
                         BPC0,   16, 
-                        BAC0,   16, 
-                        BAT0,   8, 
-                        BTW0,   16, 
+                        BAC0,   16, // Bat. ??
+                        BAT0,   8,  // Bat. ??
+                        BTW0,   16, // ??
                                 Offset (0xDE), 
                         BSSB,   16, 
                             ,   4, 
                         BMF1,   3, 
                         BTY1,   1, 
-                        BST1,   8, 
+                        BST1,   8, // Bat. Status (rw, written from BST0)
                                 Offset (0xE3), 
                         BCV1,   16, 
                         BCV2,   16, 
@@ -4815,8 +4822,11 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                         Return (0xAA)
                     }
 
+                    /* System Bus */
                     Scope (\_SB)
                     {
+
+                        /* TOSHIBA device */
                         Device (VALZ)
                         {
                             Name (_HID, EisaId ("TOS1900"))
@@ -4858,6 +4868,7 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                                 Return (Local0)
                             }
 
+                            /* ?? */
                             Method (SPFC, 6, NotSerialized)
                             {
                                 Name (TSFR, Package (0x06) {})
@@ -9460,10 +9471,12 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
                     {
                         Name (PBST, Package (0x04)
                         {
-                            Zero, 
-                            Ones, 
-                            Ones, 
-                            0x39D0
+                            Zero, // Bat. State (bit0 = discharging, bit1 =
+                                  //    charging, bit 2 = critical energy state).
+                            Ones, // Present rate (0xFFFFFFFF = unknown)
+                            Ones, // Remaining Capacity (0xFFFFFFFF = unknown)
+                            0x39D0// Present Voltage (must report for
+                                  //    rechargable).
                         })
                         Store (0x39D0, Local3)
                         If (ECOK ())
@@ -9479,8 +9492,8 @@ DefinitionBlock ("dsdt.aml", "DSDT", 1, "TOSCPL", "CALISTGA", 0x06040000)
 
                         Store (BST1, Index (PBST, Zero))
                         Store (Zero, Index (PBST, One))   // Jerks. (No battry rate for you).
-                        Store (Local2, Index (PBST, 0x02))
-                        Store (Local3, Index (PBST, 0x03))
+                        Store (Local2, Index (PBST, 0x02)) // Capacity
+                        Store (Local3, Index (PBST, 0x03)) // Voltage
                         If (ECOK ())
                         {
                             If (LNotEqual (^^EC0.BDN0, BMDL))
