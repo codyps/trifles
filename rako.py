@@ -5,8 +5,135 @@ import sys, random
 
 discard = []
 
-
 DRAW_FROM_PILE, DRAW_FROM_DISCARD = 0, 1
+
+class Players(object):
+	def __init__(self, name, control, feedback):
+		self.name = name
+		self.control = control
+		self.feedback = feedback
+
+class Game(object):
+	def __init__(self, players, param):
+		self.players = players
+		self.param   = param
+
+		self.draw_pile    = []
+		self.hands        = []
+		self.discard_pile = []
+		self.turn         = 0
+
+	def deal(self):
+		pass
+
+
+	def run_act_hooks(self,
+			cur_p_name, turn, old_discard,
+			new_discard,
+			action, card):
+		pass
+
+	def draw_card(self):
+		return self.draw_pile.pop()
+
+	def draw_discard(self):
+		return self.discard_pile.pop()
+
+	def place_on_discard(self, card):
+		self.discard_pile.insert(0, discard)
+
+	def next_turn(self):
+		p = self.players
+		h = self.hands
+		turn = self.turn
+
+		old_discard_pile = d = self.discard_pile[:]
+		cur_p = p[turn]
+		cur_h = h[turn]
+
+		act = cur_p.take_action(cur_h, turn, d)
+
+		if act is DRAW_FROM_DISCARD:
+			card = self.draw_discard()
+			d = self.discard_pile[:]
+		elif act is DRAW_FROM_PILE:
+			card = self.draw_card()
+		else:
+			raise OMG()
+
+		swap_position = cur_p.swap_and_discard_action(cur_h, turn, d, card)
+		discard = cur_h[swap_position]
+		cur_h[swap_position] = card
+
+		self.run_act_hooks(cur_p.name,
+				   turn,
+				   old_discard_pile,
+				   d,
+				   act,
+				   card)
+
+		# POSSIBLE: validate discard & new hand, only allow
+		self.place_on_discard(discard)
+
+class Player(object):
+	"""
+	Feedback & Interaction methods
+	"""
+	def __init__(self):
+		self.d = None
+
+	def act_hook(cur_player_name, turn_num, old_discard, new_discard,
+			action, card):
+		pass
+
+	def take_action(hand, turn, discard_pile):
+		# or DRAW_FROM_DISCARD
+		return DRAW_FROM_PILE
+
+	def swap_and_discard_action(hand, turn, discard_pile, card):
+		return 0
+
+class GameKnowledge(object):
+	"""
+	The current collection of information about how the cards lay
+	(who has what, picked up what, played what, discarded what
+	"""
+
+	def __init__(self, players):
+		"""
+		discard = initial discard pile (1 card, probably)
+		players = list of players (unique hashable ids)
+		"""
+		self.players = players
+		self.discard = discard
+		self.turns = 0
+
+	def _discard_pile(self):
+		"""
+		return the current discard pile's contents
+		"""
+		return self.discard
+
+	def update_with_new_discard(pile):
+		"""
+		We haven't been watching closely, all we know is that
+		it is our turn now.
+		"""
+
+	def update_with_play(player, draw, discard, card=None):
+		"""
+		player = unique hashable id (string, probably).
+		draw = DRAW_FROM_PILE or DRAW_FROM_DISCARD
+		discard = new discard pile (their card on top)
+		"""
+
+class Hand(list):
+	"""
+	Maybe?
+	Does a hand need methods a list lacks?
+	- swap a card?
+	"""
+	pass
 
 class Slot(object):
 	def __init__(self, val, card = None):
@@ -120,3 +247,54 @@ def bucket_and_close(slots, discard):
 		if (not low < s.card < hi) and (low < d < hi):
 			return DRAW_FROM_DISCARD
 	return DRAW_FROM_PILE
+
+
+def list_append_tail(lst, elem):
+	l = lst[:]
+	l.append(elem)
+	return l
+
+def list_append_head(elem, lst):
+	l = lst[:]
+	l.insert(0, elem)
+	return l
+
+def card_P(hand, game_knowledge):
+	"""
+	return an list of probabilities of filling each of the respective
+	slots
+	"""
+	#discard = game_knowledge.discard_pile()
+
+	hi_slots = list_append_tail(cards , max_card)
+	lo_slots = list_append_head(min_card, cards)
+
+	p = [ (s_hi - s_lo) / (max_card - min_card + 1) for s_hi in hi_slots for s_lo in lo_slots ]
+
+	# FIXME: does not use the info from the discard pile at all.
+	return p
+
+def median_P(hand, game_knowledge):
+	"""
+	median of the probabilities that the slot will be filled next turn
+	"""
+	p = card_P(hand, game_knowledge)
+
+	pz = zip(p, range(min_card, max_card))
+
+	
+
+
+
+def place_card(slots, discard, card):
+	"""
+	slots[1] - min_card
+	slots[2] - slots[1]
+	...
+	max_card - slots[-1]
+	"""
+
+	# filter out slots that work already??
+
+	cards = [ s.card for s in slots ]
+	return min(p)
