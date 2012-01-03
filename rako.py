@@ -7,11 +7,17 @@ discard = []
 
 DRAW_FROM_PILE, DRAW_FROM_DISCARD = 0, 1
 
-class Players(object):
-	def __init__(self, name, control, feedback):
-		self.name = name
-		self.control = control
-		self.feedback = feedback
+
+class TurnState(object):
+	def __init__(self, current_player_name, turn_number,
+			discard_pile_before_turn, discard_pile_after_turn,
+			action, swap_position):
+		self.cur_p_name = current_player_name
+		self.turn_number = turn_number
+		self.discard_pile_before_turn = discard_pile_before_turn
+		self.discard_pile_after_turn  = discard_pile_after_turn
+		self.action = action
+		self.swap_position = swap_position
 
 class Game(object):
 	def __init__(self, players, param):
@@ -26,12 +32,10 @@ class Game(object):
 	def deal(self):
 		pass
 
-
-	def run_act_hooks(self,
-			cur_p_name, turn, old_discard,
-			new_discard,
-			action, card):
-		pass
+	def run_act_hooks(self, ts):
+		ps = self.players
+		for p in ps:
+			p.act_hook(ts)
 
 	def draw_card(self):
 		return self.draw_pile.pop()
@@ -65,15 +69,23 @@ class Game(object):
 		discard = cur_h[swap_position]
 		cur_h[swap_position] = card
 
-		self.run_act_hooks(cur_p.name,
-				   turn,
-				   old_discard_pile,
-				   d,
-				   act,
-				   card)
+		ts = TurnState(cur_p.name,
+			       turn,
+			       old_discard_pile,
+			       d,
+			       act,
+			       swap_position)
+
+		self.run_act_hooks(ts)
 
 		# POSSIBLE: validate discard & new hand, only allow
 		self.place_on_discard(discard)
+
+class Players(object):
+	def __init__(self, name, control, feedback):
+		self.name = name
+		self.control = control
+		self.feedback = feedback
 
 class Player(object):
 	"""
@@ -82,8 +94,7 @@ class Player(object):
 	def __init__(self):
 		self.d = None
 
-	def act_hook(cur_player_name, turn_num, old_discard, new_discard,
-			action, card):
+	def act_hook(self, ts):
 		pass
 
 	def take_action(hand, turn, discard_pile):
@@ -281,9 +292,6 @@ def median_P(hand, game_knowledge):
 	p = card_P(hand, game_knowledge)
 
 	pz = zip(p, range(min_card, max_card))
-
-	
-
 
 
 def place_card(slots, discard, card):

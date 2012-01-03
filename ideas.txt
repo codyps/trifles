@@ -8,14 +8,14 @@
 	* algebraic simplification.
 	* polynomial %error curve determination.
 
-* Python 2.6 deompiler
+* Python deompiler
 
 * icc profile loader that can use `{g,r,b}TRC' when lacking `vcgt'
   current icc profile loaders:
    - dispwin (argyllcms): nice enough to show errors when it can't use the icc
    - xcalib: never shows an error even when it fails horribly.
   icc specs: http://www.color.org/icc_specs2.xalter
-  libs: 
+  libs:
    - libicc (argyllcms)
    - SampleICC (color.org), C++
 
@@ -24,12 +24,11 @@
   Could use the `it's all files' style for the backend, one could write a
   ncurses frontend if needed.
   name: `u[a]dcc' -- micro direct connect client
-  - dctc : exsisting text client for DC proto. (no ADC)
-  - microdc
-  - microdc2 : built on top of dcpp libs
-  - cccp
-  - valknut
-  - dc++
+  - dctc (exsisting text client for DC proto, no ADC), microdc, microdc2
+    (built on top of dcpp libs), cccp, valknut, dc++
+  Alt: make dc++ a client/server application (so that downloads and logs can
+  be maintained on a more permenent server like host while gui can show up on
+  portable devices).
 
 * Decent note taking.
 	* gpg encryption
@@ -68,7 +67,7 @@
   files whether they have been pushed or not.
 
   - pause/resume: If the external (the device being pushed to) needs to be
-    disconnected, there should be a way to signal the offfs to stop using the
+    disconnected, there should be a way to signal the 'offfs' to stop using the
     destination fs, and then indicate again when that fs has been added again
     (auto detect? same path or different path when replugged? track UUIDs of
     blk devices?)
