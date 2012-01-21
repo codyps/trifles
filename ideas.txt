@@ -83,3 +83,6 @@
   -- Fixed wdfs in my branch on github. It wasn't setting its useragent.
      and somehow that broke it, though it isn't clear why.
 
+* ALSA outputs runtime configurable.
+
+* Match headphone frequency responce via equalization.
