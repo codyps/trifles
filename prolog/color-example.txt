@@ -1,0 +1,144 @@
+ > swipl
+?- consult(color).
+true.
+
+?- all_names([node(a, 0, [b]), node(b, 0, [a, c]), node(c, 0, [b])], N).
+N = [a, b, c].
+
+?- all_unique([a,b,a]).
+false.
+
+?- node_backlinks_valid(a,[b],[node(c, 0, [ ]), node(b, 0, [a, c]), node(a, 0, [b])]).
+true 
+
+?- node_backlinks_valid(b,[a,c],[node(c, 0, [ ]), node(b, 0, [a, c]), node(a, 0, [b])]).
+false.
+
+?- all_backlinks_valid([node(b, 0, [a, c]), node(a, 0, [b])],[node(c, 0, [ ]), node(b, 0, [a, c]), node(a, 0, [b])]).
+false.
+
+?- all_backlinks_valid([node(b, 0, [a, c]), node(a, 0, [b])],[node(c, 0, [b]), node(b, 0, [a, c]), node(a, 0, [b])]).
+true .
+
+?- color(N).
+N = 1 ;
+N = 2 ;
+N = 3 ;
+false.
+
+?- colors_of([a,b],[node(c, 2, [b]), node(b, 1, [a, c]), node(a, 3, [b])],C).
+C = [3, 1] .
+
+?- valid_colors([node(b, 1, [a, c]), node(a, 3, [b])],[node(c, 2, [b]), node(b, 1, [a, c]), node(a, 3, [b])]).
+true .
+
+?- solve_coloring([node(c, Cc, [b]), node(b, Cb, [a, c]), node(a, Ca, [b])]).
+Cc = 1,
+Cb = 2,
+Ca = 1 ;
+Cc = 1,
+Cb = 2,
+Ca = 3 ;
+Cc = 1,
+Cb = 2,
+Ca = 4 ;
+Cc = 1,
+Cb = 3,
+Ca = 1 ;
+Cc = 1,
+Cb = 3,
+Ca = 2 ;
+Cc = 1,
+Cb = 3,
+Ca = 4 ;
+Cc = 1,
+Cb = 4,
+Ca = 1 ;
+Cc = 1,
+Cb = 4,
+Ca = 2 ;
+Cc = 1,
+Cb = 4,
+Ca = 3 ;
+Cc = 2,
+Cb = 1,
+Ca = 2 ;
+Cc = 2,
+Cb = 1,
+Ca = 3 ;
+Cc = 2,
+Cb = 1,
+Ca = 4 ;
+Cc = 2,
+Cb = 3,
+Ca = 1 ;
+Cc = 2,
+Cb = 3,
+Ca = 2 ;
+Cc = 2,
+Cb = 3,
+Ca = 4 ;
+Cc = 2,
+Cb = 4,
+Ca = 1 ;
+Cc = 2,
+Cb = 4,
+Ca = 2 ;
+Cc = 2,
+Cb = 4,
+Ca = 3 ;
+Cc = 3,
+Cb = 1,
+Ca = 2 ;
+Cc = 3,
+Cb = 1,
+Ca = 3 ;
+Cc = 3,
+Cb = 1,
+Ca = 4 ;
+Cc = 3,
+Cb = 2,
+Ca = 1 ;
+Cc = 3,
+Cb = 2,
+Ca = 3 ;
+Cc = 3,
+Cb = 2,
+Ca = 4 ;
+Cc = 3,
+Cb = 4,
+Ca = 1 ;
+Cc = 3,
+Cb = 4,
+Ca = 2 ;
+Cc = 3,
+Cb = 4,
+Ca = 3 ;
+Cc = 4,
+Cb = 1,
+Ca = 2 ;
+Cc = 4,
+Cb = 1,
+Ca = 3 ;
+Cc = 4,
+Cb = 1,
+Ca = 4 ;
+Cc = 4,
+Cb = 2,
+Ca = 1 ;
+Cc = 4,
+Cb = 2,
+Ca = 3 ;
+Cc = 4,
+Cb = 2,
+Ca = 4 ;
+Cc = 4,
+Cb = 3,
+Ca = 1 ;
+Cc = 4,
+Cb = 3,
+Ca = 2 ;
+Cc = 4,
+Cb = 3,
+Ca = 4 ;
+false.

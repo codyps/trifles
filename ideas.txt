@@ -14,14 +14,14 @@
 	* algebraic simplification.
 	* polynomial %error curve determination.
 
-* Python 2.6 deompiler
+* Python deompiler
 
 * icc profile loader that can use `{g,r,b}TRC' when lacking `vcgt'
   current icc profile loaders:
    - dispwin (argyllcms): nice enough to show errors when it can't use the icc
    - xcalib: never shows an error even when it fails horribly.
   icc specs: http://www.color.org/icc_specs2.xalter
-  libs: 
+  libs:
    - libicc (argyllcms)
    - SampleICC (color.org), C++
 
@@ -30,12 +30,11 @@
   Could use the `it's all files' style for the backend, one could write a
   ncurses frontend if needed.
   name: `u[a]dcc' -- micro direct connect client
-  - dctc : exsisting text client for DC proto. (no ADC)
-  - microdc
-  - microdc2 : built on top of dcpp libs
-  - cccp
-  - valknut
-  - dc++
+  - dctc (exsisting text client for DC proto, no ADC), microdc, microdc2
+    (built on top of dcpp libs), cccp, valknut, dc++
+  Alt: make dc++ a client/server application (so that downloads and logs can
+  be maintained on a more permenent server like host while gui can show up on
+  portable devices).
 
 * Decent note taking.
 	* gpg encryption
@@ -65,27 +64,22 @@
   editing in vim possible, with careful keystrokes.
   added 'tracker_modify.pl', which does what I need.
   --
-  -- 'rwt' [partially] writen an on github. 
+  -- 'rwt' [partially] writen an on github.
 
-* webdav fuse fs without the need for root perms.
-  i'm unsure the reason, but it appears that davfs2 has decided it would be
-  jolly good idea to need root perms for mounting a network fs. with fuse.
-  webdav client projects:
-   - 'davfs2' - needs root perms, expects the use of mount.
-   - 'wdfs' - last release 2007
-      fails to mount rutgers sakai "reasources" webdav. Complains that it
-      could not be mounted due to internal server error (500). Possibly an
-      issue with neon. Compare it's use of neon with cadaver.(a realy nice
-      almost usable command line client, just needs some fixes to tab
-      completion).
-   - 'cadaver' - a realy nice
-      almost usable command line client, just needs some fixes to tab
-      completion.
-   - 'fusedav' - last release 2006, not in gentoo repo.
-  wdfs & fusedav use 'neon' to interface with the webdav protocol.
-  I might be calling this up without cause, lacking new releases is not
-  nesicarilly a sign of bad software. Some testing is in order.
-  --
-  -- Fixed wdfs in my branch on github. It wasn't setting its useragent.
-     and somehow that broke it, though it isn't clear why.
+* FSEvents for linux
 
+* an "offload" file system: layer2 fs (fs on top of fs) which pushes files
+  from one device to another while transparrently providing access to the
+  files whether they have been pushed or not.
+
+  - pause/resume: If the external (the device being pushed to) needs to be
+    disconnected, there should be a way to signal the 'offfs' to stop using the
+    destination fs, and then indicate again when that fs has been added again
+    (auto detect? same path or different path when replugged? track UUIDs of
+    blk devices?)
+
+* Screen saver and suspend to ram (pm-suspend) integration with cryptsetup suspend.
+
+* ALSA outputs runtime configurable.
+
+* Match headphone frequency responce via equalization.

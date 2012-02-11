@@ -32,7 +32,7 @@ static bool is_red(rb_node *node) {
  *  black height consistent
  *  reds cannot have red leaves.
  */
-size_t assert_h(rb_node *nd) {
+static size_t assert_h(rb_node *nd) {
 	if ( nd == NULL ) return 1; /* Nil leaves are black */
 
 	if ( nd->red && ( is_red(nd->leaf[0]) || is_red(nd->leaf[1]) ) ) {
@@ -151,7 +151,9 @@ static rb_node *fix_up(rb_node *n)
 
 static rb_node *delete_min_h(rb_node *n)
 {
-	if (n->leaf[0] == 0) return 0;
+	if (n->leaf[0] == 0)
+		return NULL;
+
 	if (!is_red(n->leaf[0]) && !is_red(n->leaf[0]->leaf[0]))
 		n = move_red(n,0);
 
@@ -303,12 +305,15 @@ const int tests[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 void rand_test(void)
 {
 	rb_tree *test = mk_tree();
+
+	rb_insert(test, 1000);
+
 	unsigned i;
 	unsigned i_max = rand() % UINT_MAX;
 	for( i = 0; i < i_max; i++ ) {
 		int r = rand() % 1000;
 		char *file;
-		asprintf(&file,"gr-rand-%03u",i);
+		asprintf(&file,"gr-rand-%06u",i);
 		FILE *fp = fopen(file,"w");
 		fprintf(stderr,"insert: %d",r);
 		fprintf(stderr,"  %i\n",rb_insert(test,r));
@@ -351,8 +356,8 @@ void iter_test(void)
 int main(int argc, char **argv)
 {
 	LOG("start\n");
-	//rand_test();
-	iter_test();
+	rand_test();
+	//iter_test();
 
 	return 0;
 }

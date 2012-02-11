@@ -1,0 +1,12 @@
+name:    rako
+version: 0.0
+
+-- For sections
+cabal-version: >= 1.2
+
+-- For non-custom Setup.lhs
+build-type: Simple
+
+library
+   build-depends:   base,random,random-fu
+   exposed-modules: Rako

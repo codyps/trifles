@@ -8,3 +8,7 @@
 *.pdf
 *.dvi
 *.log
+*~
+.*.swp
+*.[od]
+*.py[co]
