@@ -12,3 +12,7 @@
 .*.swp
 *.[od]
 *.py[co]
+hw_params
+login.keyring
+user.keystore
+gkr-decrypt
