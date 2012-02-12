@@ -1,4 +1,10 @@
 
+* Offline decryption of gnome-keyring.
+
+* Image editor for the frame buffer
+	SDL (for cross platform)
+	DirectFB
+
 * bytes:: binary object format convertion: srec - ihex - bin - various IFI formats
 
 * ssh -R & -L without GatewayPorts enabled. Can easily be run on the remote
