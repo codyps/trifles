@@ -7,28 +7,6 @@
 #define lt 0
 #define rt 1
 
-#if 0
-rbnode_t *rot_left(rbnode_t *n)
-{
-	rbnode_t *x = n->leaf[1];
-	n->leaf[1] = x->leaf[0];
-	x->leaf[0] = n;
-	x->red = n->red;
-	n->red = true;
-	return x;
-}
-
-rbnode_t *rot_right(rbnode_t *n)
-{
-	rbnode_t *x = n->leaf[0];
-	n->leaf[0] = x->leaf[1];
-	x->leaf[1] = n;
-	x->red = n->red;
-	n->red = true;
-	return x;
-}
-#endif
-
 static struct rb_node *rot_dir(struct rb_node *root, bool dir)
 {
 	struct rb_node *save = root->leaf[!dir];
