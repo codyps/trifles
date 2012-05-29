@@ -1,7 +1,12 @@
+* pam luks integration: prompt for user and password. allow selected
+  user+password pairs to decrypt. auto login. essentially, mac stuff.
+
+* generic keyring (without gnome) for linux. allow for access via arbitrary
+  interfaces
 
 * Offline decryption of gnome-keyring.
 
-* Image editor for the frame buffer
+* Image (pixel) editor for the frame buffer
 	SDL (for cross platform)
 	DirectFB
 
