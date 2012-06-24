@@ -1,17 +1,18 @@
-* screensaver/suspend which can properly suspend LUKs crypt mounts and prompt
-  for re-entry of password
+* imap client daemon with support for persistent connection, ie: "push"
 
-* pam luks integration: prompt for user and password. allow selected
+* Screen saver and suspend to ram (pm-suspend) integration with cryptsetup suspend.
+  i3 seems like a good candidate (while lacking a timeout daemon)
+
+* pam+luks integration: prompt for user and password. allow selected
   user+password pairs to decrypt. auto login. essentially, mac stuff.
 
 * generic keyring (without gnome) for linux. allow for access via arbitrary
-  interfaces
+  interfaces (not limited to dbus)
 
-* Offline decryption of gnome-keyring.
+* Offline decryption of gnome-keyring keyrings.
 
 * Image (pixel) editor for the frame buffer
-	SDL (for cross platform)
-	DirectFB
+	SDL (for cross platform) or DirectFB
 
 * bytes:: binary object format convertion: srec - ihex - bin - various IFI formats
 
@@ -57,6 +58,7 @@
 	  save somewhere else
   'devtodo': written towards todo list tracking, not general note taking.
   	* nice interface
+  'hnb': single tree of short notes.
 
 ===============================================================================
 
@@ -85,8 +87,6 @@
     destination fs, and then indicate again when that fs has been added again
     (auto detect? same path or different path when replugged? track UUIDs of
     blk devices?)
-
-* Screen saver and suspend to ram (pm-suspend) integration with cryptsetup suspend.
 
 * ALSA outputs runtime configurable.
 
