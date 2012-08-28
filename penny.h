@@ -3,7 +3,8 @@
 
 #include <stddef.h>
 
-#define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
+#define ARRAY_SIZE(x)   (sizeof(x)/sizeof((x)[0]))
+#define ACCESS_ONCE(x)  (*((volatile *typeof(x)) &(x)))
 
 #define FIELD_SIZE(s,f) (sizeof((s *)0->f))
 
@@ -47,5 +48,6 @@
 #define unlikely(x) __builtin_expect(x,0)
 #define must_check  __attribute__((warn_unused_result))
 #define unused      __attribute__((unused))
+#define noreturn    __attribute__((__noreturn__))
 
 #endif
