@@ -50,4 +50,7 @@
 #define unused      __attribute__((unused))
 #define noreturn    __attribute__((__noreturn__))
 
+#define CAT2(a, b) a##b
+#define CAT3(a, b, c) a##b##c
+
 #endif
