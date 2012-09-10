@@ -1,6 +1,9 @@
 #ifndef PENNY_CIRC_BUF_H_
 #define PENNY_CIRC_BUF_H_ 1
 
+/* Tail follows Head */
+/* Read from Tail, Write to Head */
+
 /* number of items in circ_buf */
 #define CIRC_CNT(head,tail,size) (((head) - (tail)) & ((size)- 1))
 
@@ -41,8 +44,14 @@ struct q {
 };
 #endif
 
-#define circ_next(q, ix_var) ( q.ix_var = CIRC_NEXT(q.ix_var, sizeof(q.buf)) )
-#define circ_next_head(q) ( circ_next(q, head) )
-#define circ_next_tail(q) ( circ_next(q, tail) )
+#define circ_adv(q, ix_var) ( q.ix_var = circ_next(q, ix_var) )
+#define circ_adv_head(q) circ_adv(q, head)
+#define circ_adv_tail(q) circ_adv(q, tail)
+
+#define circ_next(circ, ix_var) CIRC_NEXT(circ.ix_var, sizeof(circ.buf))
+#define circ_next_head(circ) circ_next(circ, head)
+#define circ_next_tail(circ) circ_next(circ, tail)
+
+#define circ_empty(circ) CIRC_EMPTY(circ.head, circ.tail, sizeof(circ.buf))
 
 #endif
