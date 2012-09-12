@@ -1,3 +1,43 @@
+* sn [SecureNetwork] - ssh that can handle tempermental connections
+  - mosh bootstraps on ssh & impliments some annoying scroll magic.
+  - requirements:
+    - automatically reconnects on connection "loss"
+    - can reliably maintain a background connection with no lag to terminal
+      when that connection has been lost and a shell is requested
+  - Can we form it as a generic security protocol that uses a common pipeline
+    for data?
+
+* goop - push files into it, and it organizes them for you.
+  - uses some 'tags' you apply at the time you add the files.
+  - trivial to add new 'tags'.
+  - can completely reprocess it's file store.
+
+* trashdrive - dropbox clone
+
+* bsnap - backups that work
+  - deduplicating
+  - compressed
+  - attempt to split along the same byte boundaries
+  - keeps "snapshots" which can be removed independently of other snapshots.
+    ie: allows "3 hourly backups, 15 daily, 5 weekly", et c type setup.
+  - Push & Pull style backups supported.
+  - client/server with support for ssh as a transport mechanizm
+  - can track metadata on without requiring high privs (ie: can track source
+    uids without needing root to store the backups)
+  - potential: mapping of uids to usernames (might change on a new system
+    where the backup is restored. Names are more important than UIDs).
+
+* goop & trashdrive & bsnap could benefit from some type of deduplicating backing
+  store
+  - mechanizm to balance a storage tree while having the most recently/heavily
+    used item rise to the top (and thus be quicker to access)
+  - Doing this means that we want heavily accessed items spread out in the
+    tree.
+  - Conversely, on the storage media, heavily used items may want to be
+    grouped (ie: typically accessed together).
+
+--------
+
 * screensaver/suspend which can properly suspend LUKs crypt mounts and prompt
   for re-entry of password
 
@@ -91,3 +131,9 @@
 * ALSA outputs runtime configurable.
 
 * Match headphone frequency responce via equalization.
+  - How do we handle finding a baseline? If we use a microphone that
+    microphone will have some frequency response.
+  - Can we use the headphones themselves to do the recording?
+    - Play from 1 and record from the other
+  - How similar are the recording & playback responce frequencies of a pair of
+    speakers?
