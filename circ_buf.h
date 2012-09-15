@@ -44,6 +44,7 @@ struct q {
 };
 #endif
 
+
 #define circ_adv(q, ix_var) ( q.ix_var = circ_next(q, ix_var) )
 #define circ_adv_head(q) circ_adv(q, head)
 #define circ_adv_tail(q) circ_adv(q, tail)
@@ -53,5 +54,6 @@ struct q {
 #define circ_next_tail(circ) circ_next(circ, tail)
 
 #define circ_empty(circ) CIRC_EMPTY(circ.head, circ.tail, sizeof(circ.buf))
+#define circ_full(q) CIRC_FULL(q.head, q.tail, sizeof(q.buf))
 
 #endif
