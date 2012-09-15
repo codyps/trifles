@@ -4,7 +4,7 @@
 #include <stddef.h>
 
 #define ARRAY_SIZE(x)   (sizeof(x)/sizeof((x)[0]))
-#define ACCESS_ONCE(x)  (*((volatile *typeof(x)) &(x)))
+#define ACCESS_ONCE(x)  (*(volatile typeof(x) *) &(x))
 
 #define FIELD_SIZE(s,f) (sizeof((s *)0->f))
 
