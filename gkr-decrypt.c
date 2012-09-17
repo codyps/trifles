@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 #define warn(...) do {			\
 	fprintf(stderr, __VA_ARGS__);	\
