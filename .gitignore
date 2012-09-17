@@ -17,6 +17,7 @@
 /lsalsa
 /hd
 /gkr-decrypt
+/test-pm-timer
 
 login.keyring
 user.keystore
