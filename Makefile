@@ -11,7 +11,10 @@ obj-lsalsa = hw_params.o
 lsalsa : $(obj-lsalsa)
 lsalsa : ALL_LDFLAGS += -lasound
 
-TARGETS = hd gkr-decrypt lsalsa
+obj-test-pm-timer = pm_timer.o
+test-pm-timer : $(obj-test-pm-timer)
+
+TARGETS = hd gkr-decrypt lsalsa test-pm-timer
 
 .PHONY: all
 all:: $(TARGETS)
