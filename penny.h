@@ -3,6 +3,9 @@
 
 #include <stddef.h>
 
+#define MEGA(x) ( x * 1000000 )
+#define KILO(x) ( x *    1000 )
+
 #define ARRAY_SIZE(x)   (sizeof(x)/sizeof((x)[0]))
 #define ACCESS_ONCE(x)  (*(volatile typeof(x) *) &(x))
 
