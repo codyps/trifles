@@ -12,6 +12,7 @@
 .*.swp
 *.[od]
 *.py[co]
+.TRACK-*FLAGS
 hw_params
 login.keyring
 user.keystore
