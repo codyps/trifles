@@ -12,7 +12,12 @@
 .*.swp
 *.[od]
 *.py[co]
-hw_params
+.TRACK-*FLAGS
+
+/lsalsa
+/hd
+/gkr-decrypt
+/test-pm-timer
+
 login.keyring
 user.keystore
-gkr-decrypt
