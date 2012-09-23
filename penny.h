@@ -36,6 +36,8 @@
 # endif
 #endif
 
+#define ABS(x) ((x) < 0?(-(x)) : (x))
+
 #define MAX(x, y) ((x) > (y)?(x):(y))
 #define MAX4(a, b, c, d) MAX(MAX(a,b),MAX(c,d))
 #define MAX6(a,b,c,d,e,f) MAX(MAX4(a,b,c,d),MAX(e,f))
