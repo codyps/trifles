@@ -1,0 +1,79 @@
+#! /bin/sh
+
+# Messsages:
+#  I - info: just so you know.
+#  T - todo: tell the devs to get their act together.
+#  E - error: stuff is broken, we're continuing, but some expected action was not taken.
+#  F - fatal error/failure: cannot continue at all
+#  W - warn: things that should have worked but didn't, and aren't any cause for immediate concern
+
+# TODO:
+# use command line to get
+#	- GOOP_CONF
+#	- GOOP_DIR
+# allow configuration of
+#	- multiple goop directories ("pots"? "landfills"? "tanks"? "heaps"?).
+#       - deciding where to drop the files.
+
+GOOP_CONF=$HOME/.config/goop
+if [ -r "$GOOP_CONF" ]; then
+	. "$GOOP_CONF"
+fi
+
+if [ -z "$GOOP_DIR" ]; then
+	GOOP_DIR="$HOME/.goop/"
+fi
+
+if ! [ -d "$GOOP_DIR" ]; then
+	if [ -e "$GOOP_DIR" ]; then
+		echo "F: goop directory \"$GOOP_DIR\" is not a directory." >&2
+		exit 2
+	else
+		echo "I: creating new goop directory \"$GOOP_DIR\"." >&2
+		mkdir "$GOOP_DIR" || {
+			echo "F: failed to create goop directory \"$GOOP_DIR\"." >&2
+			exit 1
+		}
+	fi
+fi
+
+dir_date=`date +%F` # Y-m-d
+goop_dest="$GOOP_DIR"/"$dir_date"
+
+goop="$1"
+while [ $# -gt 0 ]; do
+	goop_name=$(basename "$goop")
+	origin=$(readlink -f "$goop")
+	goop_file_dest="$goop_dest/$goop_name"
+
+	# Handle file conflicts
+	# TODO: make the manner in which conflicts are handled configurable.
+	# possible ways to differentiate
+	# - file size [possibly rename exsisting file to also indicate file size?]
+	# - raw content [few bytes of sha1 or some other hash]
+	# - type as reported by `file`
+	# - $file___N , or with another sep than "___"
+	# - path where file originated
+	# - device file originally came from
+	# - creation/modification time
+
+	(
+	flock "$goop_file_dest" 9
+	if [ -e "$goop_file_dest" ]; then
+
+		i=1
+		while [ -e "$new_goop_file_dest" ]; do
+			new_goop_file_dest=$goop_file_dest
+		done
+		echo "W: file \"$goop_file_dest\" already exsists, using \"$new_goop_file_dest\"."
+		goop_file_dest=$new_goop_file_dest
+	fi
+
+	mv "$goop" "$goop_file_dest" || {
+		echo "E: failed to move goop \"$goop\" to goop dest \"$goop_file_dest\"." >&2
+		echo "T: maintain a list of failures." >&2
+	}
+	) 9>"$goop_file_dest" || {
+		echo "E: could not lock \"$goop_file_dest\", is another goop gooping it?" >&2
+	}
+done
