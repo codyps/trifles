@@ -38,6 +38,12 @@
 
 --------
 
+* keyboard profiler -
+  a program which can determine the limitations (wrt key rollover) of the
+  keyboard being used. By guiding the user through a series of combination
+  keypresses and detecting the ones recived, profiling the keyboard should be
+  possible.
+
 * screensaver/suspend which can properly suspend LUKs crypt mounts and prompt
   for re-entry of password
 
