@@ -38,11 +38,32 @@
 
 --------
 
+* continuous integration system -
+  runs locally.
+  handles multiple sources & build variants for the same "project".
+  sources: git on local file system only. If you want to use a remote,
+	   you can rig an auto syncronization.
+	   composed of "path branch" or "path refname".
+  triggers: inotify on relevent files in $PROJ/.git for the watched refs.
+  build instructions: scripts.
+  build variants: a single option passed to the build instr. that it uses to
+	   determine the type of build to create
+  configuration: single file, awk style.
+
+  alternate conf: use a dir for each project. use symlinks (or the actual repo that you can
+push to) to specify the sources [they could either have a special prefix
+marking them as sources, or we could assume all the directories are sources].
+Have a particular name for the build script. Have a file containing newline
+seperated build variants.
+
 * keyboard profiler -
   a program which can determine the limitations (wrt key rollover) of the
   keyboard being used. By guiding the user through a series of combination
   keypresses and detecting the ones recived, profiling the keyboard should be
   possible.
+
+* An interface to pass 'secrets' from the bootloader to the loaded operating
+  system (for use with disk encryption).
 
 * screensaver/suspend which can properly suspend LUKs crypt mounts and prompt
   for re-entry of password
