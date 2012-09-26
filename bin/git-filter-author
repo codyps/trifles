@@ -1,0 +1,16 @@
+#! /bin/sh
+
+if [ $# -ne 2 ]; then
+	echo "usage: $0 <name_filter> <email_filter>" >> /dev/stderr
+	exit 1
+fi
+
+name=$1
+email=$2
+
+git filter-branch --env-filter '
+	GIT_AUTHOR_NAME=`printf %s "$GIT_AUTHOR_NAME" | '"$name"'`
+	GIT_COMMITER_NAME=`printf %s "$GIT_COMMITER_NAME" | '"$name"'`
+	GIT_AUTHOR_EMAIL=`printf %s "$GIT_AUTHOR_EMAIL" | '"$email"'`
+	GIT_COMMITER_EMAIL=`printf %s "$GIT_COMMITER_EMAIL" | '"$email"'`
+	'
