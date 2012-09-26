@@ -1,0 +1,37 @@
+#! /bin/sh
+
+if [ $# -ne 3 ]; then
+	echo "Usage: $0 <new patch> <index> <patch> [<patch>...]" >&2
+	echo "All <patch> entries are expected to have a NNNN- prefix indicating their pos." >&2
+	echo "If <index> occupied by a patch, this patch is shifted to <index>+1." >&2
+	echo "If <index> is not occupied by a patch, the <new patch>" >&2
+	echo "   is placed at the next open index (ie: if 0001 & 0002 exist,  " >&2
+        echo "   if 0005 is requested the patch is inserted @ 0003)." >&2
+	exit 3
+fi
+
+
+echo "Not done."; exit 1
+
+pn_to_num () {
+	printf "%s" "$1" | cut -d- -f1
+}
+
+new_patch="$1"
+number_for_new=`printf "%04d" "$2"`
+shift; shift
+
+p=`printf '%s\x00' "$@" | sort -z -n`
+
+
+for i in "$@"; do
+	n=`pn_to_num "$i"`
+	if `printf "%s" "$n" | grep -v -q '[[:digit:]]{4}'`; then
+		echo "F: cannot number \"$i\""
+		exit 1
+	fi
+done
+
+for i in "$patch_dir"/????-* ; do
+
+done

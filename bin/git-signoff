@@ -1,0 +1,16 @@
+#! /bin/sh
+
+if [ $# != 1 ]; then
+	echo "usage: $0 <commit to signoff on>"
+	exit 1
+fi
+
+name=`git var GIT_COMMITTER_IDENT`
+name="${name%>*}"
+
+commit=`git rev-parse "$1"`
+
+git filter-branch --msg-filter '
+	cat
+	test $GIT_COMMIT = '$commit' && echo "Signed-off-by: '"$name"'" || exit 0
+	' "$commit"~1..HEAD

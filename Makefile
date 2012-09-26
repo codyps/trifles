@@ -1,5 +1,8 @@
 all::
 
+ifndef DESTDIR
+	DESTDIR=./bin
+endif
 
 obj-gkr-decrypt = gkr-decrypt.o
 gkr-decrypt: $(obj-gkr-decrypt)
@@ -62,10 +65,14 @@ TRACK_LDFLAGS = $(LINK):$(subst ','\'',$(ALL_LDFLAGS)) #')
 $(TARGETS) : .TRACK-LDFLAGS
 	$(QUIET_LINK)$(LD) $(ALL_LDFLAGS) -o $@ $(filter-out .TRACK-CFLAGS,$(filter-out .TRACK-LDFLAGS,$^))
 
+.PHONY: install %.install
+%.install: %
+	install $* $(DESTDIR)/$*
+install: $(foreach target,$(TARGETS),$(target).install)
+
+
 .PHONY: clean %.clean
-
 TRASH = .TRACK-CFLAGS .TRACK-LDFLAGS
-
 %.clean :
 	$(RM) $(obj-$*) $* $(TRASH)
 
