@@ -1,0 +1,58 @@
+#! /bin/sh
+
+PACKAGE=libunwind
+DO_PULL=false
+
+die () {
+	echo "$PACKAGE/$VARIANT: $*" >&2
+	exit 1
+}
+
+qdie() {
+	echo "$@" >&2
+	exit 0
+}
+
+SRC_BASE="$HOME/g"
+SRC_DIR="$SRC_BASE/$PACKAGE"
+
+[ -d "$SRC_BASE" ] || die "Need $SRC_BASE to be a directory"
+[ -d "$SRC_DIR"  ] || die "Project $PACKAGE must be cloned into $SRC_DIR"
+
+$DO_PULL && { cd "$SRC_DIR" && git pull || die "Failed to pull new version of $PACKAGE"; }
+
+TMP_DIR=$(dirname $(tempfile))
+BUILD_DIR="$TMP_DIR/$PACKAGE-`date +%Y.%m.%d-%H.%M.%S`-`readlink /proc/self`"
+echo "> $BUILD_DIR :"
+{ mkdir -p "$BUILD_DIR" && cd "$BUILD_DIR";} || die "Could not create $BUILD_DIR"
+
+PREFIX="$HOME/x-test/$PACKAGE"
+
+do_check () {
+	VARIANT=$1
+	shift
+	mkdir -p $BUILD_DIR/$VARIANT || die "Could not make build dir $BUILD_DIR/$VARIANT"
+	(
+		cd "$BUILD_DIR/$VARIANT"
+		echo ">> $VARIANT"
+		"$SRC_DIR"/configure --prefix="$PREFIX/$VARIANT" "$@" >configure.log 2>&1 || qdie "    Configure failed"
+		echo "    Configured"
+		make -j4 >make.log 2>&1 || qdie "    Build failed"
+		echo "    Built"
+		make check >make-check.log 2>&1 || {
+			echo "    Check failed"
+			awk -F'[: ]+' '/^FAIL:/{ print "      " $2; }' <make-check.log
+			exit 0
+		} >&2
+		echo "    Checked"
+	) || exit 1
+}
+
+ppc32_trip=powerpc-unknown-linux-gnu
+ppc64_trip=powerpc64-unknown-linux-gnu
+
+do_check native
+do_check ppc32 --host=$ppc32_trip --target=$ppc32_trip
+do_check ppc64 --host=$ppc64_trip --target=$ppc64_trip
+do_check ppc32-cross --target=$ppc32_trip
+do_check ppc64-cross --target=$ppc64_trip
