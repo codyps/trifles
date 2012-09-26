@@ -1,7 +1,7 @@
 all::
 
 ifndef DESTDIR
-	DESTDIR=./bin
+DESTDIR=./bin
 endif
 
 obj-gkr-decrypt = gkr-decrypt.o
