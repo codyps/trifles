@@ -38,6 +38,21 @@
 
 --------
 
+* a system for building single system images (ie: something like openwrt or
+  buildroot)
+
+  - Seperate enabling packages from configuring said packages from configuring
+    the system
+  - Use simple text files which are easilly editiable.
+  - Provide command line tools to build these files incimentally. This allows
+    us to support the mindset people have when installing software on typical
+    running systems, as well as matching the reality that the config will not
+    be correct first, it will require changes (which we provide tools to
+    ease).
+  - Is a graphical configurator (ala openwrt & buildroot) appropriate?
+
+  - How do openembedded & the others handle this?
+
 * continuous integration system -
   runs locally.
   handles multiple sources & build variants for the same "project".

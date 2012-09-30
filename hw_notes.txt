@@ -1,0 +1,13 @@
+USB to 3.3v serial converters::
+	PL2303
+	labeled as "USB-TTL\nUSB-STC-ISP"
+	RX pin: recieve from external device to PL2303
+	TX pin: send to external device from PL2303
+
+DNS 323::
+ - Serial port on HW C1 is a 4 pin connector near a 2x5 connector.
+ - Pin 1 is 3.3v [unconfirmed], 2 = Rx/Recieve, 3 = Tx/Transmit, 4 = GND
+ - Access uboot by pressing ' 1' (space followed by 1) when the countdown
+   occurs.
+   - version: 
+	
