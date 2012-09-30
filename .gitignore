@@ -7,7 +7,6 @@
 *.aux
 *.pdf
 *.dvi
-*.log
 *~
 .*.swp
 *.[od]

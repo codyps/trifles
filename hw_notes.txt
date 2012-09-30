@@ -9,5 +9,7 @@ DNS 323::
  - Pin 1 is 3.3v [unconfirmed], 2 = Rx/Recieve, 3 = Tx/Transmit, 4 = GND
  - Access uboot by pressing ' 1' (space followed by 1) when the countdown
    occurs.
-   - version: 
+   - version: U-Boot 1.1.1 (Feb 26 2009 - 11:33:03) Marvell version: 1.7.3.003
+   - avaliable commands:
+	
 	

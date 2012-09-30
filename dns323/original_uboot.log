@@ -1,0 +1,42 @@
+
+ ** LOADER **
+ ** MARVELL BOARD: RD-88F5182-NAS-2 LE 
+
+U-Boot 1.1.1 (Feb 26 2009 - 11:33:03) Marvell version: 1.7.3.003
+
+DRAM CS[0] base 0x00000000   size  64MB 
+DRAM Total size  64MB 
+Detect phy 1118
+[8192kB@ff800000] Flash:  8 MB
+Addresses 20M - 0M are saved for the U-Boot usage.
+Mem malloc Initialization (20M - 16M): Done
+*** Warning - bad CRC, using default environment
+
+
+Soc: MV88F5182 Rev 2
+CPU: ARM926 (Rev 0) running @ 500Mhz 
+SysClock = 166Mhz , TClock = 166Mhz 
+
+
+USB 0: host mode
+USB 1: host mode
+PCI 0: PCI Express Root Complex Interface
+PCI 1: Conventional PCI, speed = 33000000
+Hit any key to stop autoboot:  0 
+## Booting image at ff820000 ...
+   Image Name:   Alt-F-0.1RC2, kernel 2.6.35.14
+   Image Type:   ARM Linux Kernel Image (uncompressed)
+   Data Size:    1567060 Bytes =  1.5 MB
+   Load Address: 00008000
+   Entry Point:  00008000
+   Verifying Checksum ... OK
+OK
+## Loading Ramdisk Image at ff9a0000 ...
+   Image Name:   Alt-F-0.1RC2, initramfs
+   Image Type:   ARM Linux RAMDisk Image (uncompressed)
+   Data Size:    6389887 Bytes =  6.1 MB
+   Load Address: 00800000
+   Entry Point:  00800000
+   Verifying Checksum ... OK
+
+Starting kernel ...
