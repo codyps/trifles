@@ -2,8 +2,8 @@ obj-m += hello.o
 obj-m += debugfs-test.o
 
 KDIR := /lib/modules/$(shell uname -r)/build
-ifdef DEBUG
-KCPPFLAGS := DEBUG
+ifndef NODEBUG
+KCPPFLAGS := -DDEBUG
 endif
 
 all:
