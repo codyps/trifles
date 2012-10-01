@@ -15,6 +15,21 @@
 #	- multiple goop directories ("pots"? "landfills"? "tanks"? "heaps"?).
 #       - deciding where to drop the files.
 
+ensure_dir () {
+	if ! [ -d "$1" ]; then
+		if [ -e "$1" ]; then
+			echo "F: $2 \"$1\" is not a directory." >&2
+			exit 2
+		else
+			echo "I: creating new $2 \"$1\"." >&2
+			mkdir -p "$1" || {
+				echo "F: failed to create $2 \"$1\"." >&2
+				exit 1
+			}
+		fi
+	fi
+}
+
 GOOP_CONF=$HOME/.config/goop
 if [ -r "$GOOP_CONF" ]; then
 	. "$GOOP_CONF"
@@ -24,24 +39,24 @@ if [ -z "$GOOP_DIR" ]; then
 	GOOP_DIR="$HOME/.goop/"
 fi
 
-if ! [ -d "$GOOP_DIR" ]; then
-	if [ -e "$GOOP_DIR" ]; then
-		echo "F: goop directory \"$GOOP_DIR\" is not a directory." >&2
-		exit 2
-	else
-		echo "I: creating new goop directory \"$GOOP_DIR\"." >&2
-		mkdir "$GOOP_DIR" || {
-			echo "F: failed to create goop directory \"$GOOP_DIR\"." >&2
-			exit 1
-		}
-	fi
-fi
-
+ensure_dir "$GOOP_DIR" "goop directory"
 dir_date=`date +%F` # Y-m-d
 goop_dest="$GOOP_DIR"/"$dir_date"
+ensure_dir "$goop_dest" "date directory"
+goop_dest_lock="$GOOP_DIR"/"$dir_date"/.lock
 
+(
+flock 9
 goop="$1"
 while [ $# -gt 0 ]; do
+	# Only support files for now.
+	#if ( ! [ -f "$goop" ] ) || [ -h "$goop" ]; then
+	#	echo "E: cannot handle non-regular file \"$goop\"."
+	#	continue
+	#fi
+
+	#file_hash=$(sha512 "$goop")
+	file_attrs=$(stat "$goop")
 	goop_name=$(basename "$goop")
 	origin=$(readlink -f "$goop")
 	goop_file_dest="$goop_dest/$goop_name"
@@ -57,13 +72,13 @@ while [ $# -gt 0 ]; do
 	# - device file originally came from
 	# - creation/modification time
 
-	(
-	flock "$goop_file_dest" 9
 	if [ -e "$goop_file_dest" ]; then
 
 		i=1
+		new_goop_file_dest="$goop_file_dest"
 		while [ -e "$new_goop_file_dest" ]; do
-			new_goop_file_dest=$goop_file_dest
+			new_goop_file_dest=${goop_file_dest}___$i
+			: $((i=i+1))
 		done
 		echo "W: file \"$goop_file_dest\" already exsists, using \"$new_goop_file_dest\"."
 		goop_file_dest=$new_goop_file_dest
@@ -73,7 +88,14 @@ while [ $# -gt 0 ]; do
 		echo "E: failed to move goop \"$goop\" to goop dest \"$goop_file_dest\"." >&2
 		echo "T: maintain a list of failures." >&2
 	}
-	) 9>"$goop_file_dest" || {
-		echo "E: could not lock \"$goop_file_dest\", is another goop gooping it?" >&2
-	}
+
+	echo "$file_attrs" > "$goop_file_dest.stat"
+	echo "$origin"     > "$goop_file_dest.origin"
+
+
+	shift
+	goop="$1"
 done
+) 9>"$goop_dest_lock" || {
+	echo "F: could not lock \"$goop_dest_lock\", is another goop gooping?" >&2
+}
