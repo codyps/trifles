@@ -14,6 +14,12 @@
 # allow configuration of
 #	- multiple goop directories ("pots"? "landfills"? "tanks"? "heaps"?).
 #       - deciding where to drop the files.
+# keep a log of the actions taken so that we can roll them back
+# [alternately?] impliment a 'restore' mechanism.
+# Use a hash based file store & hardlink from there.
+# Plan for handling reference counting:
+# - we cannont just use the inode's refcount as non-goop links to goop items could exsist.
+# Inverted links: quickly list all places the file exsists.
 
 ensure_dir () {
 	if ! [ -d "$1" ]; then
@@ -71,6 +77,11 @@ while [ $# -gt 0 ]; do
 	# - path where file originated
 	# - device file originally came from
 	# - creation/modification time
+
+	if ! [ -e "$goop" ]; then
+		echo "W: no such file \"$goop\"."
+		continue
+	fi
 
 	if [ -e "$goop_file_dest" ]; then
 
