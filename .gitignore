@@ -17,6 +17,7 @@
 /hd
 /gkr-decrypt
 /test-pm-timer
+/debugfs-test
 
 login.keyring
 user.keystore
