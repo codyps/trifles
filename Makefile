@@ -17,17 +17,20 @@ lsalsa : ALL_LDFLAGS += -lasound
 obj-test-pm-timer = pm_timer.o
 test-pm-timer : $(obj-test-pm-timer)
 
-TARGETS = hd gkr-decrypt lsalsa test-pm-timer
+obj-debugfs-test = debugfs_test.o
+debugfs-test : $(obj-debugfs-test)
+
+TARGETS = hd gkr-decrypt lsalsa test-pm-timer debugfs-test
 
 .PHONY: all
 all:: $(TARGETS)
 
-CC = gcc
+CC = $(CROSS_COMPILE)gcc
 LD = $(CC)
 RM = rm -f
 
 CFLAGS ?= -ggdb -O0
-ALL_CFLAGS  += --std=gnu99 -Wall $(CLFAGS)
+ALL_CFLAGS  += --std=gnu99 -Wall $(CFLAGS)
 ALL_LDFLAGS += $(LDFLAGS)
 
 ifndef V
@@ -58,7 +61,6 @@ TRACK_LDFLAGS = $(LINK):$(subst ','\'',$(ALL_LDFLAGS)) #')
 		echo "$$FLAGS" >.TRACK-LDFLAGS; \
 	fi
 
-
 %.o: %.c .TRACK-CFLAGS
 	$(QUIET_CC)$(CC) $(ALL_CFLAGS) -c -o $@ $<
 
@@ -72,9 +74,8 @@ install: $(foreach target,$(TARGETS),$(target).install)
 
 
 .PHONY: clean %.clean
-TRASH = .TRACK-CFLAGS .TRACK-LDFLAGS
 %.clean :
-	$(RM) $(obj-$*) $* $(TRASH)
+	$(RM) $(obj-$*) $* $(TRASH) .TRACK-CFLAGS .TRACK-LDFLAGS
 
 clean:	$(foreach target,$(TARGETS),$(target).clean)
 

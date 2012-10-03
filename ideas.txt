@@ -38,6 +38,13 @@
 
 --------
 
+* an NFS server which uses disk images as it's input.
+  - allows the server to serve device files while not needing the perms to
+    make actual device files.
+  - useful for testing kernels.
+  - disk images vs tar: disk images are writable. Otherwise tar would be a
+    decent idea. Perhaps tar + some delta format?
+
 * a system for building single system images (ie: something like openwrt or
   buildroot)
 
