@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 {
 	int ifd = inotify_init();
 	if (ifd < 0) {
-		fprintf(stderr, "failed to initialize inotify\n");
+		fprintf(stderr, "failed to initialize inotify: %d %d : %s\n", ifd, errno, strerror(errno));
 		return 1;
 	}
 
