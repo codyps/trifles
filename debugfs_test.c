@@ -1,3 +1,4 @@
+#define _XOPEN_SOURCE 500 /* for pread */
 
 #include <errno.h>
 #include <fcntl.h>
@@ -68,18 +69,31 @@ int main(int argc, char **argv)
 
 	int ret = inotify_add_watch(ifd, DO_PATH, IN_MODIFY);
 	if (ret < 0) {
-		fprintf(stderr, "failed to add watch\n");
+		fprintf(stderr, "failed to add watch: %s\n", strerror(errno));
 		return 2;
 	}
 
 
 	int fd = open(DO_PATH, O_RDWR);
 	if (fd < 0) {
-		fprintf(stderr, "failed to open file.\n");
+		fprintf(stderr, "failed to open file: %s\n", strerror(errno));
 		return 3;
 	}
 
 	read_val(fd);
 	read_val(fd);
+
+	for(;;) {
+		struct inotify_event evbuf[1];
+		ssize_t r = read(ifd, evbuf, sizeof(evbuf));
+		if (r != sizeof(evbuf)) {
+			fprintf(stderr, "failed to read event: %s\n", strerror(errno));
+			return 4;
+		}
+
+		printf("It changed?\n");
+		read_val(fd);
+	}
+
 	return 0;
 }
