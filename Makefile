@@ -5,20 +5,11 @@ DESTDIR=./bin
 endif
 
 obj-gkr-decrypt = gkr-decrypt.o
-gkr-decrypt: $(obj-gkr-decrypt)
-
 obj-hd = hd.o
-hd : $(obj-hd)
-
 obj-lsalsa = hw_params.o
-lsalsa : $(obj-lsalsa)
 lsalsa : ALL_LDFLAGS += -lasound
-
 obj-test-pm-timer = pm_timer.o
-test-pm-timer : $(obj-test-pm-timer)
-
 obj-debugfs-test = debugfs_test.o
-debugfs-test : $(obj-debugfs-test)
 
 TARGETS = hd gkr-decrypt lsalsa test-pm-timer debugfs-test
 
@@ -64,7 +55,8 @@ TRACK_LDFLAGS = $(LINK):$(subst ','\'',$(ALL_LDFLAGS)) #')
 %.o: %.c .TRACK-CFLAGS
 	$(QUIET_CC)$(CC) $(ALL_CFLAGS) -c -o $@ $<
 
-$(TARGETS) : .TRACK-LDFLAGS
+.SECONDEXPANSION:
+$(TARGETS) : .TRACK-LDFLAGS $$(obj-$$@)
 	$(QUIET_LINK)$(LD) $(ALL_LDFLAGS) -o $@ $(filter-out .TRACK-CFLAGS,$(filter-out .TRACK-LDFLAGS,$^))
 
 .PHONY: install %.install
