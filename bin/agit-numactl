@@ -1,0 +1,69 @@
+#! /bin/sh
+
+a1="Andi Kleen" # Before March 2008
+a2="Cliff Wickman" # After March 2008
+
+date_after () {
+	echo "F: not implimented" >>&2
+	exit 1
+}
+
+proc_file() {
+	b=$(basename "$1")
+	if ! [ -f "$1" ]; then
+		echo Bad file
+		exit 1
+	fi
+
+	for f in `git ls-files`; do
+		rm "$f"
+	done
+
+	case "$b" in
+	*.tar.bz2|*.tar.gz)
+		echo "  tarball"
+		tar pxf "$1" || exit 1
+		v=${b%.tar.*}
+		echo "  looking for $v"
+		if ! [ -d "$v" ]; then
+			echo "could not find dir $v"
+			exit 1
+		fi
+		d=`stat -c %Y "$v"`
+
+		for f in "$v/*"; do
+			mv $f . || exit 1
+		done
+		rmdir "$v" || exit 1
+		;;
+	*)
+		echo "$1" was a fail
+		exit 1;
+	esac
+
+
+	if date_after "March 2008" "$d"; then
+		a="$a2"
+	else
+		a="$a1"
+	fi
+
+	git add -A .
+	msg="`git diff --cached -- CHANGELOG | awk 'BEGIN { ignore=1; nl=1; } /@@/ { ignore=0; } /^\+/{ if (!ignore) { print substr($0,2); if(nl) { print ""; nl=0;};}; }'`"
+	git commit --author="$a" --date="$d" -m "$msg" -a -e || exit 1
+}
+
+proc_dir () {
+	for f in `ls -v "$1"`; do
+		echo "> $f"
+		proc_file "$1"/"$f"
+	done
+}
+
+if [ -d "$1" ]; then
+	echo "Processing directory $1"
+	proc_dir "$1"
+else
+	echo "Processing file $1"
+	proc_file "$1"
+fi
