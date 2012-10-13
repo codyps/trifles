@@ -2,6 +2,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <poll.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -47,7 +48,7 @@ e_close:
 	return ret;
 }
 
-void read_val(int fd)
+void read_val(char *prompt, int fd)
 {
 	long long v;
 	int ret = get_attr(fd, &v, 10);
@@ -56,7 +57,7 @@ void read_val(int fd)
 		return;
 	}
 
-	printf("initial value = %lld\n", v);
+	printf(prompt, v);
 }
 
 int main(int argc, char **argv)
@@ -80,19 +81,32 @@ int main(int argc, char **argv)
 		return 3;
 	}
 
-	read_val(fd);
-	read_val(fd);
+	read_val("initial = %lld\n", fd);
+	read_val("     #2 = %lld\n", fd);
+
+	struct pollfd pfd = { .fd = ifd, .events = POLLIN  };
+	pwrite(fd, "1", 1, 0);
 
 	for(;;) {
 		struct inotify_event evbuf[1];
+
+		ret = poll(&pfd, 1, 20000);
+		if (ret == 0) {
+			read_val("on timeout = %lld\n", fd);
+			continue;
+		} else if (ret < 0) {
+			fprintf(stderr, "error: %s\n", strerror(errno));
+			continue;
+		}
+
 		ssize_t r = read(ifd, evbuf, sizeof(evbuf));
 		if (r != sizeof(evbuf)) {
 			fprintf(stderr, "failed to read event: %s\n", strerror(errno));
 			return 4;
 		}
 
-		printf("It changed?\n");
-		read_val(fd);
+		read_val("--> change to %lld\n" ,fd);
+		pwrite(fd, "1", 1, 0);
 	}
 
 	return 0;
