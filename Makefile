@@ -61,11 +61,12 @@ TRACK_LDFLAGS = $(LINK):$(subst ','\'',$(ALL_LDFLAGS)) #')
 $(TARGETS) : .TRACK-LDFLAGS $$(obj-$$@)
 	$(QUIET_LINK)$(LD) -o $@ $(filter-out .TRACK-CFLAGS,$(filter-out .TRACK-LDFLAGS,$^)) $(ALL_LDFLAGS)
 
+ifdef NO_INSTALL
 .PHONY: install %.install
 %.install: %
 	install $* $(DESTDIR)/bin/$*
 install: $(foreach target,$(TARGETS),$(target).install)
-
+endif
 
 .PHONY: clean %.clean
 %.clean :
