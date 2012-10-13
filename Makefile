@@ -1,8 +1,6 @@
 all::
 
-ifndef DESTDIR
-DESTDIR=./bin
-endif
+DESTDIR?=$(HOME)
 
 obj-gkr-decrypt = gkr-decrypt.o
 obj-hd = hd.o
@@ -57,15 +55,15 @@ TRACK_LDFLAGS = $(LINK):$(subst ','\'',$(ALL_LDFLAGS)) #')
 	fi
 
 %.o: %.c .TRACK-CFLAGS
-	$(QUIET_CC)$(CC) $(ALL_CFLAGS) -c -o $@ $<
+	$(QUIET_CC)$(CC) -c -o $@ $< $(ALL_CFLAGS)
 
 .SECONDEXPANSION:
 $(TARGETS) : .TRACK-LDFLAGS $$(obj-$$@)
-	$(QUIET_LINK)$(LD) $(ALL_LDFLAGS) -o $@ $(filter-out .TRACK-CFLAGS,$(filter-out .TRACK-LDFLAGS,$^))
+	$(QUIET_LINK)$(LD) -o $@ $(filter-out .TRACK-CFLAGS,$(filter-out .TRACK-LDFLAGS,$^)) $(ALL_LDFLAGS)
 
 .PHONY: install %.install
 %.install: %
-	install $* $(DESTDIR)/$*
+	install $* $(DESTDIR)/bin/$*
 install: $(foreach target,$(TARGETS),$(target).install)
 
 
