@@ -3,11 +3,12 @@
 w () { printf "%s\n" "$*" >&2 ; }
 
 usage () {
-	w "usage: $0 show   [<file>]"
-	#w "       $0 status"
-	w "       $0 gov [<gov>]"
+	w "usage: $0 show [<file>]"
+	w "       $0 gov  [<gov>]"
+	w "       $0 speed"
 	w "       $0 slow"
 	w "       $0 sane"
+	#w "       $0 status"
 	exit 1
 }
 
