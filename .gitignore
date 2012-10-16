@@ -19,5 +19,7 @@
 /test-pm-timer
 /debugfs-test
 
+/parse-datetime.c
+
 login.keyring
 user.keystore

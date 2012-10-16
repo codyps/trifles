@@ -30,11 +30,9 @@
 /* FIXME: Check for arithmetic overflow in all cases, not just
    some of them.  */
 
-#include <config.h>
-
 #include "parse-datetime.h"
 
-#include "intprops.h"
+//#include "intprops.h"
 #include "timespec.h"
 #include "verify.h"
 
