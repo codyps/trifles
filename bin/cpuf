@@ -2,23 +2,59 @@
 
 w () { printf "%s\n" "$*" >&2 ; }
 
-if [ $# -lt 1 ]; then
-	w "usage: $0 show <thing>"
+usage () {
+	w "usage: $0 show   [<file>]"
+	#w "       $0 status"
+	w "       $0 gov [<gov>]"
+	w "       $0 slow"
+	w "       $0 sane"
 	exit 1
+}
+
+CPU_DIR=/sys/devices/system/cpu
+
+set_gov () {
+	for i in $CPU_DIR/cpu[0123456789]*; do
+		sudo sh -c "echo '$1' > '$i/cpufreq/scaling_governor'"
+	done
+}
+
+show () {
+	for i in $CPU_DIR/cpu[0123456789]*; do
+		cpu=$(basename $i)
+		printf "$cpu : "
+		cat "$i"/cpufreq/"$1"
+	done
+}
+
+if [ $# -lt 1 ]; then
+	usage
 fi
 
 case "$1" in
 show)
 	if [ $# -ne 2 ]; then
-		ls /sys/devices/system/cpu/cpu0
+		ls $CPU_DIR/cpu0
 		exit 0
 	fi
 
-	for i in /sys/devices/system/cpu/cpu[0123456789]*; do
-		cpu=$(basename $i)
-		printf "$cpu : "
-		cat "$i"/cpufreq/"$2"
-	done
+	show "$2"
+	;;
+gov)
+	if [ $# -ne 2 ]; then
+		show scaling_governor
+	else
+		set_gov "$2"
+	fi
+	;;
+slow)
+	set_gov powersave
+	;;
+sane)
+	set_gov conservative
+	;;
+speed)
+	show scaling_cur_freq
 	;;
 *)
 	w "unknown action '$1'"
