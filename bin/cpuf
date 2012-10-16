@@ -8,6 +8,7 @@ usage () {
 	w "       $0 speed"
 	w "       $0 slow"
 	w "       $0 sane"
+	w "       $0 ignore-nice [<val>]"
 	#w "       $0 status"
 	exit 1
 }
@@ -35,7 +36,7 @@ fi
 case "$1" in
 show)
 	if [ $# -ne 2 ]; then
-		ls $CPU_DIR/cpu0/cpufreq
+		find $CPU_DIR/cpu0/cpufreq
 		exit 0
 	fi
 
@@ -46,6 +47,14 @@ gov)
 		show scaling_governor
 	else
 		set_gov "$2"
+	fi
+	;;
+ignore-nice)
+	f="$CPU_DIR"/cpufreq/conservative/ignore_nice_load
+	if [ $# -ne 2 ]; then
+		cat "$f"
+	else
+		sudo sh -c "echo '$2' > '$f'"
 	fi
 	;;
 slow)
