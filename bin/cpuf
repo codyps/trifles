@@ -35,7 +35,7 @@ fi
 case "$1" in
 show)
 	if [ $# -ne 2 ]; then
-		ls $CPU_DIR/cpu0
+		ls $CPU_DIR/cpu0/cpufreq
 		exit 0
 	fi
 
