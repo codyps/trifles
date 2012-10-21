@@ -3,21 +3,20 @@
 
 #include <stddef.h>
 
-#define MEGA(x) ( x * 1000000 )
-#define KILO(x) ( x *    1000 )
+#define pow4(x) (2 << (2*(x)-1))
+
+#define MEGA(x) ((x) * 1000000)
+#define KILO(x) ((x) *    1000)
 
 #define ARRAY_SIZE(x)   (sizeof(x)/sizeof((x)[0]))
-#define ACCESS_ONCE(x)  (*(volatile typeof(x) *) &(x))
-
 #define FIELD_SIZE(s,f) (sizeof((s *)0->f))
-
 #define typeof_field(s, f) typeof((s *)0->f)
 
 /* offsetof is defined in stddef.h */
 #define container_of(item, type, member) \
 		(((type) *)((char *)(item) - offsetof(type, member)))
 
-/* memory barrier */
+#define ACCESS_ONCE(x)  (*(volatile typeof(x) *) &(x))
 #define barrier() __asm__ __volatile__ ("":::"memory")
 
 /* prefetch for reading */
@@ -49,7 +48,8 @@
 #define MIN8(a,b,c,d,e,f,g,h) MIN(MIN4(a,b,c,d),MIN4(e,f,g,h))
 
 #define EXPORT(sym) __attribute__((externally_visible)) sym
-#define likely(x)   __builtin_expect(x,1)
+#define expect_eq(x, y) __builtin_expect(x, y)
+#define likely(x)   __builtin_expect(!!(x),1)
 #define unlikely(x) __builtin_expect(x,0)
 #define must_check  __attribute__((warn_unused_result))
 #define unused      __attribute__((unused))
