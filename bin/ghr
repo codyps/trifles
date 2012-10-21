@@ -24,7 +24,7 @@ function api_call() {
 function create() {
 	local repo="$1"
 	local x=`api_call repos/create -F "name=$1" -F 'public=1'`
-	
+
 	echo "$x"
 }
 
@@ -43,7 +43,7 @@ function delete() {
 	fi
 
 	echo $dtoken
-	
+
 	local res
 	read -p "Are you sure you want to delete \"$repo\" (type yes):" res
 	case $res in

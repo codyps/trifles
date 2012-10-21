@@ -1,0 +1,26 @@
+#! /bin/sh
+
+PACKAGE=binutils
+
+die () {
+	echo "$0: $*" >&2
+	exit 1
+}
+
+SRC_DIR="$HOME/g/$PACKAGE"
+
+cd "$SRC_DIR" && git pull || die "Failed to pull new version of $PACKAGE"
+
+BUILD_DIR=`tempfile --prefix="build-$PACKAGE"`
+rm -rf "$BUILD_DIR"
+mkdir -p "$BUILD_DIR" && cd "$BUILD_DIR" || die "Could not create $BUILD_DIR"
+
+PREFIX="$HOME/x-tools/multiarch"
+
+CONF_OPTS="--enable-targets=all --prefix=$PREFIX --enable-lto --with-sysroot --enable-languages=c,c++ --disable-nls"
+
+"$SRC_DIR"/configure $CONF_OPTS || die "Configure failed"
+
+make -j4 || die "Build failed"
+
+make install || die "Install failed"

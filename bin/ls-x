@@ -1,0 +1,13 @@
+#! /bin/sh
+
+if [ $# -lt 1 ]; then
+	echo "usage: $0 <executable>..."
+	exit 1
+fi
+
+while [ $# -ne 0 ]; do
+	exe=$1
+	shift
+
+	ldd "$exe" | awk '/=>/{ print $3; } END{ print "'$exe'"; }'
+done | sort -u

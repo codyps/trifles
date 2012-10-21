@@ -1,0 +1,26 @@
+TARGET := thp11
+TRASH  := $(TARGET).pdf \
+          $(TARGET).dvi \
+          $(TARGET).aux \
+          $(TARGET).log \
+	  $(TARGET).bbl \
+          $(TARGET).blg \
+	  $(TARGET).out \
+
+.PHONY: all clean
+.SUFFIXES:
+.SECONDARY:
+
+all : $(TARGET).pdf
+
+clean :
+	rm -f $(TRASH)
+
+p2.out: p2 cdma256stream.txt
+	./$^ $(ID) | iconv -c | fmt > $@
+
+%.pdf: %.tex p2.out p1.c p2.c config.h
+	pdflatex -interaction=nonstopmode $*
+	pdflatex -interaction=nonstopmode $*
+
+include Makefile

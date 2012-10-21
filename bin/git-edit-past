@@ -1,0 +1,24 @@
+#! /bin/sh
+
+if [ $# != 1 ]; then
+	echo "usage: $0 <commit edit>"
+	exit 1
+fi
+
+commit=`git rev-parse "$1"`
+editor=`git var GIT_EDITOR`
+
+
+git filter-branch --msg-filter '
+	test $GIT_COMMIT = '$commit' && {
+		t=$(tempfile) || exit 1
+		trap "rm -f -- '$t'" EXIT
+
+		cat > "$t"
+		'"$editor"' "$t"
+		cat "$t"
+
+		rm -f -- "$t"
+		trap - EXIT
+	} || exit 0
+	' "$commit"~1..HEAD
