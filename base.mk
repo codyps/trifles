@@ -79,7 +79,7 @@ TRACK_LDFLAGS = $(LINK):$(subst ','\'',$(ALL_LDFLAGS)) #')
 		echo "$$FLAGS" >.TRACK-LDFLAGS; \
 	fi
 
-%.o: %.c .TRACK-CFLAGS
+%.o .%.o.d: %.c .TRACK-CFLAGS
 	$(QUIET_CC)$(CC) -MMD -MF .$@.d -c -o $@ $< $(ALL_CFLAGS)
 
 .SECONDEXPANSION:
@@ -95,9 +95,8 @@ endif
 
 .PHONY: clean %.clean
 %.clean :
-	$(RM) $(obj-$*) $* $(TRASH) .TRACK-CFLAGS .TRACK-LDFLAGS
+	$(RM) $(obj-$*) $* $(TRASH) .TRACK-CFLAGS .TRACK-LDFLAGS $(patsubst %.o,.%.o.d,$(obj-$*))
 
 clean:	$(foreach target,$(TARGETS),$(target).clean)
 
-
--include $(patsubst %.o,.%.d.o,$(foreach target,$(TARGETS),$(obj-$target)))
+-include $(patsubst %.o,.%.o.d,$(foreach target,$(TARGETS),$(obj-$target)))
