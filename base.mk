@@ -99,4 +99,5 @@ endif
 
 clean:	$(foreach target,$(TARGETS),$(target).clean)
 
--include $(foreach x,$($(foreach target,$(TARGETS),$(obj-$target)):=.d),.$(x))
+
+-include $(patsubst %.o,.%.d.o,$(foreach target,$(TARGETS),$(obj-$target)))
