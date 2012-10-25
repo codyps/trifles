@@ -33,7 +33,21 @@ CC = $(CROSS_COMPILE)gcc
 LD = $(CC)
 RM = rm -f
 
-CFLAGS ?= -ggdb -O0
+ifdef DEBUG
+OPT=-O0
+else
+OPT=-Os
+endif
+
+ifndef NO_LTO
+CFLAGS  ?= -flto
+LDFLAGS ?= $(ALL_CFLAGS) $(OPT)
+else
+CFLAGS ?= $(OPT)
+endif
+
+CFLAGS += -ggdb
+
 ALL_CFLAGS  += --std=gnu99 -Wall $(CFLAGS)
 ALL_LDFLAGS += $(LDFLAGS)
 
@@ -66,7 +80,7 @@ TRACK_LDFLAGS = $(LINK):$(subst ','\'',$(ALL_LDFLAGS)) #')
 	fi
 
 %.o: %.c .TRACK-CFLAGS
-	$(QUIET_CC)$(CC) -c -o $@ $< $(ALL_CFLAGS)
+	$(QUIET_CC)$(CC) -MMD -MF .$@.d -c -o $@ $< $(ALL_CFLAGS)
 
 .SECONDEXPANSION:
 $(TARGETS) : .TRACK-LDFLAGS $$(obj-$$@)
@@ -85,3 +99,4 @@ endif
 
 clean:	$(foreach target,$(TARGETS),$(target).clean)
 
+-include $(foreach x,$($(foreach target,$(TARGETS),$(obj-$target)):=.d),.$(x))
