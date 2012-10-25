@@ -1,0 +1,29 @@
+#! /bin/sh
+
+if [ $# -lt 1 ]; then
+	echo "usage: $(basename $0) <dir> [<dir>...]" 2>&1
+	echo "Fetches all remotes for source code repositories which are"
+	echo "subdirectories of each 'dir'"
+	exit 1
+fi
+
+if [ -z $DEBUG ]; then
+	Q=-q
+else
+	unset Q
+fi
+
+for dir in "$@"; do
+	for i in "$dir"/*; do
+		b=$(basename "$i")
+		( cd "$i" && git fetch $Q --all; exit $?)
+		r=$?
+		if [ $r -eq 0 ]; then
+			echo "Fetched $b"
+		elif [ $r -eq 128 ]; then
+			[ -n $DEBUG ] && echo "Tried to fetch non-repo $b"
+		else
+			echo "Failed to fetch $b"
+		fi
+	done
+done

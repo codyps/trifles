@@ -1,0 +1,3 @@
+[submodule "penny"]
+	path = penny
+	url = https://github.com/jmesmon/libpenny
