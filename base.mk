@@ -24,8 +24,9 @@
 
 # TODO:
 # - install disable per target.
-# - flag tracking per target.
+# - flag tracking per target.'.obj.o.cmd'
 # - flag tracking that easily allows adding extra variables.
+# - profile guided optimization support.
 
 .PHONY: all
 all:: $(TARGETS)
@@ -72,8 +73,8 @@ TRACK_CFLAGS = $(CC):$(subst ','\'',$(ALL_CFLAGS)) #')
 		echo "$$FLAGS" >.TRACK-CFLAGS; \
 	fi
 
-TRACK_LDFLAGS = $(LINK):$(subst ','\'',$(ALL_LDFLAGS)) #')
-.TRACK-LDFLAGS: FORCE
+TRACK_LDFLAGS = $(LD):$(subst ','\'',$(ALL_LDFLAGS)) #')
+.TRACK-DFLAGS: FORCE
 	@FLAGS='$(TRACK_LDFLAGS)'; \
 	if test x"$$FLAGS" != x"`cat .TRACK-LDFLAGS 2>/dev/null`" ; then \
 		echo 1>&2 "    * new link flags"; \
