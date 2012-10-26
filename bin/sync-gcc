@@ -1,0 +1,6 @@
+#! /bin/sh
+
+cd $HOME/g/gcc
+git fetch --all &&
+git merge me/master origin/master &&
+git push me master

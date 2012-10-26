@@ -1,0 +1,27 @@
+#! /bin/sh
+
+usage () {
+	w "usage: $0 <dir>"
+	w " recursively unmounts every directory under '<dir>'"
+	exit 1
+}
+
+w () { printf "%s\n" "$*" >&2; }
+
+if [ $# -ne 2 ]; then
+	usage
+fi
+
+if ! [ -d "$1" ]; then
+	w "F: argument '$1' not a directory"
+	exit 1
+fi
+
+MINFO="/proc/self/mountinfo"
+
+if ! [ -r "$MINFO" ]; then
+	w "F: can't read mount info in '$MINFO'"
+	exit 1
+fi
+
+awk 

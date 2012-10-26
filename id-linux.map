@@ -1,0 +1,12 @@
+**	IGNORE
+*~	IGNORE
+.*.swp	IGNORE
+
+*.[chly]	C
+
+*.[sS]	asm
+*.asm	asm
+
+Kconfig		Text
+*.mk Text
+Makefile Text

@@ -34,7 +34,21 @@ CC = $(CROSS_COMPILE)gcc
 LD = $(CC)
 RM = rm -f
 
-CFLAGS ?= -ggdb -O0
+ifdef DEBUG
+OPT=-O0
+else
+OPT=-Os
+endif
+
+ifndef NO_LTO
+CFLAGS  ?= -flto
+LDFLAGS ?= $(ALL_CFLAGS) $(OPT)
+else
+CFLAGS ?= $(OPT)
+endif
+
+CFLAGS += -ggdb
+
 ALL_CFLAGS  += --std=gnu99 -Wall $(CFLAGS)
 ALL_LDFLAGS += $(LDFLAGS)
 
@@ -66,8 +80,8 @@ TRACK_LDFLAGS = $(LINK):$(subst ','\'',$(ALL_LDFLAGS)) #')
 		echo "$$FLAGS" >.TRACK-LDFLAGS; \
 	fi
 
-%.o: %.c .TRACK-CFLAGS
-	$(QUIET_CC)$(CC) -c -o $@ $< $(ALL_CFLAGS)
+%.o .%.o.d: %.c .TRACK-CFLAGS
+	$(QUIET_CC)$(CC) -MMD -MF .$@.d -c -o $@ $< $(ALL_CFLAGS)
 
 .SECONDEXPANSION:
 $(TARGETS) : .TRACK-LDFLAGS $$(obj-$$@)
@@ -82,7 +96,8 @@ endif
 
 .PHONY: clean %.clean
 %.clean :
-	$(RM) $(obj-$*) $* $(TRASH) .TRACK-CFLAGS .TRACK-LDFLAGS
+	$(RM) $(obj-$*) $* $(TRASH) .TRACK-CFLAGS .TRACK-LDFLAGS $(patsubst %.o,.%.o.d,$(obj-$*))
 
 clean:	$(foreach target,$(TARGETS),$(target).clean)
 
+-include $(patsubst %.o,.%.o.d,$(foreach target,$(TARGETS),$(obj-$target)))
