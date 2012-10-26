@@ -25,6 +25,20 @@
 /* prefetch for writing */
 #define prefetchw(x) __builtin_prefetch(x,1)
 
+/* to use, call the defined function is a condition that should never be true.
+ * If the call is optimized out, no warning will be omitted.
+ * Otherwise, it will be unhappy with you.
+ * BUGS: On avr-gcc 4.7.2 from MHV: Appears to produce the wrong line number in
+ *       the warning message durring link time optimization when LTO is turned. If
+ *       you also have optimization turned on for the normal compile steps, the
+ *       warning will also be emitted there and will indicate the proper location.
+ *
+ * Notes: marking this as noinline is required. So is the barrier. My guess is
+ *        that the "inlining" discards the warning message.
+ */
+#define DEFINE_COMPILETIME_WARNING(name, msg) __attribute__((warning("\n"__FILE__ ":" msg),noinline)) static void name(void) { barrier(); }
+#define DEFINE_COMPILETIME_ERROR(name, msg) __attribute__((error("\n" __FILE__ ":" msg),noinline)) static void name(void) { barrier(); }
+
 #ifndef htonll
 # ifdef _BIG_ENDIAN
 #  define htonll(x)   (x)
