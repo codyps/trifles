@@ -25,19 +25,38 @@
 /* prefetch for writing */
 #define prefetchw(x) __builtin_prefetch(x,1)
 
+#define _STR(x) #x
+#define STR(x) _STR(x)
+#define LINE_STR STR(__LINE__)
+
 /* to use, call the defined function is a condition that should never be true.
  * If the call is optimized out, no warning will be omitted.
- * Otherwise, it will be unhappy with you.
- * BUGS: On avr-gcc 4.7.2 from MHV: Appears to produce the wrong line number in
- *       the warning message durring link time optimization when LTO is turned. If
- *       you also have optimization turned on for the normal compile steps, the
- *       warning will also be emitted there and will indicate the proper location.
+ * Otherwise, it will be unhappy with you & create a nasty multiline
+ * warning/error.
+ *
+ * BUGS: On avr-gcc 4.7.2 from MHV somtimes (not anymore) produces the wrong line number in
+ *       the warning message (the portion supplied by the compiler, not the
+ *       part generated below) durring link time optimization when LTO is
+ *       turned.
+ *       If you also have optimization turned on for the normal compile steps,
+ *       the warning will also be emitted there and will indicate the proper
+ *       location.
  *
  * Notes: marking this as noinline is required. So is the barrier. My guess is
  *        that the "inlining" discards the warning message.
+ *
+ *        The use of 'barrier()' will (potentially) create less efficient code
+ *        if the warning is emitted (not a concern for the error, as code won't
+ *        be emitted in that case).
  */
-#define DEFINE_COMPILETIME_WARNING(name, msg) __attribute__((warning("\n"__FILE__ ":" msg),noinline)) static void name(void) { barrier(); }
-#define DEFINE_COMPILETIME_ERROR(name, msg) __attribute__((error("\n" __FILE__ ":" msg),noinline)) static void name(void) { barrier(); }
+
+#ifndef CONFIG_COMPILETIME_LONG_MSG
+#define DEFINE_COMPILETIME_WARNING(name, msg) __attribute__((warning(msg),noinline)) static void name(void) { barrier(); }
+#define DEFINE_COMPILETIME_ERROR(name, msg) __attribute__((error(msg),noinline)) static void name(void) { barrier(); }
+#else
+#define DEFINE_COMPILETIME_WARNING(name, msg) __attribute__((warning("\n"__FILE__ ":" LINE_STR ": " msg),noinline)) static void name(void) { barrier(); }
+#define DEFINE_COMPILETIME_ERROR(name, msg) __attribute__((error("\n" __FILE__ ":" LINE_STR ": " msg),noinline)) static void name(void) { barrier(); }
+#endif
 
 #ifndef htonll
 # ifdef _BIG_ENDIAN
