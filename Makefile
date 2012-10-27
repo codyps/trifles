@@ -1,7 +1,5 @@
 all::
 
-DESTDIR?=$(HOME)
-
 obj-utime = utime.o
 obj-gkr-decrypt = gkr-decrypt.o
 obj-hd = hd.o

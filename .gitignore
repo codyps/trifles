@@ -18,6 +18,7 @@
 /gkr-decrypt
 /test-pm-timer
 /debugfs-test
+/utime
 
 /parse-datetime.c
 
