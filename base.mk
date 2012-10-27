@@ -43,7 +43,7 @@ endif
 
 ifndef NO_LTO
 CFLAGS  ?= -flto
-LDFLAGS ?= $(ALL_CFLAGS) $(OPT)
+LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fwhole-program
 else
 CFLAGS ?= $(OPT)
 endif
