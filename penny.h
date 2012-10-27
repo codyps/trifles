@@ -58,6 +58,10 @@
 #define DEFINE_COMPILETIME_ERROR(name, msg) __attribute__((error("\n" __FILE__ ":" LINE_STR ": " msg),noinline)) static void name(void) { barrier(); }
 #endif
 
+/* useful in combination with the compiletime errors/warnings above. */
+#define is_constant(expr)      __builtin_constant_p(expr)
+#define constant_or_zero(expr) __builtin_choose_expr(__builtin_constant_p(expr), expr, 0)
+
 #ifndef htonll
 # ifdef _BIG_ENDIAN
 #  define htonll(x)   (x)
