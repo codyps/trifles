@@ -9,11 +9,13 @@ usage () {
 	w "       $0 slow"
 	w "       $0 sane"
 	w "       $0 ignore-nice [<val>]"
+	w "	  $0 cooling"
 	#w "       $0 status"
 	exit 1
 }
 
 CPU_DIR=/sys/devices/system/cpu
+THERM_DIR=/sys/class/thermal
 
 set_gov () {
 	for i in $CPU_DIR/cpu[0123456789]*; do
@@ -29,32 +31,49 @@ show () {
 	done
 }
 
+show_cooling_devices () {
+	for i in $THERM_DIR/cooling_device*; do
+		dev=$(basename "$i")
+		devnum=${dev#cooling_device}
+		printf "$devnum : type = $(cat $i/type) state = $(cat $i/cur_state) max = $(cat $i/max_state)\n"
+	done
+}
+
+cdev_count () {
+	n=0
+	for i in $THERM_DIR/cooling_device*; do
+		: $((n=n+1))
+	done
+	echo $n
+}
+
 if [ $# -lt 1 ]; then
 	usage
 fi
 
-case "$1" in
+act="$1"; shift
+case "$act" in
 show)
-	if [ $# -ne 2 ]; then
+	if [ $# -ne 1 ]; then
 		find $CPU_DIR/cpu0/cpufreq
 		exit 0
 	fi
 
-	show "$2"
+	show "$1"
 	;;
 gov)
-	if [ $# -ne 2 ]; then
+	if [ $# -ne 1 ]; then
 		show scaling_governor
 	else
-		set_gov "$2"
+		set_gov "$1"
 	fi
 	;;
 ignore-nice)
 	f="$CPU_DIR"/cpufreq/conservative/ignore_nice_load
-	if [ $# -ne 2 ]; then
+	if [ $# -ne 1 ]; then
 		cat "$f"
 	else
-		sudo sh -c "echo '$2' > '$f'"
+		sudo sh -c "echo '$1' > '$f'"
 	fi
 	;;
 slow)
@@ -66,8 +85,22 @@ sane)
 speed)
 	show scaling_cur_freq
 	;;
+cooling)
+	cdev_ct=`cdev_count`
+	if [ $# -eq 0 ]; then
+		show_cooling_devices
+	elif [ $# -eq $cdev_ct ]; then
+		for i in $THERM_DIR/cooling_device*; do
+			sudo sh -c "echo '$1' > '$i/cur_state'"
+			shift
+		done
+		show_cooling_devices
+	else
+		echo cdev_count = $cdev_ct
+	fi
+	;;
 *)
-	w "unknown action '$1'"
+	w "unknown action '$act'"
 	exit 2
 	;;
 esac
