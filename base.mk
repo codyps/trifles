@@ -74,7 +74,7 @@ TRACK_CFLAGS = $(CC):$(subst ','\'',$(ALL_CFLAGS)) #')
 	fi
 
 TRACK_LDFLAGS = $(LD):$(subst ','\'',$(ALL_LDFLAGS)) #')
-.TRACK-DFLAGS: FORCE
+.TRACK-LDFLAGS: FORCE
 	@FLAGS='$(TRACK_LDFLAGS)'; \
 	if test x"$$FLAGS" != x"`cat .TRACK-LDFLAGS 2>/dev/null`" ; then \
 		echo 1>&2 "    * new link flags"; \
