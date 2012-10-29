@@ -43,7 +43,7 @@ OPT=-Os
 endif
 
 ifndef NO_LTO
-CFLAGS  ?= -flto
+CFLAGS  ?= -flto -fno-fat-lto-objects
 LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fwhole-program
 else
 CFLAGS ?= $(OPT)
