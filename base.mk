@@ -90,15 +90,18 @@ $(TARGETS) : .TRACK-LDFLAGS $$(obj-$$@)
 	$(QUIET_LINK)$(LD) -o $@ $(filter-out .TRACK-CFLAGS,$(filter-out .TRACK-LDFLAGS,$^)) $(ALL_LDFLAGS)
 
 ifdef NO_INSTALL
+PREFIX ?= $(HOME)
+BINDIR ?= $(PREFIX)/bin
 .PHONY: install %.install
 %.install: %
-	install $* $(DESTDIR)/bin/$*
+	install $* $(BINDIR)/$*
 install: $(foreach target,$(TARGETS),$(target).install)
 endif
 
+TRASH = .TRACK-CFLAGS .TRACK-LDFLAGS
 .PHONY: clean %.clean
 %.clean :
-	$(RM) $(obj-$*) $* $(TRASH) .TRACK-CFLAGS .TRACK-LDFLAGS $(patsubst %.o,.%.o.d,$(obj-$*))
+	$(RM) $(obj-$*) $* $(TRASH) $(patsubst %.o,.%.o.d,$(obj-$*))
 
 clean:	$(foreach target,$(TARGETS),$(target).clean)
 
