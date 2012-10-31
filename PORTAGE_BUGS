@@ -1,0 +1,2 @@
+
+ - cross building mingw32 with USE="go" fails due to the go runtime not finding "pthread.h"
