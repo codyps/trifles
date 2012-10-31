@@ -46,7 +46,7 @@ else
 CFLAGS ?= $(OPT)
 endif
 
-CFLAGS += -ggdb
+CFLAGS += -ggdb3
 
 ALL_CFLAGS  += --std=gnu99 -Wall $(CFLAGS)
 ALL_LDFLAGS += $(LDFLAGS)

@@ -1,3 +1,6 @@
+* gdb - enable expantion of inline funtions when debugging.
+  - potentially encode them in the same way as macros
+
 * sn [SecureNetwork] - ssh that can handle tempermental connections
   - mosh bootstraps on ssh & impliments some annoying scroll magic.
   - requirements:
