@@ -8,7 +8,7 @@ typedef unsigned long long ull;
 #define pow4(x) (2 << (2*(x)-1))
 
 #define MEGA(x) ((x) * 1000000)
-#define KILO(x) ((x) *    1000ULL)
+#define KILO(x) ((x) *    1000)
 
 #define ARRAY_SIZE(x)   (sizeof(x)/sizeof((x)[0]))
 #define FIELD_SIZE(s,f) (sizeof((s *)0->f))
