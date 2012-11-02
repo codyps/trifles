@@ -19,7 +19,8 @@ PREFIX="$HOME/x-tools/multiarch"
 
 CONF_OPTS="--enable-targets=all --prefix=$PREFIX --enable-lto --with-sysroot --enable-languages=c,c++ --disable-nls"
 
-"$SRC_DIR"/configure $CONF_OPTS || die "Configure failed"
+CFLAGS="-march=native -O2"
+CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" "$SRC_DIR"/configure $CONF_OPTS || die "Configure failed"
 
 make -j4 || die "Build failed"
 

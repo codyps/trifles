@@ -15,3 +15,9 @@ parse-datetime : $(obj-parse-datetime)
 TARGETS = hd gkr-decrypt lsalsa test-pm-timer debugfs-test utime
 
 include base.mk
+
+.PHONY: install-dnuma
+install-dnuma:
+	mkdir -p $(BINDIR) &&	\
+	cp debugfs-test   $(BINDIR)/dnuma &&	\
+	cp bin/dnuma-test $(BINDIR)/dnuma-test

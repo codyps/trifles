@@ -43,7 +43,7 @@ OPT=-Os
 endif
 
 ifndef NO_LTO
-CFLAGS  ?= -flto -fno-fat-lto-objects
+CFLAGS  ?= -flto
 LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fwhole-program
 else
 CFLAGS ?= $(OPT)
@@ -89,9 +89,10 @@ TRACK_LDFLAGS = $(LD):$(subst ','\'',$(ALL_LDFLAGS)) #')
 $(TARGETS) : .TRACK-LDFLAGS $$(obj-$$@)
 	$(QUIET_LINK)$(LD) -o $@ $(filter-out .TRACK-CFLAGS,$(filter-out .TRACK-LDFLAGS,$^)) $(ALL_LDFLAGS)
 
-ifdef NO_INSTALL
-PREFIX ?= $(HOME)
-BINDIR ?= $(PREFIX)/bin
+ifndef NO_INSTALL
+PREFIX  ?= $(HOME)   # link against things here
+DESTDIR ?= $(PREFIX) # install into here
+BINDIR  ?= $(DESTDIR)/bin
 .PHONY: install %.install
 %.install: %
 	install $* $(BINDIR)/$*
