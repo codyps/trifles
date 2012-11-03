@@ -1,0 +1,8 @@
+#! /bin/sh
+
+M=/sys/kernel/debugfs/memlayout
+
+echo 0 > $M/start
+echo 17FFC > $M/end
+echo 0 > $M/node
+echo 1 > $M/commit
