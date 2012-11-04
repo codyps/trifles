@@ -4,11 +4,6 @@
 #include <stddef.h>
 
 typedef unsigned long long ull;
-//#define pow4(x) (2ull << (2*(x)-1))
-#define pow4(x) (2 << (2*(x)-1))
-
-#define MEGA(x) ((x) * 1000000)
-#define KILO(x) ((x) *    1000)
 
 #define ARRAY_SIZE(x)   (sizeof(x)/sizeof((x)[0]))
 #define FIELD_SIZE(s,f) (sizeof((s *)0->f))
@@ -36,18 +31,10 @@ typedef unsigned long long ull;
  * Otherwise, it will be unhappy with you & create a nasty multiline
  * warning/error.
  *
- * BUGS: On avr-gcc 4.7.2 from MHV somtimes (not anymore) produces the wrong line number in
- *       the warning message (the portion supplied by the compiler, not the
- *       part generated below) durring link time optimization when LTO is
- *       turned.
- *       If you also have optimization turned on for the normal compile steps,
- *       the warning will also be emitted there and will indicate the proper
- *       location.
- *
  * Notes: marking this as noinline is required. So is the barrier. My guess is
  *        that the "inlining" discards the warning message.
  *
- *        The use of 'barrier()' will (potentially) create less efficient code
+ * Warning: The use of 'barrier()' will (potentially) create less efficient code
  *        if the warning is emitted (not a concern for the error, as code won't
  *        be emitted in that case).
  */
@@ -73,18 +60,6 @@ typedef unsigned long long ull;
 #  define ntohll(x)   ((((uint64_t)ntohl(x)) << 32) + ntohl(x >> 32))
 # endif
 #endif
-
-#define ABS(x) ((x) < 0?(-(x)) : (x))
-
-#define MAX(x, y) ((x) > (y)?(x):(y))
-#define MAX4(a, b, c, d) MAX(MAX(a,b),MAX(c,d))
-#define MAX6(a,b,c,d,e,f) MAX(MAX4(a,b,c,d),MAX(e,f))
-#define MAX8(a,b,c,d,e,f,g,h) MAX(MAX4(a,b,c,d),MAX4(e,f,g,h))
-
-#define MIN(x,y) ((x) < (y)?(x):(y))
-#define MIN4(a, b, c, d) MIN(MIN(a,b),MIN(c,d))
-#define MIN6(a,b,c,d,e,f) MIN(MIN4(a,b,c,d),MIN(e,f))
-#define MIN8(a,b,c,d,e,f,g,h) MIN(MIN4(a,b,c,d),MIN4(e,f,g,h))
 
 #define EXPORT(sym) __attribute__((externally_visible)) sym
 #define expect_eq(x, y) __builtin_expect(x, y)
