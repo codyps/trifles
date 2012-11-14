@@ -1,8 +1,23 @@
 #! /bin/sh
 
-M=/sys/kernel/debugfs/memlayout
+M=/sys/kernel/debug/memlayout
 
-echo 0 > $M/start
-echo 17FFC > $M/end
-echo 0 > $M/node
-echo 1 > $M/commit
+usage() {
+	echo "usage: dnuma-test all-to <node>"
+	echo "       -- moves all memory to the node <node>"
+	exit 1
+}
+
+[ $# -lt 1 ] && usage
+act="$1"; shift
+
+case "$act" in
+a*)	[ $# -ne 1 ] && usage
+	echo 0 > $M/start
+	echo 0x17FFC > $M/end
+	echo $1 > $M/node
+	echo 1 > $M/commit
+	;;
+*)	usage ;;
+esac
+
