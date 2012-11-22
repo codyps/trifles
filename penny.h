@@ -10,8 +10,18 @@ typedef unsigned long long ull;
 #define typeof_field(s, f) typeof((s *)0->f)
 
 /* offsetof is defined in stddef.h */
+#if 1
+/* works in gdb. */
 #define container_of(item, type, member) \
-		(((type) *)((char *)(item) - offsetof(type, member)))
+		((type *)((char *)(item) - offsetof(type, member)))
+#else
+/* causes some extra checking */
+#define container_of(item, type, member) ({				\
+		typeof_field(type, member) *__container_of__item = item; \
+		((type *)((char *)(__container_of__item)		\
+			- offsetof(type, member)));			\
+		})
+#endif
 
 #define ACCESS_ONCE(x)  (*(volatile typeof(x) *) &(x))
 #define barrier() __asm__ __volatile__ ("":::"memory")
