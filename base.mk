@@ -82,12 +82,13 @@ TRACK_LDFLAGS = $(LD):$(subst ','\'',$(ALL_LDFLAGS)) #')
 		echo "$$FLAGS" >.TRACK-LDFLAGS; \
 	fi
 
-%.o .%.o.d: %.c .TRACK-CFLAGS
+#.%.o.d %.o: %.c .TRACK-CFLAGS
+%.o: %.c .TRACK-CFLAGS
 	$(QUIET_CC)$(CC) -MMD -MF .$@.d -c -o $@ $< $(ALL_CFLAGS)
 
 .SECONDEXPANSION:
 $(TARGETS) : .TRACK-LDFLAGS $$(obj-$$@)
-	$(QUIET_LINK)$(LD) -o $@ $(filter-out .TRACK-CFLAGS,$(filter-out .TRACK-LDFLAGS,$^)) $(ALL_LDFLAGS)
+	$(QUIET_LINK)$(LD) -o $@ $(obj-$@) $(ALL_LDFLAGS)
 
 ifndef NO_INSTALL
 PREFIX  ?= $(HOME)   # link against things here
@@ -106,4 +107,5 @@ TRASH = .TRACK-CFLAGS .TRACK-LDFLAGS
 
 clean:	$(foreach target,$(TARGETS),$(target).clean)
 
--include $(patsubst %.o,.%.o.d,$(foreach target,$(TARGETS),$(obj-$target)))
+deps = $(patsubst %.o,.%.o.d,$(foreach target,$(TARGETS),$(obj-$(target))))
+-include $(deps)
