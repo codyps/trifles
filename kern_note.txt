@@ -1,8 +1,0 @@
-commit 54ff7e595d763d894104d421b103a89f7becf47c:
-	x86: hpet: Work around hardware stupidity.
-
-HPET rolls over at approx. 306 seconds ~~= 5 minutes.
-Laptop (nb305) takes 5 minutes to wake from suspend.
-Coincidence?
-
-

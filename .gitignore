@@ -19,6 +19,7 @@
 /test-pm-timer
 /debugfs-test
 /utime
+/test-dep
 
 /parse-datetime.c
 
