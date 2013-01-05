@@ -1,3 +1,12 @@
+* a better dtls lib than tinydtls
+  - factor out peer lookups, allocations
+
+* efficient bitcoin/namecoin daemon.
+  - maintaining 2 seperate daemons based on the same proto & sharing many
+    common parts is bad.
+  - Make some type of pluggable system for supporting a variety of *coin type
+    P2P protocols.
+
 * gdb - enable expantion of inline funtions when debugging.
   - potentially encode them in the same way as macros
   - also needs support for "({ stuff; })" expressions.
@@ -24,6 +33,8 @@
   - attempt to split along the same byte boundaries
   - keeps "snapshots" which can be removed independently of other snapshots.
     ie: allows "3 hourly backups, 15 daily, 5 weekly", et c type setup.
+  - Can maintain snapshots on a logarithmic type schedule instead of the
+    typical tape style mentioned in the previous point.
   - Push & Pull style backups supported.
   - client/server with support for ssh as a transport mechanizm
   - can track metadata on without requiring high privs (ie: can track source
@@ -98,6 +109,9 @@ seperated build variants.
 
 * Screen saver and suspend to ram (pm-suspend) integration with cryptsetup suspend.
   i3 seems like a good candidate (while lacking a timeout daemon)
+
+* A way to run per-user actions on various events such as suspend, poweroff,
+  "Lock", "idle"
 
 * pam+luks integration: prompt for user and password. allow selected
   user+password pairs to decrypt. auto login. essentially, mac stuff.
