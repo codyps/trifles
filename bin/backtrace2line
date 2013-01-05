@@ -1,0 +1,8 @@
+#! /bin/sh
+
+if [ $# -ne 1 ]; then
+	echo "usage: $0 <binary>"
+	exit 1
+fi
+
+cut -d'<' -f2 | cut -d'>' -f1 | xargs -r -I '{}' addr2line '{}' -f -e "$1"

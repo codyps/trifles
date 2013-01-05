@@ -6,11 +6,19 @@ if [ $# != 1 ]; then
 fi
 
 name=`git var GIT_COMMITTER_IDENT`
-name="${name%>*}"
+name="${name%>*}>"
 
 commit=`git rev-parse "$1"`
-
-git filter-branch --msg-filter '
-	cat
-	test $GIT_COMMIT = '$commit' && echo "Signed-off-by: '"$name"'" || exit 0
+SOB="Signed-off-by: $name"
+git filter-branch -f --msg-filter '
+	msg="$(cat)" &&
+	printf "%s\n" "$msg" &&
+	test $GIT_COMMIT = '$commit' || exit 0
+	case "$msg" in
+	*"'"$SOB"'")
+		;;
+	*)
+		printf "\n%s\n" "'"$SOB"'"
+		;;
+	esac
 	' "$commit"~1..HEAD
