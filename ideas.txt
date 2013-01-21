@@ -102,6 +102,10 @@ seperated build variants.
 * An interface to pass 'secrets' from the bootloader to the loaded operating
   system (for use with disk encryption).
 
+* Subpixel Rendering + Multiple Monitors is completely broken on Linux. Fix
+  it. (This makes subpixel rendering + monitor rotation almost always a
+  no-go).
+
 * screensaver/suspend which can properly suspend LUKs crypt mounts and prompt
   for re-entry of password
 
