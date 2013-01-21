@@ -13,4 +13,4 @@ git filter-branch --env-filter "
 	GIT_AUTHOR_EMAIL='$email';
 	GIT_COMMITER_NAME='$name';
 	GIT_COMMITER_EMAIL='$email';
-	"
+	" "$*"
