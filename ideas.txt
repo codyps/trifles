@@ -19,13 +19,16 @@
 * trashdrive - dropbox clone
 
 * bsnap - backups that work
+  - can sanely handle "scheduling" of snapshots around storage device
+    avaliability.
+  - can use a daemon to track file changes & make snapshotting more efficient.
   - deduplicating
   - compressed
   - attempt to split along the same byte boundaries
   - keeps "snapshots" which can be removed independently of other snapshots.
     ie: allows "3 hourly backups, 15 daily, 5 weekly", et c type setup.
   - Push & Pull style backups supported.
-  - client/server with support for ssh as a transport mechanizm
+  - client/server with support for ssh as a transport mechanism
   - can track metadata on without requiring high privs (ie: can track source
     uids without needing root to store the backups)
   - potential: mapping of uids to usernames (might change on a new system
