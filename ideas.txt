@@ -1,3 +1,12 @@
+* a better dtls lib than tinydtls
+  - factor out peer lookups, allocations
+
+* efficient bitcoin/namecoin daemon.
+  - maintaining 2 seperate daemons based on the same proto & sharing many
+    common parts is bad.
+  - Make some type of pluggable system for supporting a variety of *coin type
+    P2P protocols.
+
 * gdb - enable expantion of inline funtions when debugging.
   - potentially encode them in the same way as macros
   - also needs support for "({ stuff; })" expressions.
@@ -27,6 +36,8 @@
   - attempt to split along the same byte boundaries
   - keeps "snapshots" which can be removed independently of other snapshots.
     ie: allows "3 hourly backups, 15 daily, 5 weekly", et c type setup.
+  - Can maintain snapshots on a logarithmic type schedule instead of the
+    typical tape style mentioned in the previous point.
   - Push & Pull style backups supported.
   - client/server with support for ssh as a transport mechanism
   - can track metadata on without requiring high privs (ie: can track source
@@ -94,13 +105,31 @@ seperated build variants.
 * An interface to pass 'secrets' from the bootloader to the loaded operating
   system (for use with disk encryption).
 
+* Subpixel Rendering + Multiple Monitors is completely broken on Linux. Fix
+  it. (This makes subpixel rendering + monitor rotation almost always a
+  no-go).
+
 * screensaver/suspend which can properly suspend LUKs crypt mounts and prompt
   for re-entry of password
 
 * imap client daemon with support for persistent connection, ie: "push"
+* mail handling that doesn't suck
+  - a graphical mail viewer that doesn't fetch mail
+  - a mail storage format that is actually safe.
+  - IMAP like protocol that can understand having the same message in
+    multiple places (labels)
+    - At the end of the day, what is IMAP, really? And what are we using it
+      as? Right now it seems like it is syncronization for structured data
+      with some extra goop about imutability and unique ids thrown in.
+    - Is this necessary? Useful?
+    - What happens when 2 (writers) clients are acting on 2 different local
+      mail stores syncronized via IMAP?
 
 * Screen saver and suspend to ram (pm-suspend) integration with cryptsetup suspend.
   i3 seems like a good candidate (while lacking a timeout daemon)
+
+* A way to run per-user actions on various events such as suspend, poweroff,
+  "Lock", "idle"
 
 * pam+luks integration: prompt for user and password. allow selected
   user+password pairs to decrypt. auto login. essentially, mac stuff.
@@ -148,13 +177,15 @@ seperated build variants.
 	* gpg encryption
 	* all stored as plain text (or retrevable as such)
 	* versioning (now it seems like I should write a front end on git to
-	  impliment this
+	  impliment this)
+        * some type of structure to allow the formation of a graph. ie: we
+          want links and back-links
   'note' writen in perl, supports encryption.
   	* cmdline options not documented (as far as I could see)
 	* interactive thing not too fun (i'd prefer `note add [note name]` or
-	  some such
+	  some such)
 	* defualts to binary storage, no 'show' command visible (can edit and
-	  save somewhere else
+	  save somewhere else)
   'devtodo': written towards todo list tracking, not general note taking.
   	* nice interface
   'hnb': single tree of short notes.
