@@ -27,7 +27,9 @@
 # - flag tracking per target.'.obj.o.cmd'
 # - flag tracking that easily allows adding extra variables.
 # - profile guided optimization support.
+# - output directory support ("make O=blah")
 # - build with different flags placed into different output directories.
+# - library building (shared & static)
 
 .PHONY: all
 all:: $(TARGETS)
