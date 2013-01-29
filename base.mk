@@ -53,7 +53,13 @@ endif
 
 CFLAGS += -ggdb3
 
-ALL_CFLAGS += -std=gnu99 -Wall -Wundef -Wendif-labels -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -fstrict-aliasing -Wno-parentheses
+ALL_CFLAGS += -std=gnu99 -Wall
+ALL_CFLAGS += -Wundef -Wshadow
+ALL_CFLAGS += -Wbad-function-cast -Wcast-align
+ALL_CFLAGS += -Wstrict-prototypes -Wmissing-prototypes
+ALL_CFLAGS += -Wnested-externs -Wwrite-strings
+ALL_CFLAGS += -Wunsafe-loop-optimizations
+ALL_CFLAGS += -Wnormalized=id
 ALL_CFLAGS  += -pipe $(CFLAGS)
 ALL_LDFLAGS += $(LDFLAGS)
 
