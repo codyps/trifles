@@ -44,7 +44,7 @@ endif
 
 ifndef NO_LTO
 CFLAGS  ?= -flto
-LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fwhole-program
+LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fuse-linker-plugin
 else
 CFLAGS ?= $(OPT)
 endif
@@ -63,6 +63,8 @@ endif
 
 .SECONDARY:
 .PHONY: FORCE
+
+obj-to-dep = $(foreach obj,$(1),$(dir $(obj))/.$(notdir $(obj)))
 
 ### Detect prefix changes
 ## Use "#')" to hack around vim highlighting.
@@ -84,7 +86,7 @@ TRACK_LDFLAGS = $(LD):$(subst ','\'',$(ALL_LDFLAGS)) #')
 
 #.%.o.d %.o: %.c .TRACK-CFLAGS
 %.o: %.c .TRACK-CFLAGS
-	$(QUIET_CC)$(CC) -MMD -MF .$@.d -c -o $@ $< $(ALL_CFLAGS)
+	$(QUIET_CC)$(CC) -MMD -MF "$(call obj-to-dep,$@)" -c -o "$@" "$<" $(ALL_CFLAGS)
 
 .SECONDEXPANSION:
 $(TARGETS) : .TRACK-LDFLAGS $$(obj-$$@)
@@ -103,9 +105,10 @@ endif
 TRASH = .TRACK-CFLAGS .TRACK-LDFLAGS
 .PHONY: clean %.clean
 %.clean :
-	$(RM) $(obj-$*) $* $(TRASH) $(patsubst %.o,.%.o.d,$(obj-$*))
+	$(RM) $(obj-$*) $* $(TRASH) $(call obj-to-dep,$(obj-$*))
 
 clean:	$(foreach target,$(TARGETS),$(target).clean)
 
-deps = $(patsubst %.o,.%.o.d,$(foreach target,$(TARGETS),$(obj-$(target))))
+ALL_OBJ = $(foreach target,$(TARGETS),$(obj-$(target)))
+deps = $(call obj-to-dep,$(ALL_OBJ))
 -include $(deps)
