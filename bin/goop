@@ -45,6 +45,11 @@ if [ -z "$GOOP_DIR" ]; then
 	GOOP_DIR="$HOME/.goop/"
 fi
 
+if [ $# -eq 0 ]; then
+	echo "usage: goop [file] [file]..."
+	exit 1
+fi
+
 ensure_dir "$GOOP_DIR" "goop directory"
 dir_date=`date +%F` # Y-m-d
 goop_dest="$GOOP_DIR"/"$dir_date"

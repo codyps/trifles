@@ -27,7 +27,9 @@
 # - flag tracking per target.'.obj.o.cmd'
 # - flag tracking that easily allows adding extra variables.
 # - profile guided optimization support.
+# - output directory support ("make O=blah")
 # - build with different flags placed into different output directories.
+# - library building (shared & static)
 
 .PHONY: all
 all:: $(TARGETS)
@@ -51,7 +53,8 @@ endif
 
 CFLAGS += -ggdb3
 
-ALL_CFLAGS  += --std=gnu99 -Wall $(CFLAGS)
+ALL_CFLAGS += -std=gnu99 -Wall -Wundef -Wendif-labels -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Winline -Wdisabled-optimization -fstrict-aliasing -Wno-parentheses
+ALL_CFLAGS  += -pipe $(CFLAGS)
 ALL_LDFLAGS += $(LDFLAGS)
 
 ifndef V
