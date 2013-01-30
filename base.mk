@@ -116,7 +116,7 @@ TRASH = .TRACK-CFLAGS .TRACK-LDFLAGS
 %.clean :
 	$(RM) $(obj-$*) $* $(TRASH) $(call obj-to-dep,$(obj-$*))
 
-clean:	$(foreach target,$(TARGETS),$(target).clean)
+clean:	$(addsuffix .clean,$(TARGETS))
 
 ALL_OBJ = $(foreach target,$(TARGETS),$(obj-$(target)))
 deps = $(call obj-to-dep,$(ALL_OBJ))
