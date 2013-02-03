@@ -74,7 +74,7 @@ endif
 .SECONDARY:
 .PHONY: FORCE
 
-obj-to-dep = $(foreach obj,$(1),$(dir $(obj)).$(notdir $(obj)).d)
+obj-to-dep = $(foreach obj,$(1),$(dir $(obj)).$(notdir $(obj)))
 
 ### Detect prefix changes
 ## Use "#')" to hack around vim highlighting.
