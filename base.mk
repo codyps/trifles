@@ -61,6 +61,7 @@ ALL_CFLAGS += -Wnested-externs -Wwrite-strings
 ALL_CFLAGS += -Wunsafe-loop-optimizations
 ALL_CFLAGS += -Wnormalized=id
 ALL_CFLAGS  += -pipe $(CFLAGS)
+ALL_LDFLAGS += -Wl,--build-id
 ALL_LDFLAGS += $(LDFLAGS)
 
 ifndef V
@@ -73,7 +74,7 @@ endif
 .SECONDARY:
 .PHONY: FORCE
 
-obj-to-dep = $(foreach obj,$(1),$(dir $(obj)).$(notdir $(obj)).d)
+obj-to-dep = $(foreach obj,$(1),$(dir $(obj)).$(notdir $(obj)))
 
 ### Detect prefix changes
 ## Use "#')" to hack around vim highlighting.
