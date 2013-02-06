@@ -1,3 +1,12 @@
+* version comparison & extraction shell utility and C library.
+	my_ver = 1.3
+	test_version $my_ver -lt 1.3-rc2
+		false
+	test "`version --minor $my_ver`" = 3
+		true
+  - Most distros have a spec for version numbers, to what extent are they
+    compatable?
+
 * a better dtls lib than tinydtls
   - factor out peer lookups, allocations
 
