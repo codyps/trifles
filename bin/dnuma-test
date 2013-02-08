@@ -22,7 +22,7 @@ create_rme () {
 act="$1"; shift
 
 high_pfn=`for i in $M/current/*-*; do
-		printf "%s" "$i" | cut -d- -f1
+		printf "%s" "$(basename "$i" )" | cut -d- -f1
 	  done | sort -n | head -n1`
 
 case "$act" in
