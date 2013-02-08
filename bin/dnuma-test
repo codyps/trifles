@@ -5,17 +5,48 @@ M=/sys/kernel/debug/memlayout
 usage() {
 	echo "usage: dnuma-test all-to <node>"
 	echo "       -- moves all memory to the node <node>"
+	echo "	     dnuma-test stripe <base-nid> <end-nid> <pfn-per-stripe>"
+	echo "       -- stripe memory between nodes <base-nid> and <end-nid>, inclusive"
+	echo "       -- For example, \`stripe 1 2 1\` results in 0-1:1,1-2:2,2-3:1,3-4:2"
 	exit 1
+}
+
+create_rme () {
+	# start end node
+	echo "$1" > $M/start
+	echo "$2" > $M/end
+	echo "$3" > $M/node
 }
 
 [ $# -lt 1 ] && usage
 act="$1"; shift
 
+high_pfn=`for i in $M/*-*; do
+		printf "%s" "$i" | cut -d- -f1
+	  done | sort -n | head -n1`
+
 case "$act" in
+	# all-to <node id>
 a*)	[ $# -ne 1 ] && usage
-	echo 0 > $M/start
-	echo 0x17FFC > $M/end
-	echo $1 > $M/node
+	create_rme 0 "$high_pfn" "$1"
+	echo 1 > $M/commit
+	;;
+	# stripe <base-nid> <end-nid> <pfn-per-stripe>
+s*)	[ $# -ne 3 ] && usage
+	pfn=0
+	nid=$1
+	pfn_per_stripe=$3
+	while [ $pfn -lt $high_pfn ] ; do
+		: $((next_pfn = pfn + pfn_per_stripe))
+		if [ $next_pfn -gt $high_pfn ]; then
+			next_pfn=$high_pfn
+		fi
+		create_rme $pfn $next_pfn $nid
+		: $((nid = nid + 1))
+		if [ $nid -gt $2 ]; then
+			nid = $1;
+		fi
+	done
 	echo 1 > $M/commit
 	;;
 *)	usage ;;
