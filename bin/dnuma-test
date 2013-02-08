@@ -21,7 +21,7 @@ create_rme () {
 [ $# -lt 1 ] && usage
 act="$1"; shift
 
-high_pfn=`for i in $M/*-*; do
+high_pfn=`for i in $M/current/*-*; do
 		printf "%s" "$i" | cut -d- -f1
 	  done | sort -n | head -n1`
 
