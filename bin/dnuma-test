@@ -13,17 +13,18 @@ usage() {
 
 create_rme () {
 	# start end node
-	echo "$1" > $M/start
-	echo "$2" > $M/end
-	echo "$3" > $M/node
+	echo "creating rme $1 $2 $3"
+	printf "%d" "$1" > $M/start || echo "failed to write $1 to start"
+	printf "%d" "$2" > $M/end   || echo "failed to write $2 to end"
+	echo "$3" > $M/node  || echo "failed to write $3 to node"
 }
 
 [ $# -lt 1 ] && usage
 act="$1"; shift
 
-high_pfn=`for i in $M/current/*-*; do
-		printf "%s" "$(basename "$i" )" | cut -d- -f1
-	  done | sort -n | head -n1`
+high_pfn=$(printf "%d" "0x$(for i in $M/current/*-*; do
+				printf "%s" "$(basename "$i" )" | cut -d- -f2
+			    done | sort -rn | head -n1)" )
 
 case "$act" in
 	# all-to <node id>
@@ -37,15 +38,16 @@ s*)	[ $# -ne 3 ] && usage
 	nid=$1
 	pfn_per_stripe=$3
 	while [ $pfn -lt $high_pfn ] ; do
-		: $((next_pfn = pfn + pfn_per_stripe))
+		: $((next_pfn = pfn + pfn_per_stripe - 1))
 		if [ $next_pfn -gt $high_pfn ]; then
 			next_pfn=$high_pfn
 		fi
 		create_rme $pfn $next_pfn $nid
 		: $((nid = nid + 1))
 		if [ $nid -gt $2 ]; then
-			nid = $1;
+			nid=$1;
 		fi
+		: $((pfn = next_pfn + 1))
 	done
 	echo 1 > $M/commit
 	;;
