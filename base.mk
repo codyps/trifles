@@ -46,15 +46,22 @@ endif
 
 ifndef NO_LTO
 CFLAGS  ?= -flto
-LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fwhole-program
+LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fuse-linker-plugin
 else
 CFLAGS ?= $(OPT)
 endif
 
 CFLAGS += -ggdb3
 
-ALL_CFLAGS += -std=gnu99 -Wall -Wundef -Wendif-labels -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Winline -Wdisabled-optimization -fstrict-aliasing -Wno-parentheses
+ALL_CFLAGS += -std=gnu99 -Wall
+ALL_CFLAGS += -Wundef -Wshadow
+ALL_CFLAGS += -Wbad-function-cast -Wcast-align
+ALL_CFLAGS += -Wstrict-prototypes -Wmissing-prototypes
+ALL_CFLAGS += -Wnested-externs -Wwrite-strings
+ALL_CFLAGS += -Wunsafe-loop-optimizations
+ALL_CFLAGS += -Wnormalized=id
 ALL_CFLAGS  += -pipe $(CFLAGS)
+ALL_LDFLAGS += -Wl,--build-id
 ALL_LDFLAGS += $(LDFLAGS)
 
 ifndef V
@@ -66,6 +73,8 @@ endif
 
 .SECONDARY:
 .PHONY: FORCE
+
+obj-to-dep = $(foreach obj,$(1),$(dir $(obj)).$(notdir $(obj)))
 
 ### Detect prefix changes
 ## Use "#')" to hack around vim highlighting.
@@ -87,7 +96,7 @@ TRACK_LDFLAGS = $(LD):$(subst ','\'',$(ALL_LDFLAGS)) #')
 
 #.%.o.d %.o: %.c .TRACK-CFLAGS
 %.o: %.c .TRACK-CFLAGS
-	$(QUIET_CC)$(CC) -MMD -MF .$@.d -c -o $@ $< $(ALL_CFLAGS)
+	$(QUIET_CC)$(CC) -MMD -MF "$(call obj-to-dep,$@)" -c -o "$@" "$<" $(ALL_CFLAGS)
 
 .SECONDEXPANSION:
 $(TARGETS) : .TRACK-LDFLAGS $$(obj-$$@)
@@ -106,9 +115,10 @@ endif
 TRASH = .TRACK-CFLAGS .TRACK-LDFLAGS
 .PHONY: clean %.clean
 %.clean :
-	$(RM) $(obj-$*) $* $(TRASH) $(patsubst %.o,.%.o.d,$(obj-$*))
+	$(RM) $(obj-$*) $* $(TRASH) $(call obj-to-dep,$(obj-$*))
 
-clean:	$(foreach target,$(TARGETS),$(target).clean)
+clean:	$(addsuffix .clean,$(TARGETS))
 
-deps = $(patsubst %.o,.%.o.d,$(foreach target,$(TARGETS),$(obj-$(target))))
+ALL_OBJ = $(foreach target,$(TARGETS),$(obj-$(target)))
+deps = $(call obj-to-dep,$(ALL_OBJ))
 -include $(deps)
