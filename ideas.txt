@@ -1,3 +1,5 @@
+* serialization language that can specify arbitrary protocol types
+
 * a better dtls lib than tinydtls
   - factor out peer lookups, allocations
 
