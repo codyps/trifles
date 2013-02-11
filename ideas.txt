@@ -1,3 +1,5 @@
+* serialization language that can specify arbitrary protocol types
+
 * version comparison & extraction shell utility and C library.
 	my_ver = 1.3
 	test_version $my_ver -lt 1.3-rc2
