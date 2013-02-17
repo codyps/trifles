@@ -1,0 +1,30 @@
+# vim: ft=sh
+
+test_version() {
+	local x="$1"
+	local cmp="$2"
+	local y="$3"
+
+	local lower=`printf "%s\n%s\n" "$x" "$y" | sort -V | head -n1`
+	if test "$lower" = "$x"; then
+		local first_is_lower=true
+		local second_is_lower=false
+	else
+		local first_is_lower=false
+		local second_is_lower=true
+	fi
+
+	if test "$x" = "$y"; then
+		local eq=true
+	else
+		local eq=false
+	fi
+
+	case "$cmp" in
+	-lt|\<)		$first_is_lower ;;
+	-lte|\<=|=\<)	$first_is_lower || $eq ;;
+	-gt|\>)		$second_is_lower ;;
+	-gte|\>=|=\>)	$second_is_lower || $eq ;;
+	=|-eq)		$eq ;;
+	esac
+}
