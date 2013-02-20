@@ -45,13 +45,13 @@ OPT=-Os
 endif
 
 ifndef NO_LTO
-CFLAGS  ?= -flto
-LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fuse-linker-plugin
+ALL_CFLAGS  ?= -flto
+ALL_LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fuse-linker-plugin
 else
-CFLAGS ?= $(OPT)
+ALL_CFLAGS ?= $(OPT)
 endif
 
-CFLAGS += -ggdb3
+ALL_CFLAGS += -ggdb3
 
 ALL_CFLAGS += -std=gnu99 -Wall
 ALL_CFLAGS += -Wundef -Wshadow
