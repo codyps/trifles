@@ -8,12 +8,13 @@ obj-lsalsa = hw_params.o
 lsalsa : ALL_LDFLAGS += -lasound
 obj-test-pm-timer = pm_timer.o
 obj-debugfs-test = debugfs_test.o
+obj-modll = mod_ll.o
 
 obj-parse-datetime = parse-datetime.o
 parse-datetime.o: ALL_CFLAGS += -DTEST
 parse-datetime : $(obj-parse-datetime)
 
-TARGETS = hd gkr-decrypt lsalsa test-pm-timer debugfs-test utime test-dep
+TARGETS = hd gkr-decrypt lsalsa test-pm-timer debugfs-test utime test-dep modll
 
 include base.mk
 
