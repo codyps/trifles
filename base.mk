@@ -57,7 +57,7 @@ ALL_CFLAGS += -std=gnu99 -Wall
 ALL_CFLAGS += -Wundef -Wshadow
 ALL_CFLAGS += -Wbad-function-cast -Wcast-align
 ALL_CFLAGS += -Wstrict-prototypes -Wmissing-prototypes
-ALL_CFLAGS += -Wnested-externs -Wwrite-strings
+ALL_CFLAGS += -Wwrite-strings
 ALL_CFLAGS += -Wunsafe-loop-optimizations
 ALL_CFLAGS += -Wnormalized=id
 ALL_CFLAGS  += -pipe $(CFLAGS)
