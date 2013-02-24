@@ -16,16 +16,24 @@ static inline int udp_resolve_listen(
 		node = NULL;
 	}
 
-	struct addrinfo hints;
+	struct addrinfo hints = {
+		.ai_family = AF_INET,
+		.ai_socktype = SOCK_DGRAM,
+		.ai_flags = AI_PASSIVE,
+	};
 
-	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_flags = AI_PASSIVE;
-	hints.ai_protocol = 0;
-	hints.ai_canonname = NULL;
-	hints.ai_addr = NULL;
-	hints.ai_next = NULL;
+	return getaddrinfo(node, service, &hints, res);
+}
+
+static inline int udp_resolve_as_client(
+		char const *node,
+		char const *service,
+		struct addrinfo **res)
+{
+	struct addrinfo hints = {
+		.ai_family = AF_INET,
+		.ai_socktype = SOCK_DGRAM,
+	};
 
 	return getaddrinfo(node, service, &hints, res);
 }
