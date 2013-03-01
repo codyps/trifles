@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 			return -1;
 		}
 		if (ll.ll_time)
-			printf("%d\t%d\t%s\t%s\n", i, ll.ll_time, ll.ll_line, ll.ll_host);
+			printf("%d\t%ld\t%s\t%s\n", i, (long)ll.ll_time, ll.ll_line, ll.ll_host);
 
 	}
 

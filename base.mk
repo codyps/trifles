@@ -35,6 +35,7 @@
 all:: $(TARGETS)
 
 CC = $(CROSS_COMPILE)gcc
+CXX = $(CROSS_COMPILE)g++
 LD = $(CC)
 RM = rm -f
 
@@ -45,36 +46,44 @@ OPT=-Os
 endif
 
 ifndef NO_LTO
-CFLAGS  ?= -flto
-LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fuse-linker-plugin
+ALL_CFLAGS  ?= -flto
+ALL_LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fuse-linker-plugin
 else
-CFLAGS ?= $(OPT)
+ALL_CFLAGS ?= $(OPT)
 endif
 
-CFLAGS += -ggdb3
+ALL_CFLAGS += -ggdb3
 
-ALL_CFLAGS += -std=gnu99 -Wall
-ALL_CFLAGS += -Wundef -Wshadow
-ALL_CFLAGS += -Wbad-function-cast -Wcast-align
+COMMON_CFLAGS += -Wall
+COMMON_CFLAGS += -Wundef -Wshadow
+COMMON_CFLAGS += -pipe
+COMMON_CFLAGS += -Wcast-align
+COMMON_CFLAGS += -Wwrite-strings
+COMMON_CFLAGS += -Wunsafe-loop-optimizations
+COMMON_CFLAGS += -Wnormalized=id
+
+ALL_CFLAGS += -std=gnu99
+ALL_CFLAGS += -Wbad-function-cast
 ALL_CFLAGS += -Wstrict-prototypes -Wmissing-prototypes
-ALL_CFLAGS += -Wnested-externs -Wwrite-strings
-ALL_CFLAGS += -Wunsafe-loop-optimizations
-ALL_CFLAGS += -Wnormalized=id
-ALL_CFLAGS  += -pipe $(CFLAGS)
+
+ALL_CFLAGS   += $(COMMON_CFLAGS) $(CFLAGS)
+ALL_CXXFLAGS += $(COMMON_CFLAGS) $(CXXFLAGS)
+
 ALL_LDFLAGS += -Wl,--build-id
 ALL_LDFLAGS += $(LDFLAGS)
 
 ifndef V
-	QUIET_CC   = @ echo '   CC  ' $@;
-	QUIET_LINK = @ echo '   LINK' $@;
-	QUIET_LSS  = @ echo '   LSS ' $@;
-	QUIET_SYM  = @ echo '   SYM ' $@;
+	QUIET_CC   = @ echo '  CC  ' $@;
+	QUIET_CXX  = @ echo '  CXX ' $@;
+	QUIET_LINK = @ echo '  LINK' $@;
+	QUIET_LSS  = @ echo '  LSS ' $@;
+	QUIET_SYM  = @ echo '  SYM ' $@;
 endif
 
 .SECONDARY:
 .PHONY: FORCE
 
-obj-to-dep = $(foreach obj,$(1),$(dir $(obj)).$(notdir $(obj)))
+obj-to-dep = $(foreach obj,$(1),$(dir $(obj)).$(notdir $(obj)).d)
 
 ### Detect prefix changes
 ## Use "#')" to hack around vim highlighting.
@@ -84,6 +93,14 @@ TRACK_CFLAGS = $(CC):$(subst ','\'',$(ALL_CFLAGS)) #')
 	if test x"$$FLAGS" != x"`cat .TRACK-CFLAGS 2>/dev/null`" ; then \
 		echo 1>&2 "    * new build flags or prefix"; \
 		echo "$$FLAGS" >.TRACK-CFLAGS; \
+	fi
+
+TRACK_CXXFLAGS = $(CXX):$(subst ','\'',$(ALL_CXXFLAGS)) #')
+.TRACK-CXXFLAGS: FORCE
+	@FLAGS='$(TRACK_CXXFLAGS)'; \
+	if test x"$$FLAGS" != x"`cat .TRACK-CXXFLAGS 2>/dev/null`" ; then \
+		echo 1>&2 "    * new build flags or prefix"; \
+		echo "$$FLAGS" >.TRACK-CXXFLAGS; \
 	fi
 
 TRACK_LDFLAGS = $(LD):$(subst ','\'',$(ALL_LDFLAGS)) #')
@@ -97,6 +114,9 @@ TRACK_LDFLAGS = $(LD):$(subst ','\'',$(ALL_LDFLAGS)) #')
 #.%.o.d %.o: %.c .TRACK-CFLAGS
 %.o: %.c .TRACK-CFLAGS
 	$(QUIET_CC)$(CC) -MMD -MF "$(call obj-to-dep,$@)" -c -o "$@" "$<" $(ALL_CFLAGS)
+
+%.o: %.cc .TRACK-CXXFLAGS
+	$(QUIET_CXX)$(CXX) -MMD -MF "$(call obj-to-dep,$@)" -c -o "$@" "$<" $(ALL_CXXFLAGS)
 
 .SECONDEXPANSION:
 $(TARGETS) : .TRACK-LDFLAGS $$(obj-$$@)
