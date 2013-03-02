@@ -5,13 +5,21 @@ from sys import argv, exit, stdout
 from os import mkdir, makedirs, path
 import errno
 
+# For handling xmlrpclib stupidity
+from mimetools import Message
+from StringIO import StringIO
+
+# Debugging
+import code
+
 def mkdir_p(path):
     try:
         makedirs(path)
     except OSError as exc: # Python >2.5
         if exc.errno == errno.EEXIST:
             pass
-        else: raise
+        else:
+            raise exc
 
 def main(argv):
     if len(argv) != 3:
@@ -23,7 +31,15 @@ def main(argv):
 
     print('>> Getting all pages...', end='')
     stdout.flush()
-    allpages = srcwiki.getAllPages()
+    try:
+        allpages = srcwiki.getAllPages()
+    except xmlrpclib.ProtocolError as pe:
+        headers = Message(StringIO(pe.headers))
+        if pe.errcode == 301:
+            print('\nerror: redirected to "{0}"'.format(headers['Location']))
+            return 1
+        else:
+            raise pe
     print(' done.')
 
     for pagename in allpages:
