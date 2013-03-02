@@ -67,7 +67,7 @@ while [ $# -gt 0 ]; do
 	#fi
 
 	#file_hash=$(sha512 "$goop")
-	file_attrs=$(stat "$goop")
+	file_attrs=$(stat "$goop" 2>/dev/null)
 	goop_name=$(basename "$goop")
 	origin=$(readlink -f "$goop")
 	goop_file_dest="$goop_dest/$goop_name"
@@ -85,6 +85,8 @@ while [ $# -gt 0 ]; do
 
 	if ! [ -e "$goop" ]; then
 		echo "W: no such file \"$goop\"."
+		shift
+		goop=$1
 		continue
 	fi
 
