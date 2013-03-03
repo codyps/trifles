@@ -29,6 +29,11 @@ def main(argv):
     out_dir = argv[2]
     srcwiki = xmlrpclib.ServerProxy('{0}?action=xmlrpc2'.format(argv[1]))
 
+    ver = srcwiki.getMoinVersion()
+    xmlver = srcwiki.getRPCVersionSupported()
+
+    print('ver = {0} ; xmlver = {1}'.format(ver, xmlver))
+
     print('>> Getting all pages...', end='')
     stdout.flush()
     try:
