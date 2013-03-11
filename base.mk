@@ -34,10 +34,10 @@
 .PHONY: all
 all:: $(TARGETS)
 
-CC = $(CROSS_COMPILE)gcc
-CXX = $(CROSS_COMPILE)g++
-LD = $(CC)
-RM = rm -f
+CC  ?= $(CROSS_COMPILE)gcc
+CXX ?= $(CROSS_COMPILE)g++
+LD  ?= $(CC)
+RM  ?= rm -f
 
 ifdef DEBUG
 OPT=-O0
@@ -132,7 +132,7 @@ BINDIR  ?= $(DESTDIR)/bin
 install: $(foreach target,$(TARGETS),$(target).install)
 endif
 
-TRASH = .TRACK-CFLAGS .TRACK-LDFLAGS
+TRASH += .TRACK-CFLAGS .TRACK-LDFLAGS
 .PHONY: clean %.clean
 %.clean :
 	$(RM) $(obj-$*) $* $(TRASH) $(call obj-to-dep,$(obj-$*))
