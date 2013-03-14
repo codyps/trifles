@@ -31,13 +31,22 @@
 # - build with different flags placed into different output directories.
 # - library building (shared & static)
 
-
 # Delete the default suffixes
 .SUFFIXES:
+
+O = .
+T = $(addprefix $(O)/,$(TARGETS))
+#VPATH = $(O):.
+vpath %.c .
+vpath %.o $(O)
+vpath .TRACK-CFLAGS $(O)
+vpath .TRACK-LDFLAGS $(O)
+$(foreach target,$(TARGETS),$(eval vpath $(target) $(O)))
 
 .PHONY: all FORCE
 all:: $(TARGETS)
 
+# FIXME: overriding in Makefile is tricky
 CC = $(CROSS_COMPILE)gcc
 CXX= $(CROSS_COMPILE)g++
 LD = $(CC)
@@ -87,8 +96,9 @@ endif
 # Avoid deleting .o files
 .SECONDARY:
 
-
 obj-to-dep = $(foreach obj,$(1),$(dir $(obj)).$(notdir $(obj)).d)
+target-dep = $(addprefix $(O)/,$(call obj-to-dep,$(obj-$(1))))
+target-obj = $(addprefix $(O)/,$(obj-$(1)))
 
 # flags-template flag-prefix vars message
 # Defines a target '.TRACK-$(flag-prefix)FLAGS'.
@@ -96,28 +106,28 @@ obj-to-dep = $(foreach obj,$(1),$(dir $(obj)).$(notdir $(obj)).d)
 # target are rebuilt.
 define flags-template
 TRACK_$(1)FLAGS = $$($(2)):$$(subst ','\'',$$(ALL_$(1)FLAGS))
-.TRACK-$(1)FLAGS: FORCE
+$(O)/.TRACK-$(1)FLAGS: FORCE
 	@FLAGS='$$(TRACK_$(1)FLAGS)'; \
-	if test x"$$$$FLAGS" != x"`cat .TRACK-$(1)FLAGS 2>/dev/null`" ; then \
+	if test x"$$$$FLAGS" != x"`cat $(O)/.TRACK-$(1)FLAGS 2>/dev/null`" ; then \
 		echo 1>&2 "    * new $(3)"; \
-		echo "$$$$FLAGS" >.TRACK-$(1)FLAGS; \
+		echo "$$$$FLAGS" >$(O)/.TRACK-$(1)FLAGS; \
 	fi
-TRASH += .TRACK-$(1)FLAGS
+TRASH += $(O)/.TRACK-$(1)FLAGS
 endef
 
 $(eval $(call flags-template,C,CC,c build flags))
 $(eval $(call flags-template,CXX,CXX,c++ build flags))
 $(eval $(call flags-template,LD,LD,link flags))
 
-%.o: %.c .TRACK-CFLAGS
-	$(QUIET_CC)$(CC) -MMD -MF "$(call obj-to-dep,$@)" -c -o "$@" "$<" $(ALL_CFLAGS)
+$(O)/%.o: %.c .TRACK-CFLAGS
+	$(QUIET_CC)$(CC)   -MMD -MF "$(call obj-to-dep,$@)" -c -o "$@" "$<" $(ALL_CFLAGS)
 
-%.o: %.cc .TRACK-CXXFLAGS
+$(O)/%.o: %.cc .TRACK-CXXFLAGS
 	$(QUIET_CXX)$(CXX) -MMD -MF "$(call obj-to-dep,$@)" -c -o "$@" "$<" $(ALL_CXXFLAGS)
 
 .SECONDEXPANSION:
-$(TARGETS) : .TRACK-LDFLAGS $$(obj-$$@)
-	$(QUIET_LINK)$(LD) -o $@ $(obj-$@) $(ALL_LDFLAGS)
+$(addprefix $(O)/,$(TARGETS)) : .TRACK-LDFLAGS $$(obj-$$(notdir $$@))
+	$(QUIET_LINK)$(LD) -o $@ $(call target-obj,$@) $(ALL_LDFLAGS)
 
 ifndef NO_INSTALL
 PREFIX  ?= $(HOME)   # link against things here
@@ -131,10 +141,9 @@ endif
 
 .PHONY: clean %.clean
 %.clean :
-	$(RM) $(obj-$*) $* $(TRASH) $(call obj-to-dep,$(obj-$*))
+	$(RM) $(call target-obj,$*) $(O)/$* $(TRASH) $(call target-dep,$*)
 
 clean:	$(addsuffix .clean,$(TARGETS))
 
-ALL_OBJ = $(foreach target,$(TARGETS),$(obj-$(target)))
-deps = $(call obj-to-dep,$(ALL_OBJ))
+deps = $(foreach target,$(TARGETS),$(call target-dep,$(target)))
 -include $(deps)
