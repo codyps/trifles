@@ -31,13 +31,19 @@
 # - build with different flags placed into different output directories.
 # - library building (shared & static)
 
+
+# Delete the default suffixes
+.SUFFIXES:
+
 .PHONY: all
 all:: $(TARGETS)
 
-CC  ?= $(CROSS_COMPILE)gcc
-CXX ?= $(CROSS_COMPILE)g++
-LD  ?= $(CC)
-RM  ?= rm -f
+var-needs-val = $(or $(findstring default,$(origin $(1))),$(findstring undefined,$(origin $(1))))
+eq- = $(if $(call var-needs-val,$(1)),$(eval $(1)=$(2)))
+$(call eq-,CC,$(CROSS_COMPILE)gcc)
+$(call eq-,CXX,$(CROSS_COMPILE)g++)
+$(call eq-,LD,$(CC))
+$(call eq-,RM,rm -f)
 
 ifdef DEBUG
 OPT=-O0
