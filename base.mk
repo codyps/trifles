@@ -35,7 +35,7 @@
 # Delete the default suffixes
 .SUFFIXES:
 
-.PHONY: all
+.PHONY: all FORCE
 all:: $(TARGETS)
 
 CC = $(CROSS_COMPILE)gcc
@@ -84,38 +84,31 @@ ifndef V
 	QUIET_SYM  = @ echo '  SYM ' $@;
 endif
 
+# Avoid deleting .o files
 .SECONDARY:
-.PHONY: FORCE
+
 
 obj-to-dep = $(foreach obj,$(1),$(dir $(obj)).$(notdir $(obj)).d)
 
-### Detect prefix changes
-## Use "#')" to hack around vim highlighting.
-TRACK_CFLAGS = $(CC):$(subst ','\'',$(ALL_CFLAGS)) #')
-.TRACK-CFLAGS: FORCE
-	@FLAGS='$(TRACK_CFLAGS)'; \
-	if test x"$$FLAGS" != x"`cat .TRACK-CFLAGS 2>/dev/null`" ; then \
-		echo 1>&2 "    * new build flags or prefix"; \
-		echo "$$FLAGS" >.TRACK-CFLAGS; \
+# flags-template flag-prefix vars message
+# Defines a target '.TRACK-$(flag-prefix)FLAGS'.
+# if $(ALL_$(flag-prefix)FLAGS) or $(var) changes, any rules depending on this
+# target are rebuilt.
+define flags-template
+TRACK_$(1)FLAGS = $$($(2)):$$(subst ','\'',$$(ALL_$(1)FLAGS))
+.TRACK-$(1)FLAGS: FORCE
+	@FLAGS='$$(TRACK_$(1)FLAGS)'; \
+	if test x"$$$$FLAGS" != x"`cat .TRACK-$(1)FLAGS 2>/dev/null`" ; then \
+		echo 1>&2 "    * new $(3)"; \
+		echo "$$$$FLAGS" >.TRACK-$(1)FLAGS; \
 	fi
+TRASH += .TRACK-$(1)FLAGS
+endef
 
-TRACK_CXXFLAGS = $(CXX):$(subst ','\'',$(ALL_CXXFLAGS)) #')
-.TRACK-CXXFLAGS: FORCE
-	@FLAGS='$(TRACK_CXXFLAGS)'; \
-	if test x"$$FLAGS" != x"`cat .TRACK-CXXFLAGS 2>/dev/null`" ; then \
-		echo 1>&2 "    * new build flags or prefix"; \
-		echo "$$FLAGS" >.TRACK-CXXFLAGS; \
-	fi
+$(eval $(call flags-template,C,CC,c build flags))
+$(eval $(call flags-template,CXX,CXX,c++ build flags))
+$(eval $(call flags-template,LD,LD,link flags))
 
-TRACK_LDFLAGS = $(LD):$(subst ','\'',$(ALL_LDFLAGS)) #')
-.TRACK-LDFLAGS: FORCE
-	@FLAGS='$(TRACK_LDFLAGS)'; \
-	if test x"$$FLAGS" != x"`cat .TRACK-LDFLAGS 2>/dev/null`" ; then \
-		echo 1>&2 "    * new link flags"; \
-		echo "$$FLAGS" >.TRACK-LDFLAGS; \
-	fi
-
-#.%.o.d %.o: %.c .TRACK-CFLAGS
 %.o: %.c .TRACK-CFLAGS
 	$(QUIET_CC)$(CC) -MMD -MF "$(call obj-to-dep,$@)" -c -o "$@" "$<" $(ALL_CFLAGS)
 
@@ -136,7 +129,6 @@ BINDIR  ?= $(DESTDIR)/bin
 install: $(foreach target,$(TARGETS),$(target).install)
 endif
 
-TRASH += .TRACK-CFLAGS .TRACK-LDFLAGS
 .PHONY: clean %.clean
 %.clean :
 	$(RM) $(obj-$*) $* $(TRASH) $(call obj-to-dep,$(obj-$*))
