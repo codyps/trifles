@@ -38,12 +38,10 @@
 .PHONY: all
 all:: $(TARGETS)
 
-var-needs-val = $(or $(findstring default,$(origin $(1))),$(findstring undefined,$(origin $(1))))
-eq- = $(if $(call var-needs-val,$(1)),$(eval $(1)=$(2)))
-$(call eq-,CC,$(CROSS_COMPILE)gcc)
-$(call eq-,CXX,$(CROSS_COMPILE)g++)
-$(call eq-,LD,$(CC))
-$(call eq-,RM,rm -f)
+CC = $(CROSS_COMPILE)gcc
+CXX= $(CROSS_COMPILE)g++
+LD = $(CC)
+RM = rm -f
 
 ifdef DEBUG
 OPT=-O0
