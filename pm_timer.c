@@ -4,6 +4,7 @@
 #include <error.h>
 #include <sys/io.h>
 
+
 typedef unsigned int u32;
 static unsigned short pmtmr_ioport;
 

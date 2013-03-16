@@ -145,5 +145,19 @@ endif
 
 clean:	$(addsuffix .clean,$(TARGETS))
 
+.PHONY: watch
+watch:
+	@while true; do \
+		make -rR --no-print-directory; \
+		inotifywait -q \
+		  \
+		 -- $$(find . \
+		        -name '*.c' \
+			-or -name '*.h' \
+			-or -name 'Makefile' \
+			-or -name '*.mk' ); \
+		echo "Rebuilding..."
+	done
+
 deps = $(foreach target,$(TARGETS),$(call target-dep,$(target)))
 -include $(deps)
