@@ -1,0 +1,39 @@
+#!/bin/sh
+
+# Find where 'base.mk' is stored
+
+d=$(dirname $0)/../
+f=$d/base.mk
+
+if ! [ -e "$f" ]; then
+	# TODO: fall back on /usr/share or some crap
+	exit 1
+fi
+
+i="./base.mk"
+
+if [ "$(readlink -e "$f")" = "$(readlink -e "$i")" ]; then
+	echo "ERR: refusing to overwrite source of base.mk, \"$(readlink -e "$f")\""
+	exit 1
+fi
+
+if ! [ -e "$i" ]; then
+	# Confirm new install.
+	echo "This looks like a new install in"
+	echo "    $PWD"
+	echo "Are you sure you want to continue? [Yn]"
+	read res
+	[ -z "$res" ] && res=y
+	case "$res" in
+	y*|Y*) ;;
+	*)  exit 1;
+	esac
+fi
+
+ver=$(cd $d; git describe --always --dirty=+)
+tmp=`tempfile --prefix=base.mk`
+
+echo "## base.mk: $ver, see https://github.com/jmesmon/trifles.git" >>$tmp
+cat "$f" >>$tmp
+
+mv "$tmp" "$i"
