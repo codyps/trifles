@@ -1,3 +1,5 @@
+* pink noise producing program , just hack up the speaker-test code
+
 * serialization language that can specify arbitrary protocol types
 
 * version comparison & extraction shell utility and C library.
