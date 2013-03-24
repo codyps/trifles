@@ -13,7 +13,7 @@ typedef unsigned long long ull;
 #if 1
 /* works in gdb. */
 #define container_of(item, type, member) \
-		((type *)((char *)(item) - offsetof(type, member)))
+		((type *)(void *)((char *)(item) - offsetof(type, member)))
 #else
 /* causes some extra checking */
 #define container_of(item, type, member) ({				\
