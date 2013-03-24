@@ -18,6 +18,15 @@ static inline int socket_bind(struct addrinfo const *ai)
 		int flags = 1;
 		setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &flags, sizeof(flags));
 
+		/* DTLS requires the IP don't fragment (DF) bit to be set */
+#if defined(IP_DONTFRAG)
+		flags = 1;
+		setsockopt(sfd, IPPROTO_IP, IP_DONTFRAG, &flags, sizeof(flags));
+#elif defined(IP_MTU_DISCOVER)
+		flags = IP_PMTUDISC_DO;
+		setsockopt(sfd, IPPROTO_IP, IP_MTU_DISCOVER,  &flags, sizeof(flags));
+#endif
+
 		if (bind(sfd, rp->ai_addr, rp->ai_addrlen) == 0)
 			return sfd;
 		else
