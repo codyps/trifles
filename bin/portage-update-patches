@@ -5,4 +5,4 @@ if [ -e /etc/portage/localpatches ]; then
 else
         cd /etc/portage/patches
 fi
-git pull
+sudo git pull
