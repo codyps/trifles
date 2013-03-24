@@ -36,11 +36,7 @@
 
 O = .
 T = $(addprefix $(O)/,$(TARGETS))
-#VPATH = $(O):.
-vpath %.c .
-vpath %.o $(O)
-vpath .TRACK-CFLAGS $(O)
-vpath .TRACK-LDFLAGS $(O)
+#VPATH = $(O)
 $(foreach target,$(TARGETS),$(eval vpath $(target) $(O)))
 
 .PHONY: all FORCE
@@ -105,6 +101,7 @@ target-obj = $(addprefix $(O)/,$(obj-$(1)))
 # Defines a target '.TRACK-$(flag-prefix)FLAGS'.
 # if $(ALL_$(flag-prefix)FLAGS) or $(var) changes, any rules depending on this
 # target are rebuilt.
+vpath .TRACK_%FLAGS $(O)
 define flags-template
 TRACK_$(1)FLAGS = $$($(2)):$$(subst ','\'',$$(ALL_$(1)FLAGS))
 $(O)/.TRACK-$(1)FLAGS: FORCE
@@ -121,14 +118,17 @@ $(eval $(call flags-template,CXX,CXX,c++ build flags))
 $(eval $(call flags-template,LD,LD,link flags))
 
 $(O)/%.o: %.c .TRACK-CFLAGS
-	$(QUIET_CC)$(CC)   -MMD -MF "$(call obj-to-dep,$@)" -c -o "$@" "$<" $(ALL_CFLAGS)
+	$(QUIET_CC)$(CC)   -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(ALL_CFLAGS)
 
 $(O)/%.o: %.cc .TRACK-CXXFLAGS
-	$(QUIET_CXX)$(CXX) -MMD -MF "$(call obj-to-dep,$@)" -c -o "$@" "$<" $(ALL_CXXFLAGS)
+	$(QUIET_CXX)$(CXX) -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(ALL_CXXFLAGS)
 
-.SECONDEXPANSION:
-$(addprefix $(O)/,$(TARGETS)) : .TRACK-LDFLAGS $$(obj-$$(notdir $$@))
-	$(QUIET_LINK)$(LD) -o $@ $(call target-obj,$@) $(ALL_LDFLAGS)
+define BIN-LINK
+$(1)/$(2) : .TRACK-LDFLAGS $(obj-$(2))
+	$$(QUIET_LINK)$(LD) -o $$@ $(call target-obj,$(2)) $(ALL_LDFLAGS) $(ldflags-$(2))
+endef
+
+$(foreach target,$(TARGETS),$(eval $(call BIN-LINK,$(O),$(target))))
 
 ifndef NO_INSTALL
 PREFIX  ?= $(HOME)   # link against things here

@@ -4,8 +4,10 @@ obj-test-dep = test-dep.o
 obj-utime = utime.o
 obj-gkr-decrypt = gkr-decrypt.o
 obj-hd = hd.o
+
 obj-lsalsa = hw_params.o
-lsalsa : ALL_LDFLAGS += -lasound
+ldflags-lsalsa = -lasound
+
 obj-test-pm-timer = pm_timer.o
 obj-debugfs-test = debugfs_test.o
 obj-modll = mod_ll.o
