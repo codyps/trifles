@@ -72,8 +72,9 @@ COMMON_CFLAGS += -Wundef -Wshadow
 COMMON_CFLAGS += -pipe
 COMMON_CFLAGS += -Wcast-align
 COMMON_CFLAGS += -Wwrite-strings
-COMMON_CFLAGS += -Wunsafe-loop-optimizations
-COMMON_CFLAGS += -Wnormalized=id
+
+# -Wnormalized=id		not supported by clang
+# -Wunsafe-loop-optimizations	not supported by clang
 
 ALL_CFLAGS += -std=gnu99
 ALL_CFLAGS += -Wbad-function-cast
