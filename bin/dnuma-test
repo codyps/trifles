@@ -1,6 +1,7 @@
 #! /bin/sh
 
 M=/sys/kernel/debug/memlayout
+N=/sys/devices/system/node/possible
 
 usage() {
 	echo "usage: dnuma-test all-to <node>"
@@ -19,13 +20,19 @@ dbg () {
 	debug && echo "$@"
 }
 
+fatal () {
+	echo "$@"
+	echo 1 > "$M/clear"
+	exit 1
+}
+
 create_rme () {
 	# start end node
 	local h_start=$(printf "0x%x" "$1") h_end=$(printf "0x%x" "$2")
 	dbg "creating rme $h_start $h_end $3"
-	echo "$h_start" > $M/start || echo "failed to write $h_start to start"
-	echo "$h_end"   > $M/end   || echo "failed to write $h_end to end"
-	echo "$3"       > $M/node  || echo "failed to write $3 to node"
+	echo "$h_start" > $M/start || fatal "failed to write $h_start to start"
+	echo "$h_end"   > $M/end   || fatal "failed to write $h_end to end"
+	echo "$3"       > $M/node  || fatal "failed to write $3 to node"
 }
 
 [ $# -lt 1 ] && usage
