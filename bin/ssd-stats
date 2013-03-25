@@ -12,6 +12,6 @@ do
         echo "Drive $i:"
         drv=`readlink /dev/$i`
         [ -z "$drv" ] && drv="/dev/$i"
-        smartctl -a $drv | grep "^[12][089]" | awk '{print $1"\t"$2"\t"$10}'
+        smartctl -a $drv | grep "^[ 1-9][ 1-9][1-9]" | awk '{print $1"\t"$2"\t"$10}'
         echo ""
 done

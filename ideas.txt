@@ -1,3 +1,8 @@
+* power tracking daemon like upower without the dep on
+  polkit (and that saves history to disk)
+
+* pink noise producing program , just hack up the speaker-test code
+
 * serialization language that can specify arbitrary protocol types
 
 * version comparison & extraction shell utility and C library.
@@ -10,7 +15,7 @@
     compatable?
 
 * a better dtls lib than tinydtls
-  - factor out peer lookups, allocations
+  - factor out peer lookups, memory allocations
 
 * efficient bitcoin/namecoin daemon.
   - maintaining 2 seperate daemons based on the same proto & sharing many

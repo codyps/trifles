@@ -3,9 +3,18 @@
 
 int main(int argc, char **argv)
 {
-	FILE *f = fopen(argv[1],"rb");
+	if (argc != 2) {
+		fprintf(stderr, "usage: %s <lastlog>\n", argv[0]);
+		return 0;
+	}
 
-	struct lastlog ll;
+	FILE *f = fopen(argv[1],"rb");
+	if (!f) {
+		fprintf(stderr, "failed to open \"%s\"\n", argv[1]);
+		return 1;
+	}
+
+	struct lastlog ll = (typeof(ll)){};
 
 	int i;
 	printf("uid\ttime\t\tline\thost\n");
@@ -21,5 +30,5 @@ int main(int argc, char **argv)
 			printf("%d\t%ld\t%s\t%s\n", i, (long)ll.ll_time, ll.ll_line, ll.ll_host);
 
 	}
-
+	return 0;
 }

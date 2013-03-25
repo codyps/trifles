@@ -31,11 +31,19 @@
 # - build with different flags placed into different output directories.
 # - library building (shared & static)
 
-.PHONY: all
+# Delete the default suffixes
+.SUFFIXES:
+
+O = .
+#VPATH = $(O)
+$(foreach target,$(TARGETS),$(eval vpath $(target) $(O)))
+
+.PHONY: all FORCE
 all:: $(TARGETS)
 
+# FIXME: overriding in Makefile is tricky
 CC = $(CROSS_COMPILE)gcc
-CXX = $(CROSS_COMPILE)g++
+CXX= $(CROSS_COMPILE)g++
 LD = $(CC)
 RM = rm -f
 
@@ -59,8 +67,9 @@ COMMON_CFLAGS += -Wundef -Wshadow
 COMMON_CFLAGS += -pipe
 COMMON_CFLAGS += -Wcast-align
 COMMON_CFLAGS += -Wwrite-strings
-COMMON_CFLAGS += -Wunsafe-loop-optimizations
-COMMON_CFLAGS += -Wnormalized=id
+
+# -Wnormalized=id		not supported by clang
+# -Wunsafe-loop-optimizations	not supported by clang
 
 ALL_CFLAGS += -std=gnu99
 ALL_CFLAGS += -Wbad-function-cast
@@ -80,47 +89,47 @@ ifndef V
 	QUIET_SYM  = @ echo '  SYM ' $@;
 endif
 
+# Avoid deleting .o files
 .SECONDARY:
-.PHONY: FORCE
 
 obj-to-dep = $(foreach obj,$(1),$(dir $(obj)).$(notdir $(obj)).d)
+target-dep = $(addprefix $(O)/,$(call obj-to-dep,$(obj-$(1))))
+target-obj = $(addprefix $(O)/,$(obj-$(1)))
 
-### Detect prefix changes
-## Use "#')" to hack around vim highlighting.
-TRACK_CFLAGS = $(CC):$(subst ','\'',$(ALL_CFLAGS)) #')
-.TRACK-CFLAGS: FORCE
-	@FLAGS='$(TRACK_CFLAGS)'; \
-	if test x"$$FLAGS" != x"`cat .TRACK-CFLAGS 2>/dev/null`" ; then \
-		echo 1>&2 "    * new build flags or prefix"; \
-		echo "$$FLAGS" >.TRACK-CFLAGS; \
+# flags-template flag-prefix vars message
+# Defines a target '.TRACK-$(flag-prefix)FLAGS'.
+# if $(ALL_$(flag-prefix)FLAGS) or $(var) changes, any rules depending on this
+# target are rebuilt.
+vpath .TRACK_%FLAGS $(O)
+define flags-template
+TRACK_$(1)FLAGS = $$($(2)):$$(subst ','\'',$$(ALL_$(1)FLAGS))
+$(O)/.TRACK-$(1)FLAGS: FORCE
+	@FLAGS='$$(TRACK_$(1)FLAGS)'; \
+	if test x"$$$$FLAGS" != x"`cat $(O)/.TRACK-$(1)FLAGS 2>/dev/null`" ; then \
+		echo 1>&2 "    * new $(3)"; \
+		echo "$$$$FLAGS" >$(O)/.TRACK-$(1)FLAGS; \
 	fi
+TRASH += $(O)/.TRACK-$(1)FLAGS
+endef
 
-TRACK_CXXFLAGS = $(CXX):$(subst ','\'',$(ALL_CXXFLAGS)) #')
-.TRACK-CXXFLAGS: FORCE
-	@FLAGS='$(TRACK_CXXFLAGS)'; \
-	if test x"$$FLAGS" != x"`cat .TRACK-CXXFLAGS 2>/dev/null`" ; then \
-		echo 1>&2 "    * new build flags or prefix"; \
-		echo "$$FLAGS" >.TRACK-CXXFLAGS; \
-	fi
+$(eval $(call flags-template,C,CC,c build flags))
+$(eval $(call flags-template,CXX,CXX,c++ build flags))
+$(eval $(call flags-template,LD,LD,link flags))
 
-TRACK_LDFLAGS = $(LD):$(subst ','\'',$(ALL_LDFLAGS)) #')
-.TRACK-LDFLAGS: FORCE
-	@FLAGS='$(TRACK_LDFLAGS)'; \
-	if test x"$$FLAGS" != x"`cat .TRACK-LDFLAGS 2>/dev/null`" ; then \
-		echo 1>&2 "    * new link flags"; \
-		echo "$$FLAGS" >.TRACK-LDFLAGS; \
-	fi
+obj-cflags = CFLAGS_$(1)
 
-#.%.o.d %.o: %.c .TRACK-CFLAGS
-%.o: %.c .TRACK-CFLAGS
-	$(QUIET_CC)$(CC) -MMD -MF "$(call obj-to-dep,$@)" -c -o "$@" "$<" $(ALL_CFLAGS)
+$(O)/%.o: %.c .TRACK-CFLAGS
+	$(QUIET_CC)$(CC)   -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(ALL_CFLAGS)
 
-%.o: %.cc .TRACK-CXXFLAGS
-	$(QUIET_CXX)$(CXX) -MMD -MF "$(call obj-to-dep,$@)" -c -o "$@" "$<" $(ALL_CXXFLAGS)
+$(O)/%.o: %.cc .TRACK-CXXFLAGS
+	$(QUIET_CXX)$(CXX) -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(call obj-clfags,$*) $(ALL_CXXFLAGS)
 
-.SECONDEXPANSION:
-$(TARGETS) : .TRACK-LDFLAGS $$(obj-$$@)
-	$(QUIET_LINK)$(LD) -o $@ $(obj-$@) $(ALL_LDFLAGS)
+define BIN-LINK
+$(1)/$(2) : .TRACK-LDFLAGS $(obj-$(2))
+	$$(QUIET_LINK)$(LD) -o $$@ $(call target-obj,$(2)) $(ALL_LDFLAGS) $(ldflags-$(2))
+endef
+
+$(foreach target,$(TARGETS),$(eval $(call BIN-LINK,$(O),$(target))))
 
 ifndef NO_INSTALL
 PREFIX  ?= $(HOME)   # link against things here
@@ -132,13 +141,28 @@ BINDIR  ?= $(DESTDIR)/bin
 install: $(foreach target,$(TARGETS),$(target).install)
 endif
 
-TRASH = .TRACK-CFLAGS .TRACK-LDFLAGS
 .PHONY: clean %.clean
 %.clean :
-	$(RM) $(obj-$*) $* $(TRASH) $(call obj-to-dep,$(obj-$*))
+	$(RM) $(call target-obj,$*) $(O)/$* $(TRASH) $(call target-dep,$*)
 
 clean:	$(addsuffix .clean,$(TARGETS))
 
-ALL_OBJ = $(foreach target,$(TARGETS),$(obj-$(target)))
-deps = $(call obj-to-dep,$(ALL_OBJ))
+.PHONY: watch
+watch:
+	@while true; do \
+		make -rR --no-print-directory; \
+		inotifywait -q \
+		  \
+		 -- $$(find . \
+		        -name '*.c' \
+			-or -name '*.h' \
+			-or -name 'Makefile' \
+			-or -name '*.mk' ); \
+		echo "Rebuilding..."
+	done
+
+show-targets:
+	@echo $(TARGETS)
+
+deps = $(foreach target,$(TARGETS),$(call target-dep,$(target)))
 -include $(deps)

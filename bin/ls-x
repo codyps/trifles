@@ -5,9 +5,22 @@ if [ $# -lt 1 ]; then
 	exit 1
 fi
 
+err=0
 while [ $# -ne 0 ]; do
 	exe=$1
 	shift
 
+	if ! [ -e "$exe" ]; then
+		echo "W: \"$exe\" does not exsist, we don't search the path, try \"which $exe\"." >&2
+		err=1
+		continue
+	fi
 	ldd "$exe" | awk '/=>/{ print $3; } END{ print "'$exe'"; }'
 done | sort -u
+
+if [ "$err" -eq 0 ]; then
+	exit 0
+else
+	exit 1
+fi
+

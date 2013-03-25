@@ -20,6 +20,7 @@
 /debugfs-test
 /utime
 /test-dep
+/modll
 
 /parse-datetime.c
 
