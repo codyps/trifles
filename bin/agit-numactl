@@ -1,11 +1,22 @@
 #! /bin/sh
 
-a1="Andi Kleen" # Before March 2008
-a2="Cliff Wickman" # After March 2008
+a1="Andi Kleen <ak@suse.de>" # Before March 2008
+a2="Cliff Wickman <cpw@sgi.com>" # After March 2008
+
+CHANGE_FILE=CHANGES
 
 date_after () {
-	echo "F: not implimented" >>&2
-	exit 1
+	s1=`date +%s --date="$1"`
+	s2=`date +%s --date="$2"`
+
+	# we are "after" s1
+	echo "  compare date $2 >= $1"
+	echo "  compare date $s2 >= $s1"
+	if [ "$s2" -ge "$s1" ]; then
+		return 0;
+	else
+		return 1;
+	fi
 }
 
 proc_file() {
@@ -26,8 +37,19 @@ proc_file() {
 		v=${b%.tar.*}
 		echo "  looking for $v"
 		if ! [ -d "$v" ]; then
-			echo "could not find dir $v"
-			exit 1
+			echo "  could not find dir $v"
+			echo "  being more lienient..."
+			for i in $v*; do
+				if [ -d "$i" ]; then
+					echo "  using $i instead."
+					v=$i
+					break
+				fi
+			done
+			if ! [ -d "$v" ]; then
+				echo "didn't work."
+				exit 1
+			fi
 		fi
 		d=`stat -c %Y "$v"`
 
@@ -42,14 +64,18 @@ proc_file() {
 	esac
 
 
-	if date_after "March 2008" "$d"; then
+	if date_after "March 1, 2008" "@$d"; then
 		a="$a2"
 	else
 		a="$a1"
 	fi
 
+	prev_version=`git show --quiet --pretty='format:%s'`
 	git add -A .
-	msg="`git diff --cached -- CHANGELOG | awk 'BEGIN { ignore=1; nl=1; } /@@/ { ignore=0; } /^\+/{ if (!ignore) { print substr($0,2); if(nl) { print ""; nl=0;};}; }'`"
+	#msg="`git diff --cached -- $CHANGE_FILE | awk 'BEGIN { ignore=1; nl=1; } /@@/ { ignore=0; } /^\+/{ if (!ignore) { print substr($0,2); if(nl) { print ""; nl=0;};}; }'`"
+
+	msg="$v"
+	echo "  creating commit with date $d by author $a"
 	git commit --author="$a" --date="$d" -m "$msg" -a -e || exit 1
 }
 
