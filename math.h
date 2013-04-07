@@ -17,6 +17,8 @@
 #define DIV_ROUND_UP_POS_OR_ZERO(n,d)
 #endif
 
+#define DIV_OR_ZERO(n, d) ((n < 0)?0:n/d)
+
 #define SUB_SAT(a,b) ({					\
 		typeof(a) __sub_sat_a = (a);		\
 		typeof(b) __sub_sat_b = (b);		\

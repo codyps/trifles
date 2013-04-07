@@ -73,8 +73,8 @@ typedef unsigned long long ull;
 
 #define EXPORT(sym) __attribute__((externally_visible)) sym
 #define expect_eq(x, y) __builtin_expect(x, y)
-#define likely(x)   __builtin_expect(!!(x),1)
-#define unlikely(x) __builtin_expect(x,0)
+#define likely(x)   expect_eq(!!(x),1)
+#define unlikely(x) expect_eq(x,0)
 #define must_check  __attribute__((warn_unused_result))
 #define unused      __attribute__((unused))
 #define noreturn    __attribute__((__noreturn__))
