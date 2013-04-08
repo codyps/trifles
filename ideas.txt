@@ -1,3 +1,9 @@
+* OS interface
+ - define a object/structure model for how the kernel operates
+ - allow userspace programs to provide byte code which modifies/updates the
+   currect in-kernel model
+ - "only 1 syscall"
+
 * power tracking daemon like upower without the dep on
   polkit (and that saves history to disk)
 
