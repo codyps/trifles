@@ -1,0 +1,30 @@
+#! /bin/sh
+
+
+if [ $# -lt 2 ]; then
+	echo "usage: $(basename $0) <mem limit in MB> <program> [args...]"
+	exit 0
+fi
+
+cleanup () {
+	echo "cleaning up."
+	cgdelete $cg_spec
+}
+
+cg_name=$(basename $0)-$$-$RANDOM
+cg_spec=memory:$cg_name
+cg_fs=/cgroup # on newer systems, /sys/fs/cgroup
+
+meg_limit=$1
+shift
+
+trap cleanup  SIGINT SIGTERM
+
+echo "creating \"$cg_spec\""
+cgcreate -g $cg_spec
+
+echo $((1024 * 1024 * $meg_limit)) > $cg_fs/memory/$cg_name/memory.limit_in_bytes
+
+cgexec -g $cg_spec "$@"
+
+cleanup
