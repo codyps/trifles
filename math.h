@@ -42,11 +42,13 @@
 #define ABS(x) ((x) < 0?(-(x)) : (x))
 
 #define MAX(x, y) ((x) > (y)?(x):(y))
+#define MAX3(x, y, z) MAX(MAX(x, y), z)
 #define MAX4(a, b, c, d) MAX(MAX(a,b),MAX(c,d))
 #define MAX6(a,b,c,d,e,f) MAX(MAX4(a,b,c,d),MAX(e,f))
 #define MAX8(a,b,c,d,e,f,g,h) MAX(MAX4(a,b,c,d),MAX4(e,f,g,h))
 
 #define MIN(x,y) ((x) < (y)?(x):(y))
+#define MIN3(a, b, c) MIN(MIN(a,b),c)
 #define MIN4(a, b, c, d) MIN(MIN(a,b),MIN(c,d))
 #define MIN6(a,b,c,d,e,f) MIN(MIN4(a,b,c,d),MIN(e,f))
 #define MIN8(a,b,c,d,e,f,g,h) MIN(MIN4(a,b,c,d),MIN4(e,f,g,h))
