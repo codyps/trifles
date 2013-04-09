@@ -1,27 +1,11 @@
 #ifndef PENNY_PENNY_H_
 #define PENNY_PENNY_H_
 
-#include <stddef.h>
-
 typedef unsigned long long ull;
 
 #define ARRAY_SIZE(x)   (sizeof(x)/sizeof((x)[0]))
 #define FIELD_SIZE(s,f) (sizeof((s *)0->f))
 #define typeof_field(s, f) typeof((s *)0->f)
-
-/* offsetof is defined in stddef.h */
-#if 1
-/* works in gdb. */
-#define container_of(item, type, member) \
-		((type *)(void *)((char *)(item) - offsetof(type, member)))
-#else
-/* causes some extra checking */
-#define container_of(item, type, member) ({				\
-		typeof_field(type, member) *__container_of__item = item; \
-		((type *)((char *)(__container_of__item)		\
-			- offsetof(type, member)));			\
-		})
-#endif
 
 #define ACCESS_ONCE(x)  (*(volatile typeof(x) *) &(x))
 #define barrier() __asm__ __volatile__ ("":::"memory")
