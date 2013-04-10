@@ -2,6 +2,14 @@
 user=`git config --get github.user`
 token=`git config --get github.token`
 
+if [ -n "$GITHUB_USER" ]; then
+	user=$GITHUB_USER
+fi
+
+if [ -n "$GITHUB_TOKEN" ]; then
+	token=$GITHUB_TOKEN
+fi
+
 api_url="https://github.com/api/v2/yaml"
 
 function check_config() {
@@ -107,11 +115,11 @@ check_config
 action=$1
 shift
 case $action in
-add)
+add|create)
 	req_param 1 $#
 	create "$1"	
 	;;
-rm)
+rm|delete)
 	req_param 1 $#
 	delete "$1"
 	;;
