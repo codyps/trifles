@@ -1,6 +1,6 @@
 DNS-323 / CH3SNAS
 	1x 1GBASE-T
-	2x USB2.0
+	1x USB2.0
 	2x SATA (unknown revision, need to check)
 
 	SATA throughput?
