@@ -33,3 +33,5 @@ thttpd
 	 no mention of embedding on webpage
 	tiny http server
 
+EHS
+	http://ehs.fritz-elfert.de/
