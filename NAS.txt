@@ -1,0 +1,19 @@
+DNS-323 / CH3SNAS
+	1x 1GBASE-T
+	2x USB2.0
+	2x SATA (unknown revision, need to check)
+
+	SATA throughput?
+	RAM?
+	Flash?
+
+	Part Numbers?
+
+	solderable serial port connection, suitable for connector.
+	JTAG port of unknown pinout present.
+
+	OS: openwrt, alt-f, debian (requires disk)
+	Firmware: u-boot with network support disabled. Can use ckerrmit to
+	load image.
+
+

@@ -1,0 +1,4 @@
+libircclient
+	http://www.ulduzsoft.com/linux/libircclient/
+
+
