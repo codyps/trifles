@@ -1,0 +1,2 @@
+#! /bin/sh
+mount | awk '/type nfs/ { system("sudo mount -o remount,fsc " $3); }'

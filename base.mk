@@ -35,7 +35,6 @@
 .SUFFIXES:
 
 O = .
-T = $(addprefix $(O)/,$(TARGETS))
 #VPATH = $(O)
 $(foreach target,$(TARGETS),$(eval vpath $(target) $(O)))
 
@@ -68,8 +67,9 @@ COMMON_CFLAGS += -Wundef -Wshadow
 COMMON_CFLAGS += -pipe
 COMMON_CFLAGS += -Wcast-align
 COMMON_CFLAGS += -Wwrite-strings
-COMMON_CFLAGS += -Wunsafe-loop-optimizations
-COMMON_CFLAGS += -Wnormalized=id
+
+# -Wnormalized=id		not supported by clang
+# -Wunsafe-loop-optimizations	not supported by clang
 
 ALL_CFLAGS += -std=gnu99
 ALL_CFLAGS += -Wbad-function-cast
@@ -116,11 +116,13 @@ $(eval $(call flags-template,C,CC,c build flags))
 $(eval $(call flags-template,CXX,CXX,c++ build flags))
 $(eval $(call flags-template,LD,LD,link flags))
 
+obj-cflags = CFLAGS_$(1)
+
 $(O)/%.o: %.c .TRACK-CFLAGS
 	$(QUIET_CC)$(CC)   -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(ALL_CFLAGS)
 
 $(O)/%.o: %.cc .TRACK-CXXFLAGS
-	$(QUIET_CXX)$(CXX) -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(ALL_CXXFLAGS)
+	$(QUIET_CXX)$(CXX) -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(call obj-clfags,$*) $(ALL_CXXFLAGS)
 
 define BIN-LINK
 $(1)/$(2) : .TRACK-LDFLAGS $(obj-$(2))
@@ -158,6 +160,9 @@ watch:
 			-or -name '*.mk' ); \
 		echo "Rebuilding..."
 	done
+
+show-targets:
+	@echo $(TARGETS)
 
 deps = $(foreach target,$(TARGETS),$(call target-dep,$(target)))
 -include $(deps)
