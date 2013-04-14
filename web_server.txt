@@ -1,0 +1,37 @@
+mongoose
+	http://code.google.com/p/mongoose/
+	MIT
+	1 .c file, 1 .h file
+	"simple, functional, embeddable"
+	Embeddable web server.
+
+tofu
+	https://github.com/MechanisM/Tofu
+	 3 clause BSD
+	 uses auto-crap
+	fcgi, zmq, or http via libevents
+
+G-WAN
+	gwan.ch
+	Closed Source Freeware
+	 uses C source code directly
+	 many language support
+	 claims speed > ngnix
+	Scriptable Web Server
+
+libmicrohttpd
+	www.gnu.org/software/libmicrohttpd/
+	LGPL v2.1
+	 +Nice listing of alternatives
+	 32K binary without TLS
+	Embedded http server library
+
+thttpd
+	http://www.acme.com/software/thttpd/
+	2 Clause BSD
+	 old
+	 no mention of embedding on webpage
+	tiny http server
+
+EHS
+	http://ehs.fritz-elfert.de/
