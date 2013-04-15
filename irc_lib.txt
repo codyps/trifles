@@ -1,0 +1,10 @@
+libircclient
+	http://www.ulduzsoft.com/linux/libircclient/
+	irc client lib
+	C
+
+circle
+	http://sourceforge.net/projects/circle/
+	modular IRC bot
+	C
+	GPLv3

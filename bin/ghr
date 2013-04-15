@@ -1,13 +1,21 @@
 #! /bin/bash
 user=`git config --get github.user`
-token=`git config --get github.token`
+password=`git config --get github.pass`
 
-api_url="https://github.com/api/v2/yaml"
+if [ -n "$GITHUB_USER" ]; then
+	user=$GITHUB_USER
+fi
+
+if [ -n "$GITHUB_PASS" ]; then
+	password=$GITHUB_PASS
+fi
+
+api_url="https://api.github.com"
 
 function check_config() {
-	if [ -z "$user" ] || [ -z "$token" ]; then
-		warn "aborting: github.user or github.token not set"
-		exit 3
+	if [ -z "$user" ] || [ -z "$password" ]; then
+		warn "aborting: github.user or github.password not set"
+		exit 1
 	fi
 }
 
@@ -18,37 +26,22 @@ function api_call() {
 	printf "%s " $*
 	printf ");\n"
 
-	curl -s -u "$user/token:$token" "$api_url/$call" $*
+	curl -u "$user:$password" --netrc "$api_url$call" "$@"
 }
 
 function create() {
-	local repo="$1"
-	local x=`api_call repos/create -F "name=$1" -F 'public=1'`
+	local x=`api_call /user/repos -d "{\"name\": \"$1\", \"description\": \"$2\"}"`
 
 	echo "$x"
 }
 
 function delete() {
 	local repo="$1"
-
-	local out=`api_call repos/delete/$user/$repo`
-	local dtoken=`printf "%s" "$out" | grep delete_token \
-		| sed 's/^.*delete_token: \(.*\)$/\1/'`
-
-	echo $out
-
-	if [ -z "$dtoken" ]; then
-		warn "delete token not found."
-		return 1
-	fi
-
-	echo $dtoken
-
 	local res
 	read -p "Are you sure you want to delete \"$repo\" (type yes):" res
 	case $res in
-	yes|YES)
-		api_call repos/delete/$user/$repo -F "delete_token=$dtoken"
+	[Yy][Ee][Ss])
+		api_call /repos/$user/$repo -X DELETE
 		;;
 	*)
 		warn "Not removing \"$repo\""
@@ -58,7 +51,7 @@ function delete() {
 
 function ushow() {
 	local s_user="$1"
-	api_call user/show "$s_user"
+	api_call /user/"$s_user"
 }
 
 function rshow() {
@@ -67,11 +60,11 @@ function rshow() {
 	if [ 2 -eq $# ]; then
 		local s_repo="$2"
 
-		api_call repos/show/"$s_user/$s_repo"
+		api_call /repos/"$s_user/$s_repo"
 		return 0
 	fi
 
-	api_call repos/show/"$s_user"
+	api_call /user/repos
 }
 
 function einfo() {
@@ -91,27 +84,26 @@ function usage() {
 }
 
 function req_param() {
-	if [ $1 -lt $2 ]; then
+	if [ $1 -gt $2 ]; then
 		warn "$action needs at least $1 arguments"
 		exit 3
 	fi
 }
 
-if [ $# -lt 2 ]; then
+if [ $# -lt 1 ]; then
 	usage
 	exit 2
 fi
-
 check_config
 
 action=$1
 shift
 case $action in
-add)
+add|create)
 	req_param 1 $#
-	create "$1"	
+	create "$1" "$2"
 	;;
-rm)
+rm|delete)
 	req_param 1 $#
 	delete "$1"
 	;;
@@ -120,7 +112,6 @@ user)
 	ushow "$1"
 	;;
 repo*)
-	req_param 2 $#
 	rshow $*
 	;;
 *)
