@@ -1,3 +1,10 @@
+
+* filters
+ - escape regex
+ - escape shell
+ - urlencode
+ - urldecode
+
 * OS interface
  - define a object/structure model for how the kernel operates
  - allow userspace programs to provide byte code which modifies/updates the
@@ -22,6 +29,7 @@
 
 * a better dtls lib than tinydtls
   - factor out peer lookups, memory allocations
+  - keep minimal, where minimal = appropriate for cortex-m3 sized machines
 
 * efficient bitcoin/namecoin daemon.
   - maintaining 2 seperate daemons based on the same proto & sharing many
@@ -99,6 +107,8 @@
   - Is a graphical configurator (ala openwrt & buildroot) appropriate?
 
   - How do openembedded & the others handle this?
+
+* issues system
 
 * continuous integration system -
   runs locally.
