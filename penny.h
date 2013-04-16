@@ -20,6 +20,15 @@ typedef unsigned long long ull;
 #define STR(x) _STR(x)
 #define LINE_STR STR(__LINE__)
 
+#if defined(__GNUC__)
+#define GCC_VERSION_GREATER(a, b, c)	\
+	((__GNUC__ > a) || ((__GNUC__ == a) && \
+		((__GNUC_MINOR__ > b) || ((__GNUC_MINOR__ == b) && \
+			(__GNUC_PATCHLEVEL__ >= c)))))
+#else
+#define GCC_VERSION_GREATER(a,b,c) 0
+#endif
+
 /* to use, call the defined function is a condition that should never be true.
  * If the call is optimized out, no warning will be omitted.
  * Otherwise, it will be unhappy with you & create a nasty multiline
@@ -63,7 +72,8 @@ typedef unsigned long long ull;
 #define unused      __attribute__((unused))
 #define noreturn    __attribute__((__noreturn__))
 
-#define CAT2(a, b) a##b
-#define CAT3(a, b, c) a##b##c
+#define _CAT2(a, b) a##b
+#define CAT2(a, b) _CAT2(a,b)
+#define CAT3(a, b, c) _CAT2(a, _CAT2(b, c))
 
 #endif
