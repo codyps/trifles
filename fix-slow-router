@@ -1,0 +1,6 @@
+echo "16384" > /proc/sys/net/ipv4/netfilter/ip_conntrack_max
+echo "16384" > /sys/module/nf_conntrack/parameters/hashsize
+
+nvram set ip_conntrack_max=16384 
+nvram commit 
+reboot
