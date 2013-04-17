@@ -11,6 +11,15 @@
    currect in-kernel model
  - "only 1 syscall"
 
+ - On Webcam Driver API
+   - create a specification of how options (resolutions, framerates)
+     can be combined
+   - process it to some binary form
+   - generate verification of parameters from the specification of their
+     interaction
+   - pass the same specification to user space so it has a full understanding
+     of the requirements (and doesn't have to probe).
+
 * power tracking daemon like upower without the dep on
   polkit (and that saves history to disk)
 
