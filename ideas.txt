@@ -1,3 +1,5 @@
+* live updated disk space usage display using inotify.
+
 * per application hugepage pools
   - really just "generic" huge page pools into which hugepages of multiple
     sizes can be allocated (ie: set a min&max for each size of hugepage for
