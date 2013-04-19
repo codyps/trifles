@@ -1,5 +1,6 @@
 all::
 
+obj-pipe = pipe.o
 obj-test-dep = test-dep.o
 obj-utime = utime.o
 obj-gkr-decrypt = gkr-decrypt.o
@@ -16,7 +17,7 @@ obj-parse-datetime = parse-datetime.o
 parse-datetime.o: ALL_CFLAGS += -DTEST
 parse-datetime : $(obj-parse-datetime)
 
-TARGETS = hd gkr-decrypt lsalsa test-pm-timer debugfs-test utime test-dep modll
+TARGETS = hd gkr-decrypt lsalsa test-pm-timer debugfs-test utime test-dep modll pipe
 
 include base.mk
 
