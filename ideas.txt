@@ -267,6 +267,8 @@ seperated build variants.
     blk devices?)
 
 * ALSA outputs runtime configurable.
+  - take advantage of same stuff alsa equalizer (name?) uses to have alsamixer
+    apply dynamic eq.
 
 * Match headphone frequency responce via equalization.
   - How do we handle finding a baseline? If we use a microphone that
