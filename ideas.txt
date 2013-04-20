@@ -1,8 +1,31 @@
+* live updated disk space usage display using inotify.
+
+* per application hugepage pools
+  - really just "generic" huge page pools into which hugepages of multiple
+    sizes can be allocated (ie: set a min&max for each size of hugepage for
+each pool) + some ruleset to decide which pool applications take from
+(iptables-like?)
+
+* filters
+ - escape regex
+ - escape shell
+ - urlencode
+ - urldecode
+
 * OS interface
  - define a object/structure model for how the kernel operates
  - allow userspace programs to provide byte code which modifies/updates the
    currect in-kernel model
  - "only 1 syscall"
+
+ - On Webcam Driver API
+   - create a specification of how options (resolutions, framerates)
+     can be combined
+   - process it to some binary form
+   - generate verification of parameters from the specification of their
+     interaction
+   - pass the same specification to user space so it has a full understanding
+     of the requirements (and doesn't have to probe).
 
 * power tracking daemon like upower without the dep on
   polkit (and that saves history to disk)
@@ -22,6 +45,7 @@
 
 * a better dtls lib than tinydtls
   - factor out peer lookups, memory allocations
+  - keep minimal, where minimal = appropriate for cortex-m3 sized machines
 
 * efficient bitcoin/namecoin daemon.
   - maintaining 2 seperate daemons based on the same proto & sharing many
@@ -99,6 +123,8 @@
   - Is a graphical configurator (ala openwrt & buildroot) appropriate?
 
   - How do openembedded & the others handle this?
+
+* issues system
 
 * continuous integration system -
   runs locally.
@@ -241,6 +267,8 @@ seperated build variants.
     blk devices?)
 
 * ALSA outputs runtime configurable.
+  - take advantage of same stuff alsa equalizer (name?) uses to have alsamixer
+    apply dynamic eq.
 
 * Match headphone frequency responce via equalization.
   - How do we handle finding a baseline? If we use a microphone that

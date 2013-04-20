@@ -1,21 +1,21 @@
 #! /bin/bash
 user=`git config --get github.user`
-token=`git config --get github.pass`
+password=`git config --get github.pass`
 
 if [ -n "$GITHUB_USER" ]; then
 	user=$GITHUB_USER
 fi
 
 if [ -n "$GITHUB_PASS" ]; then
-	token=$GITHUB_PASS
+	password=$GITHUB_PASS
 fi
 
 api_url="https://api.github.com"
 
 function check_config() {
-	if [ -z "$user" ] || [ -z "$token" ]; then
-		warn "aborting: github.user or github.token not set"
-		exit 3
+	if [ -z "$user" ] || [ -z "$password" ]; then
+		warn "aborting: github.user or github.password not set"
+		exit 1
 	fi
 }
 
@@ -26,7 +26,7 @@ function api_call() {
 	printf "%s " $*
 	printf ");\n"
 
-	curl -u "$user:$token" --netrc "$api_url$call" "$@"
+	curl -u "$user:$password" --netrc "$api_url$call" "$@"
 }
 
 function create() {
