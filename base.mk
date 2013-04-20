@@ -42,10 +42,12 @@ $(foreach target,$(TARGETS),$(eval vpath $(target) $(O)))
 all:: $(TARGETS)
 
 # FIXME: overriding in Makefile is tricky
-CC = $(CROSS_COMPILE)gcc
-CXX= $(CROSS_COMPILE)g++
-LD = $(CC)
-RM = rm -f
+CC    = $(CROSS_COMPILE)gcc
+CXX   = $(CROSS_COMPILE)g++
+LD    = $(CC)
+RM    = rm -f
+FLEX  = flex
+BISON = bison
 
 ifdef DEBUG
 OPT=-O0
@@ -82,11 +84,13 @@ ALL_LDFLAGS += -Wl,--build-id
 ALL_LDFLAGS += $(LDFLAGS)
 
 ifndef V
-	QUIET_CC   = @ echo '  CC  ' $@;
-	QUIET_CXX  = @ echo '  CXX ' $@;
-	QUIET_LINK = @ echo '  LINK' $@;
-	QUIET_LSS  = @ echo '  LSS ' $@;
-	QUIET_SYM  = @ echo '  SYM ' $@;
+	QUIET_CC    = @ echo '  CC   ' $@;
+	QUIET_CXX   = @ echo '  CXX  ' $@;
+	QUIET_LINK  = @ echo '  LINK ' $@;
+	QUIET_LSS   = @ echo '  LSS  ' $@;
+	QUIET_SYM   = @ echo '  SYM  ' $@;
+	QUIET_FLEX  = @ echo '  FLEX ' $@;
+	QUIET_BISON = @ echo '  BISON' $*.tab.c $*.tab.h;
 endif
 
 # Avoid deleting .o files
@@ -117,6 +121,12 @@ $(eval $(call flags-template,CXX,CXX,c++ build flags))
 $(eval $(call flags-template,LD,LD,link flags))
 
 obj-cflags = CFLAGS_$(1)
+
+$(O)/%.tab.h $(O)/%.tab.c : %.y
+	$(QUIET_BISON)$(BISON) --locations -k -b $* $<
+
+$(O)/%.ll.c : %.l
+	$(QUIET_FLEX)$(FLEX) --bison-locations --bison-bridge -o $@ $<
 
 $(O)/%.o: %.c .TRACK-CFLAGS
 	$(QUIET_CC)$(CC)   -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(ALL_CFLAGS)
