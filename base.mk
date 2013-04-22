@@ -21,15 +21,28 @@
 #			sometarget: ALL_LDFLAGS += -lrt
 #
 # $(CROSS_COMPILE)  a prefix on gcc. "CROSS_COMPILE=arm-linux-" (note the trailing '-')
+#
+# $(ldflags-sometarget)
+# $(CFLAGS_someobject)
+#
+# == How to use with FLEX + BISON support ==
+#
+# obj-foo = name.tab.o name.ll.o
+# name.ll.o : name.tab.h
+# TRASH += name.ll.c name.tab.c name.tab.h
+# # Optionally
+# PP_name = not_quite_name_
+#
 
 # TODO:
 # - install disable per target.
 # - flag tracking per target.'.obj.o.cmd'
-# - flag tracking that easily allows adding extra variables.
 # - profile guided optimization support.
 # - output directory support ("make O=blah")
 # - build with different flags placed into different output directories.
 # - library building (shared & static)
+# - per-target CFLAGS (didn't I hack this in already?)
+# - will TARGETS always be outputs from Linking?
 
 # Delete the default suffixes
 .SUFFIXES:
