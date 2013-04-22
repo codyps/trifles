@@ -126,10 +126,10 @@ parser-prefix = $(if $(PP_$*),$(PP_$*),$*_)
 
 $(O)/%.tab.h $(O)/%.tab.c : %.y
 	$(QUIET_BISON)$(BISON) --locations -d \
-		-p '$(call parser-prefix,$*)' -k -b $* $<
+		-p '$(parser-prefix)' -k -b $* $<
 
 $(O)/%.ll.c : %.l
-	$(QUIET_FLEX)$(FLEX) -P '$(call parser-prefix,$*)' --bison-locations --bison-bridge -o $@ $<
+	$(QUIET_FLEX)$(FLEX) -P '$(parser-prefix)' --bison-locations --bison-bridge -o $@ $<
 
 $(O)/%.o: %.c .TRACK-CFLAGS
 	$(QUIET_CC)$(CC)   -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(ALL_CFLAGS)
