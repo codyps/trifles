@@ -122,11 +122,14 @@ $(eval $(call flags-template,LD,LD,link flags))
 
 obj-cflags = CFLAGS_$(1)
 
+parser-prefix = $(if $(PP_$*),$(PP_$*),$*_)
+
 $(O)/%.tab.h $(O)/%.tab.c : %.y
-	$(QUIET_BISON)$(BISON) --locations -k -b $* $<
+	$(QUIET_BISON)$(BISON) --locations -d \
+		-p '$(call parser-prefix,$*)' -k -b $* $<
 
 $(O)/%.ll.c : %.l
-	$(QUIET_FLEX)$(FLEX) --bison-locations --bison-bridge -o $@ $<
+	$(QUIET_FLEX)$(FLEX) -P '$(call parser-prefix,$*)' --bison-locations --bison-bridge -o $@ $<
 
 $(O)/%.o: %.c .TRACK-CFLAGS
 	$(QUIET_CC)$(CC)   -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(ALL_CFLAGS)
