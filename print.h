@@ -41,16 +41,16 @@ static inline void print_bytes_as_sh_single_quote_string(void *data, size_t data
 {
 	char *p = data;
 	size_t i;
-	putc(''', f);
+	putc('\'', f);
 	for (i = 0; i < data_len; i++) {
 		char c = p[i];
-		if (c == ''') {
+		if (c == '\'') {
 			fputs("'\\''", f);
 		} else {
 			putc(c, f);
 		}
 	}
-	putc(''', f);
+	putc('\'', f);
 }
 
 /* Prints a string such that it can be pasted into sh. Does not use quotes
@@ -77,7 +77,7 @@ static inline void print_bytes_as_sh_no_quote_string(void *data, size_t data_len
 			case '!':
 
 			/* others */
-			case ''':
+			case '\'':
 			case '"':
 			case '`':
 			case '$':
