@@ -1,3 +1,7 @@
+* inotify_add_watch_at() syscall
+
+* irc client library (for writing bots, bouncers, and the client-side of servers)
+
 * live updated disk space usage display using inotify.
 
 * per application hugepage pools
