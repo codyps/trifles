@@ -1,10 +1,25 @@
 libircclient
 	http://www.ulduzsoft.com/linux/libircclient/
-	irc client lib
+	git svn clone -s svn://svn.code.sf.net/p/libircclient/code libircclient
 	C
+	LGPLv?
+	files blank comment code
+        27    1570  3778    3528
+
+libirc
+	http://libirc.sourceforge.net/
+	git svn clone -s svn://svn.code.sf.net/p/libirc/code libirc
+	C++
+	files blank comment code
+	47    3160  1808    12444
 
 circle
 	http://sourceforge.net/projects/circle/
-	modular IRC bot
+	#none
 	C
 	GPLv3
+	Bindings for C++ and Cocca
+
+libcirc
+	https://github.com/benvh/libCirc
+	git clone http://github.com/benvh/libCirc.git
