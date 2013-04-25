@@ -2,6 +2,7 @@
 #define PENNY_PRINT_H_
 
 #include <stdio.h>
+#include <stdint.h>
 #include <ctype.h>
 
 static const char hex_lookup[] = "0123456789abcdef";
