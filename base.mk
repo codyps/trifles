@@ -23,7 +23,8 @@
 # $(CROSS_COMPILE)  a prefix on gcc. "CROSS_COMPILE=arm-linux-" (note the trailing '-')
 #
 # $(ldflags-sometarget)
-# $(CFLAGS_someobject)
+# $(cflags-someobject)
+# $(cxxflags-someobject)
 #
 # == How to use with FLEX + BISON support ==
 #
@@ -133,8 +134,6 @@ $(eval $(call flags-template,C,CC,c build flags))
 $(eval $(call flags-template,CXX,CXX,c++ build flags))
 $(eval $(call flags-template,LD,LD,link flags))
 
-obj-cflags = CFLAGS_$(1)
-
 parser-prefix = $(if $(PP_$*),$(PP_$*),$*_)
 
 $(O)/%.tab.h $(O)/%.tab.c : %.y
@@ -145,10 +144,10 @@ $(O)/%.ll.c : %.l
 	$(QUIET_FLEX)$(FLEX) -P '$(parser-prefix)' --bison-locations --bison-bridge -o $@ $<
 
 $(O)/%.o: %.c .TRACK-CFLAGS
-	$(QUIET_CC)$(CC)   -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(ALL_CFLAGS)
+	$(QUIET_CC)$(CC)   -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(ALL_CFLAGS) $(cflags-$*)
 
 $(O)/%.o: %.cc .TRACK-CXXFLAGS
-	$(QUIET_CXX)$(CXX) -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(call obj-clfags,$*) $(ALL_CXXFLAGS)
+	$(QUIET_CXX)$(CXX) -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(ALL_CXXFLAGS) $(cxxflags-$*)
 
 define BIN-LINK
 $(1)/$(2) : .TRACK-LDFLAGS $(obj-$(2))
@@ -187,8 +186,13 @@ watch:
 		echo "Rebuilding..."
 	done
 
+.PHONY: show-targets
 show-targets:
 	@echo $(TARGETS)
+
+.PHONY: show-cflags
+show-cflags:
+	@echo $(ALL_CFLAGS) $(cflags-$(FILE:.c=))
 
 deps = $(foreach target,$(TARGETS),$(call target-dep,$(target)))
 -include $(deps)

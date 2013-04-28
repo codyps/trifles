@@ -1,3 +1,7 @@
+* a way to create a git repo with the history of a subset of the original
+  files, and allow updating of this repo incrimentally.
+  - `git filter-branch` can do the first part, but is _very_ slow.
+
 * live updated disk space usage display using inotify.
 
 * per application hugepage pools
