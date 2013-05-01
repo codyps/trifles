@@ -3,7 +3,6 @@
 
 typedef unsigned long long ull;
 
-#define ARRAY_SIZE(x)   (sizeof(x)/sizeof((x)[0]))
 #define FIELD_SIZE(s,f) (sizeof((s *)0->f))
 #define typeof_field(s, f) typeof((s *)0->f)
 
