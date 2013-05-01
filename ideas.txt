@@ -1,3 +1,8 @@
+* Model updates to datastructures as modifications followed by a "commit"
+  - avoids the pain of figuring out manually which magical functions need to
+    be called when certain fields are updated (see linux's online_pages() for
+    an example).
+
 * inotify_add_watch_at() syscall
 
 * irc client library (for writing bots, bouncers, and the client-side of servers)
