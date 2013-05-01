@@ -30,6 +30,7 @@ if ! [ -e "$i" ]; then
 	esac
 fi
 
+hash=$(cd $d; git show --pretty=format:%H base.mk)
 ver=$(cd $d; git describe --always --dirty=+)
 tmp=`tempfile --prefix=base.mk`
 

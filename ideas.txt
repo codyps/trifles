@@ -3,6 +3,15 @@
     be called when certain fields are updated (see linux's online_pages() for
     an example).
 
+* vpn that bootstraps via a DHT (bittorrent dht, for example)
+
+* irc-tunnel - transmit ip/ethernet packets using an IRC server as the middle
+  man
+
+* a way to create a git repo with the history of a subset of the original
+  files, and allow updating of this repo incrimentally.
+  - `git filter-branch` can do the first part, but is _very_ slow.
+
 * inotify_add_watch_at() syscall
 
 * irc client library (for writing bots, bouncers, and the client-side of servers)
