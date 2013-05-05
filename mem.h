@@ -42,6 +42,8 @@ static inline bool memstarts(void const *data, size_t data_len,
 }
 
 #define memeq(a, al, b, bl) (al == bl && !memcmp(a, b, bl))
+#define memeqstr(bytes, length, string) \
+	memeq(bytes, length, string, strlen(string))
 
 #endif
 
