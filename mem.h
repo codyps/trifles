@@ -41,6 +41,14 @@ static inline bool memstarts(void const *data, size_t data_len,
 	return !memcmp(data, prefix, prefix_len);
 }
 
+static inline size_t memchr_len(const void *s, int c, size_t n)
+{
+	const void *r = memchr(s, c, n);
+	if (!r)
+		return 0;
+	return r - s;
+}
+
 #define memeq(a, al, b, bl) (al == bl && !memcmp(a, b, bl))
 #define memeqstr(bytes, length, string) \
 	memeq(bytes, length, string, strlen(string))
