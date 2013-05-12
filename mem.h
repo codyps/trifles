@@ -43,9 +43,10 @@ static inline bool memstarts(void const *data, size_t data_len,
 
 static inline size_t memchr_len(const void *s, int c, size_t n)
 {
-	const void *r = memchr(s, c, n);
-	if (!r)
+	if (n == 0)
 		return 0;
+
+	const void *r = memchr(s, c, n);
 	return r - s;
 }
 
