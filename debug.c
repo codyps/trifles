@@ -7,6 +7,11 @@
 #define DEBUG_NEED_INIT INT_MIN
 static int debug = DEBUG_NEED_INIT;
 
+bool debug_is(int lvl)
+{
+	return lvl <= debug_level();
+}
+
 int debug_level(void)
 {
 	if (debug != DEBUG_NEED_INIT)
@@ -21,10 +26,9 @@ int debug_level(void)
 	return debug;
 }
 
-
 void pr_debug(int level, char const *fmt, ...)
 {
-	if (level > debug_level())
+	if (!debug_is(level))
 		return;
 
 	va_list va;
