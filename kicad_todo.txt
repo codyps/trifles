@@ -1,0 +1,22 @@
+- pcb
+ - track clearance
+  - allow different settings for angle and straigh
+  - allow setting on a arbitrary track basis (not only per netclass)
+
+ - make selecting items easier
+  - thin lines need to be "graby"
+  - overlayed elements should pay attention to which element has their
+    silkscreen/pads under the mouse.
+  - give some indication when a particular element is selected (highlight it)
+
+ - get rid of the pop up warning for zones when zones are hidden
+ - show the autoroute options in all modes (wire, select, and zone)
+
+ - allow changing the width of layed/placed tracks
+ - support autowidening of tracks
+ - alignment targets
+  - midpoints, 0.1 pin offsets
+ - support internal connections in parts
+ - add a better autorouter
+ - auto placer
+ - command line to add elements
