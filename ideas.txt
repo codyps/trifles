@@ -1,3 +1,5 @@
+* Decent opensource CAM program
+
 * Model updates to datastructures as modifications followed by a "commit"
   - avoids the pain of figuring out manually which magical functions need to
     be called when certain fields are updated (see linux's online_pages() for
@@ -7,6 +9,8 @@
 
 * irc-tunnel - transmit ip/ethernet packets using an IRC server as the middle
   man
+  - hillarious, but totally impractical (IRC is often blocked, I image sane
+    servers will do rate limiting).
 
 * a way to create a git repo with the history of a subset of the original
   files, and allow updating of this repo incrimentally.
@@ -63,7 +67,7 @@ each pool) + some ruleset to decide which pool applications take from
 
 * a better dtls lib than tinydtls
   - factor out peer lookups, memory allocations
-  - keep minimal, where minimal = appropriate for cortex-m3 sized machines
+  - keep minimal, where minimal = appropriate for cortex-m sized machines
 
 * efficient bitcoin/namecoin daemon.
   - maintaining 2 seperate daemons based on the same proto & sharing many
@@ -126,6 +130,7 @@ each pool) + some ruleset to decide which pool applications take from
   - useful for testing kernels.
   - disk images vs tar: disk images are writable. Otherwise tar would be a
     decent idea. Perhaps tar + some delta format?
+  - qemu metadata passthrough format (used for virtio).
 
 * a system for building single system images (ie: something like openwrt or
   buildroot)
@@ -190,9 +195,12 @@ seperated build variants.
     - Is this necessary? Useful?
     - What happens when 2 (writers) clients are acting on 2 different local
       mail stores syncronized via IMAP?
+  - offlineimap is crashy
 
 * Screen saver and suspend to ram (pm-suspend) integration with cryptsetup suspend.
-  i3 seems like a good candidate (while lacking a timeout daemon)
+  i3lock seems like a good candidate (while lacking a timeout daemon)
+  - using i3lock + xautolock right now. Not quite perfect (i3lock doesn't turn
+    the screen off after mouse movement).
 
 * A way to run per-user actions on various events such as suspend, poweroff,
   "Lock", "idle"
