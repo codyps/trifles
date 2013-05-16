@@ -1,0 +1,31 @@
+
+http://www.etalabs.net/compare_libcs.html
+
+
+
+uClibc
+
+glibc
+
+olibc
+	http://olibc.so
+	derived from bionic libc
+	300KB target code size
+	BSD
+	Support: Qualcomm, TI, Linaro, Soc Vendors
+
+bionic libc
+	derived from NetBSD libc
+	??? code size
+	BSD
+	Support: Google
+
+newlib
+
+musl
+	http://www.musl-libc.org/
+	
+
+dietlibc
+
+eglibc
