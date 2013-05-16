@@ -1,6 +1,2 @@
-* linked list
-* circular allocator (based on what I've done in hj's framing code).
-* bsearch/qsort with type warnings/errors (either through templating
-  or careful use of `typeof`)
-* rb-tree (may not be general enough. Possibly exclude.)
+ - circular allocator (based on what I've done in hj's framing code).
 
