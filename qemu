@@ -1,0 +1,4 @@
+cody@negative:~/g/linux$ qemu-system-x86_64 -M pc -kernel ~/build/linux-dnuma-amd64/arch/x86/boot/bzImage -drive file=$HOME/g/buildroot/output/images/rootfs.ext2,if=virtio -virtfs local,path=$HOME/shared/,security_model=mapped-xattr,mount_tag=host_share -append "root=/dev/vda console=ttyS0 earlyprintk=ttyS0 debug numa=fake=2 kmemleak=on extra_nr_node_ids=100"  -smp 8 -nographic -enable-kvm -option-rom sgabios.bin -s
+
+
+mount -t 9p -o trans=virtio host_share /mnt/host_share -oversion=9p2000.L
