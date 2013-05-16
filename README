@@ -11,9 +11,20 @@ penny.h::
 	include the following:
 
 	* barrier
-	* container_of
 	* htonll & ntohll
-	* MAX & MIN
+
+math.h::
+	Commonly used math operators
+
+	- MAX(), MIN() (and variants with more arguments)
+	- ABS()
+	- KILO(), MEGA()
+	- SAT_CEIL(x, ceil) - constrain 'x' to 'ceil' and return.
+	- pow4(x) - calculate '4^(x)' using integer operators.
+	- SUB_SAT(x, y) - calculate 'x - y' and return 0 if the result would
+	                  be negative.
+	- DIV_OR_ZERO()
+	- DIV_ROUND_UP()
 
 circ_buf.h::
 	Macros for managing a circular buffer.
@@ -21,6 +32,7 @@ circ_buf.h::
 darray.h::
 	Macros for managing a dynamic array where the array metadata and
 	data sections are contained within the same allocation.
+	Using ccan's darray may be a better choice.
 
 gen_fn.h::
 	Contains a macro which generates a bsearch on a particular type,
