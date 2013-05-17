@@ -90,10 +90,10 @@ static inline void print_bytes_as_sh_no_quote_string(void *data, size_t data_len
 	}
 }
 
-static inline void print_bytes_as_cstring(void *data, size_t data_len, FILE *f)
+static inline void print_bytes_as_cstring(const void *data, size_t data_len, FILE *f)
 {
 	putc('"', f);
-	char *p = data;
+	const char *p = data;
 	size_t i;
 	for (i = 0; i < data_len; i++) {
 		char c = p[i];
