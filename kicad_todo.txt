@@ -20,3 +20,11 @@
  - add a better autorouter
  - auto placer
  - command line to add elements
+ - allow specification of interchangeable connections
+  - for example, pins on a crystal could be connected either way.
+  - more complicated, could have interchangable connections between modules
+   - for example, if our design has more multple xor gates embedded in a
+     single chip, and uses multiple chips
+
+  - appears to be a level of abstraction above the schematic.
+  - but we want this to be decided at routing time.
