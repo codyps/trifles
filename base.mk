@@ -29,6 +29,7 @@
 # OBJ_TRASH
 # TRASH
 # TARGET_TRASH
+# BIN_EXT
 #
 # == How to use with FLEX + BISON support ==
 #
@@ -163,8 +164,13 @@ $(O)/%.o : %.S .TRACK-ASFLAGS
 	$(QUIET_AS)$(AS) -c $(ALL_ASFLAGS) $< -o $@
 
 define BIN-LINK
+if (BIN_EXT,)
 $(1)/$(2) : .TRACK-LDFLAGS $(obj-$(2))
 	$$(QUIET_LINK)$(LD) -o $$@ $(call target-obj,$(2)) $(ALL_LDFLAGS) $(ldflags-$(2))
+else
+$(1)/$(2).$(BIN_EXT) : .TRACK-LDFLAGS $(obj-$(2))
+	$$(QUIET_LINK)$(LD) -o $$@ $(call target-obj,$(2)) $(ALL_LDFLAGS) $(ldflags-$(2))
+endif
 endef
 
 $(foreach target,$(TARGETS),$(eval $(call BIN-LINK,$(O),$(target))))
