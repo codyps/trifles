@@ -2,11 +2,11 @@
 
 setxkbmap -option caps:swapescape
 
-cat <<EOF
+cat >/etc/X11/xorg.conf.d/99-kbd-fixup.conf <<EOF
 Section "InputClass"
         Identifier "Keyboard Options by default"
         MatchIsKeyboard "on"
 
         Option "XkbOptions "caps:swapescape"
 EndSection
-EOF > /etc/X11/xorg.conf.d/99-kbd-fixup.conf
+EOF
