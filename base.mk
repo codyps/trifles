@@ -57,8 +57,10 @@ O = .
 #VPATH = $(O)
 $(foreach target,$(TARGETS),$(eval vpath $(target) $(O)))
 
+BIN_TARGETS=$(addsuffix $(BIN_EXT),$(TARGETS))
+
 .PHONY: all FORCE
-all:: $(TARGETS)
+all:: $(BIN_TARGETS)
 
 # FIXME: overriding in Makefile is tricky
 CC    = $(CROSS_COMPILE)gcc
@@ -164,13 +166,8 @@ $(O)/%.o : %.S .TRACK-ASFLAGS
 	$(QUIET_AS)$(AS) -c $(ALL_ASFLAGS) $< -o $@
 
 define BIN-LINK
-if (BIN_EXT,)
-$(1)/$(2) : .TRACK-LDFLAGS $(obj-$(2))
+$(1)/$(2)$(BIN_EXT) : .TRACK-LDFLAGS $(obj-$(2))
 	$$(QUIET_LINK)$(LD) -o $$@ $(call target-obj,$(2)) $(ALL_LDFLAGS) $(ldflags-$(2))
-else
-$(1)/$(2).$(BIN_EXT) : .TRACK-LDFLAGS $(obj-$(2))
-	$$(QUIET_LINK)$(LD) -o $$@ $(call target-obj,$(2)) $(ALL_LDFLAGS) $(ldflags-$(2))
-endif
 endef
 
 $(foreach target,$(TARGETS),$(eval $(call BIN-LINK,$(O),$(target))))
