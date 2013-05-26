@@ -26,6 +26,10 @@
 # $(cflags-someobject)
 # $(cxxflags-someobject)
 #
+# OBJ_TRASH
+# TRASH
+# TARGET_TRASH
+#
 # == How to use with FLEX + BISON support ==
 #
 # obj-foo = name.tab.o name.ll.o
@@ -59,6 +63,7 @@ all:: $(TARGETS)
 CC    = $(CROSS_COMPILE)gcc
 CXX   = $(CROSS_COMPILE)g++
 LD    = $(CC)
+AS    = $(CC)
 RM    = rm -f
 FLEX  = flex
 BISON = bison
@@ -95,7 +100,10 @@ ALL_CFLAGS   += $(COMMON_CFLAGS) $(CFLAGS)
 ALL_CXXFLAGS += $(COMMON_CFLAGS) $(CXXFLAGS)
 
 ALL_LDFLAGS += -Wl,--build-id
+ALL_LDFLAGS += -Wl,--as-needed
 ALL_LDFLAGS += $(LDFLAGS)
+
+ALL_ASFLAGS += $(ASFLAGS)
 
 ifndef V
 	QUIET_CC    = @ echo '  CC   ' $@;
@@ -105,6 +113,7 @@ ifndef V
 	QUIET_SYM   = @ echo '  SYM  ' $@;
 	QUIET_FLEX  = @ echo '  FLEX ' $@;
 	QUIET_BISON = @ echo '  BISON' $*.tab.c $*.tab.h;
+	QUIET_AS    = @ echo '  AS   ' $@;
 endif
 
 # Avoid deleting .o files
@@ -130,6 +139,7 @@ $(O)/.TRACK-$(1)FLAGS: FORCE
 TRASH += $(O)/.TRACK-$(1)FLAGS
 endef
 
+$(eval $(call flags-template,AS,AS,assembler build flags))
 $(eval $(call flags-template,C,CC,c build flags))
 $(eval $(call flags-template,CXX,CXX,c++ build flags))
 $(eval $(call flags-template,LD,LD,link flags))
@@ -149,6 +159,9 @@ $(O)/%.o: %.c .TRACK-CFLAGS
 $(O)/%.o: %.cc .TRACK-CXXFLAGS
 	$(QUIET_CXX)$(CXX) -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(ALL_CXXFLAGS) $(cxxflags-$*)
 
+$(O)/%.o : %.S .TRACK-ASFLAGS
+	$(QUIET_AS)$(AS) -c $(ALL_ASFLAGS) $< -o $@
+
 define BIN-LINK
 $(1)/$(2) : .TRACK-LDFLAGS $(obj-$(2))
 	$$(QUIET_LINK)$(LD) -o $$@ $(call target-obj,$(2)) $(ALL_LDFLAGS) $(ldflags-$(2))
@@ -166,11 +179,15 @@ BINDIR  ?= $(DESTDIR)/bin
 install: $(foreach target,$(TARGETS),$(target).install)
 endif
 
+obj-all = $(foreach target,$(TARGETS),$(obj-$(target)))
+obj-trash = $(foreach obj,$(obj-all),$(call OBJ_TRASH,$(obj)))
+
 .PHONY: clean %.clean
 %.clean :
-	$(RM) $(call target-obj,$*) $(O)/$* $(TRASH) $(call target-dep,$*)
+	$(RM) $(call target-obj,$*) $(O)/$* $(TARGET_TRASH) $(call target-dep,$*)
 
 clean:	$(addsuffix .clean,$(TARGETS))
+	$(RM) $(TRASH) $(obj-trash)
 
 .PHONY: watch
 watch:
