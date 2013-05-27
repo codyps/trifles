@@ -73,6 +73,7 @@ typedef unsigned long long ull;
 
 #define _CAT2(a, b) a##b
 #define CAT2(a, b) _CAT2(a,b)
-#define CAT3(a, b, c) _CAT2(a, _CAT2(b, c))
+#define _CAT3(a, b, c) a##b##c
+#define CAT3(a, b, c) _CAT3(a,b,c)
 
 #endif
