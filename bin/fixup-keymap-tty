@@ -1,0 +1,13 @@
+#! /bin/sh
+
+sudo loadkeys <<EOF
+keycode 1 = Caps_Lock
+keycode 58 = Escape
+	alt		keycode 58 = Meta_Escape
+	shift	alt	keycode 58 = Meta_Escape
+	control alt	keycode 58 = Meta_Escape
+EOF
+
+echo "Modify /usr/share/keymaps/i386/qwerty/us.map.gz"
+echo "gentoo: edit /etc/conf.d/keymaps"
+echo "arch:   edit /etc/<something>"
