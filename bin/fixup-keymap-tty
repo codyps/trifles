@@ -8,6 +8,6 @@ keycode 58 = Escape
 	control alt	keycode 58 = Meta_Escape
 EOF
 
-echo "Modify /usr/share/keymaps/i386/qwerty/us.map.gz"
-echo "gentoo: edit /etc/conf.d/keymaps"
-echo "arch:   edit /etc/<something>"
+echo "create /usr/share/keymaps/i386/include/caps-swap-escape.map.gz" >&2
+echo "gentoo: sed -i 's/extended_keymaps=""/extended_keymaps="caps-swap-escape"/' /etc/conf.d/keymaps"
+echo "arch: edit /etc/<something>"
