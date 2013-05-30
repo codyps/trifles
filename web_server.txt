@@ -1,37 +1,42 @@
 mongoose
 	http://code.google.com/p/mongoose/
 	MIT
-	1 .c file, 1 .h file
-	"simple, functional, embeddable"
 	Embeddable web server.
+	 1 .c file, 1 .h file
+	 "simple, functional, embeddable"
 
 tofu
 	https://github.com/MechanisM/Tofu
-	 3 clause BSD
+	3 clause BSD
 	 uses auto-crap
-	fcgi, zmq, or http via libevents
+	 fcgi, zmq, or http via libevents
 
 G-WAN
 	gwan.ch
 	Closed Source Freeware
+	Scriptable Web Server
 	 uses C source code directly
 	 many language support
 	 claims speed > ngnix
-	Scriptable Web Server
 
 libmicrohttpd
 	www.gnu.org/software/libmicrohttpd/
 	LGPL v2.1
+	Embedded http server library
 	 +Nice listing of alternatives
 	 32K binary without TLS
-	Embedded http server library
 
 thttpd
 	http://www.acme.com/software/thttpd/
 	2 Clause BSD
+	tiny http server
 	 old
 	 no mention of embedding on webpage
-	tiny http server
 
 EHS
 	http://ehs.fritz-elfert.de/
+
+libebb
+	http://tinyclouds.org/libebb/
+	X11
+	Lightweight HTTP server library
