@@ -40,3 +40,14 @@ libebb
 	http://tinyclouds.org/libebb/
 	X11
 	Lightweight HTTP server library
+
+Raphters
+	https://github.com/DanielWaterworth/Raphters
+	GPL v3
+	a web framework for C based on the rapht architectural pattern
+
+Duda+Monkey
+	http://blog.monkey-project.com/2012/03/13/duda-web-services-framework-for-monkey/
+
+
+
