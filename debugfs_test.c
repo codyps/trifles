@@ -13,7 +13,7 @@
 
 #define DO_PATH "/sys/kernel/debug/debugfs-test/do-it"
 
-int get_attr(int fd, long long *val, int base)
+static int get_attr(int fd, long long *val, int base)
 {
 	char data[24];
 	ssize_t r = pread(fd, data, sizeof(data), 0);
@@ -32,7 +32,8 @@ int get_attr(int fd, long long *val, int base)
 	return 0;
 }
 
-int get_attr_by_path(const char *path, long long *val, int base)
+#if 0
+static int get_attr_by_path(const char *path, long long *val, int base)
 {
 	int ret = 0, fd = open(path, O_RDONLY);
 	if (fd < 0) {
@@ -47,8 +48,9 @@ e_close:
 	close(fd);
 	return ret;
 }
+#endif
 
-void read_val(char *prompt, int fd)
+static void read_val(const char *prompt, int fd)
 {
 	long long v;
 	int ret = get_attr(fd, &v, 10);
