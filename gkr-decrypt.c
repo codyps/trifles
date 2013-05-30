@@ -35,7 +35,7 @@ gcry_md_hash_buffer (GCRY_MD_MD5, (void*)digest,
 #endif
 
 
-int check_magic(FILE *in)
+static int check_magic(FILE *in)
 {
 	size_t m_sz = sizeof(MAGIC) - 1;
 	char buf[m_sz];
@@ -61,7 +61,7 @@ int check_magic(FILE *in)
 	return -err;
 }
 
-int header_check(FILE *in)
+static int header_check(FILE *in)
 {
 	char buf[4];
 	size_t r = fread(buf, 1, sizeof(buf), in);
@@ -93,7 +93,7 @@ struct string {
 	char data[];
 };
 
-int decode_guint32(FILE *in, uint32_t *i)
+static int decode_guint32(FILE *in, uint32_t *i)
 {
 	char buf[sizeof(uint32_t)];
 	size_t r = fread(buf, 1, sizeof(buf), in);
@@ -108,7 +108,7 @@ int decode_guint32(FILE *in, uint32_t *i)
 	return 0;
 }
 
-int decode_string(FILE *in, struct string **sr)
+static int decode_string(FILE *in, struct string **sr)
 {
 	uint32_t l;
 	if (decode_guint32(in, &l) < 0) {
@@ -137,7 +137,7 @@ int decode_string(FILE *in, struct string **sr)
 	return 0;
 }
 
-size_t print_string(struct string *s, FILE *o)
+static size_t print_string(struct string *s, FILE *o)
 {
 	return fwrite(s->data, 1, s->l, o);
 }
