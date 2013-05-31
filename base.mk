@@ -1,9 +1,19 @@
 # Usage:
 #
-# == For use by the one who runs 'make' ==
+# == For use by the one who runs 'make' (or in some cases the Makefile) ==
 # $(V)              when defined, prints the commands that are run.
 # $(CFLAGS)         expected to be overridden by the user or build system.
 # $(LDFLAGS)        same as CFLAGS, except for LD.
+# $(ASFLAGS)
+# $(CXXFLAGS)
+#
+# $(CROSS_COMPILE)  a prefix on gcc. "CROSS_COMPILE=arm-linux-" (note the trailing '-')
+# $(CC)
+# $(CXX)
+# $(LD)
+# $(AS)
+# $(FLEX)
+# $(BISON)
 #
 # == Required in the makefile ==
 # all::		    place this target at the top.
@@ -20,15 +30,19 @@
 #
 #			sometarget: ALL_LDFLAGS += -lrt
 #
-# $(CROSS_COMPILE)  a prefix on gcc. "CROSS_COMPILE=arm-linux-" (note the trailing '-')
+#		    Note that in some cases (none I can point out, I just find
+#		    this shifty) this usage could have unintended consequences
+#		    (such as some of the ldflags being passed to other link
+#		    commands). The use of $(ldflags-sometarget) is recommended
+#		    instead.
 #
 # $(ldflags-sometarget)
 # $(cflags-someobject)
 # $(cxxflags-someobject)
 #
-# OBJ_TRASH
+# OBJ_TRASH		$(1) expands to the object. Expanded for every object.
+# TARGET_TRASH		$* expands to the target. Expanded for every target.
 # TRASH
-# TARGET_TRASH
 # BIN_EXT
 #
 # == How to use with FLEX + BISON support ==
@@ -49,6 +63,7 @@
 # - library building (shared & static)
 # - per-target CFLAGS (didn't I hack this in already?)
 # - will TARGETS always be outputs from Linking?
+# - continous build mechanism ('watch' is broken)
 
 # Delete the default suffixes
 .SUFFIXES:
@@ -59,7 +74,8 @@ BIN_TARGETS=$(addprefix $(O)/,$(addsuffix $(BIN_EXT),$(TARGETS)))
 .PHONY: all FORCE
 all:: $(BIN_TARGETS)
 
-# FIXME: overriding in Makefile is tricky
+# FIXME: overriding these in a Makefile while still allowing the user to
+# override them is tricky.
 CC    = $(CROSS_COMPILE)gcc
 CXX   = $(CROSS_COMPILE)g++
 LD    = $(CC)
@@ -74,14 +90,14 @@ else
 OPT=-Os
 endif
 
+DBG_FLAGS = -ggdb3
+
 ifndef NO_LTO
-CFLAGS  ?= -flto
+CFLAGS  ?= -flto $(DBG_FLAGS)
 LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fuse-linker-plugin
 else
-CFLAGS ?= $(OPT)
+CFLAGS  ?= $(OPT) $(DBG_FLAGS)
 endif
-
-CFLAGS += -ggdb3
 
 COMMON_CFLAGS += -Wall
 COMMON_CFLAGS += -Wundef -Wshadow
@@ -192,7 +208,8 @@ clean:	$(addsuffix .clean,$(TARGETS))
 .PHONY: watch
 watch:
 	@while true; do \
-		make -rR --no-print-directory; \
+		echo $(MAKEFLAGS); \
+		$(MAKE) $(MAKEFLAGS) -rR --no-print-directory; \
 		inotifywait -q \
 		  \
 		 -- $$(find . \
@@ -200,7 +217,7 @@ watch:
 			-or -name '*.h' \
 			-or -name 'Makefile' \
 			-or -name '*.mk' ); \
-		echo "Rebuilding..."
+		echo "Rebuilding...";	\
 	done
 
 .PHONY: show-targets

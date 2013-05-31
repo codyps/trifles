@@ -15,6 +15,7 @@ int main(void)
 	int fd[2];
 	char buf[1];
 	pipe(fd);
+	pipe(fd);
 	if (fork()) {
 		puts("a");
 		puts("a ping");
