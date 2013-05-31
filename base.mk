@@ -54,9 +54,6 @@
 .SUFFIXES:
 
 O = .
-VPATH=$(O)
-#$(foreach target,$(TARGETS),$(eval vpath $(target) $(O)))
-
 BIN_TARGETS=$(addprefix $(O)/,$(addsuffix $(BIN_EXT),$(TARGETS)))
 
 .PHONY: all FORCE
