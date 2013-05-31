@@ -3,6 +3,7 @@
 #include <string.h> /* memcmp (size_t implicit) */
 #include <stdbool.h>
 
+/* TODO: make this less stupid */
 static inline void *memmem(const void *haystack, size_t haystacklen,
 	     const void *needle, size_t needlelen)
 {
@@ -21,6 +22,10 @@ static inline void *memmem(const void *haystack, size_t haystacklen,
 	return NULL;
 }
 
+/*
+ * returns a pointer to the first character which is _not_ c
+ * can be viewed as a semi-inverse of memchr()
+ */
 static inline void *memnchr(void const *data, int c, size_t data_len)
 {
 	char const *p = data;

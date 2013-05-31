@@ -4,14 +4,23 @@ Nicer things in C, for cheep.
 Includes useful non-specific macros and data structures for use within C
 based projects.
 
+Quite a few of these depend on ccan libs, and use of ccan is intended (which is why I don't have a linked list or container_of()).
+
 == Parts ==
 
 penny.h::
 	Includes general items that do not warrent their own header. These
 	include the following:
 
-	* barrier
-	* htonll & ntohll
+	- barrier
+	- htonll() & ntohll()
+	- ACCESS_ONCE()
+	- LINE_STR
+	- likely(), unlikely()
+	- CAT2(), CAT3()
+	- FIELD_SIZE(), typeof_field()
+
+	- GCC_VERSION_GREATER(a,b,c)
 
 math.h::
 	Commonly used math operators
@@ -25,6 +34,20 @@ math.h::
 	                  be negative.
 	- DIV_OR_ZERO()
 	- DIV_ROUND_UP()
+
+debug.h::
+	Debugging prints based on value of DEBUG env var.
+
+	- pr_debug(lvl, fmt, ...)
+	- debug_is(lvl)
+	- debug_level()
+
+mem.h::
+	Some handy compaions to the common str*() functions that operate on
+	lenth specified byte arrays instead of null terminated arrays.
+
+check.h::
+	Some functions for compile time checking of code.
 
 circ_buf.h::
 	Macros for managing a circular buffer.
