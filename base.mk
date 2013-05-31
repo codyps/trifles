@@ -54,8 +54,8 @@
 .SUFFIXES:
 
 O = .
-#VPATH = $(O)
-$(foreach target,$(TARGETS),$(eval vpath $(target) $(O)))
+VPATH=$(O)
+#$(foreach target,$(TARGETS),$(eval vpath $(target) $(O)))
 
 BIN_TARGETS=$(addsuffix $(BIN_EXT),$(TARGETS))
 
@@ -78,13 +78,13 @@ OPT=-Os
 endif
 
 ifndef NO_LTO
-ALL_CFLAGS  ?= -flto
-ALL_LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fuse-linker-plugin
+CFLAGS  ?= -flto
+LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fuse-linker-plugin
 else
-ALL_CFLAGS ?= $(OPT)
+CFLAGS ?= $(OPT)
 endif
 
-ALL_CFLAGS += -ggdb3
+CFLAGS += -ggdb3
 
 COMMON_CFLAGS += -Wall
 COMMON_CFLAGS += -Wundef -Wshadow
@@ -156,21 +156,21 @@ $(O)/%.tab.h $(O)/%.tab.c : %.y
 $(O)/%.ll.c : %.l
 	$(QUIET_FLEX)$(FLEX) -P '$(parser-prefix)' --bison-locations --bison-bridge -o $@ $<
 
-$(O)/%.o: %.c .TRACK-CFLAGS
+$(O)/%.o: %.c $(O)/.TRACK-CFLAGS
 	$(QUIET_CC)$(CC)   -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(ALL_CFLAGS) $(cflags-$*)
 
-$(O)/%.o: %.cc .TRACK-CXXFLAGS
+$(O)/%.o: %.cc $(O)/.TRACK-CXXFLAGS
 	$(QUIET_CXX)$(CXX) -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(ALL_CXXFLAGS) $(cxxflags-$*)
 
-$(O)/%.o : %.S .TRACK-ASFLAGS
+$(O)/%.o : %.S $(O)/.TRACK-ASFLAGS
 	$(QUIET_AS)$(AS) -c $(ALL_ASFLAGS) $< -o $@
 
 define BIN-LINK
-$(1)/$(2)$(BIN_EXT) : .TRACK-LDFLAGS $(obj-$(2))
-	$$(QUIET_LINK)$(LD) -o $$@ $(call target-obj,$(2)) $(ALL_LDFLAGS) $(ldflags-$(2))
+$(O)/$(1)$(BIN_EXT) : $(O)/.TRACK-LDFLAGS $(call target-obj,$(1))
+	$$(QUIET_LINK)$(LD) -o $$@ $(call target-obj,$(1)) $(ALL_LDFLAGS) $(ldflags-$(1))
 endef
 
-$(foreach target,$(TARGETS),$(eval $(call BIN-LINK,$(O),$(target))))
+$(foreach target,$(TARGETS),$(eval $(call BIN-LINK,$(target))))
 
 ifndef NO_INSTALL
 PREFIX  ?= $(HOME)   # link against things here

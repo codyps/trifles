@@ -12,7 +12,7 @@ fi
 echo "installing new config file $f" >&2
 
 sudo mkdir -p $d
-cat | sudo tee $f >/dev/null <<EOF
+sudo tee $f >/dev/null <<EOF
 Section "InputClass"
         Identifier "Keyboard Options by default"
         MatchIsKeyboard "on"
