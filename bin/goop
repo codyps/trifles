@@ -20,6 +20,11 @@
 # Plan for handling reference counting:
 # - we cannont just use the inode's refcount as non-goop links to goop items could exsist.
 # Inverted links: quickly list all places the file exsists.
+# Track trees instead of preserving the filestructure of stored files.
+# Add tools to query the goop store.
+# What constitutes a unque file? new files could share the same path as old
+# ones. Sequenct of files? What about a snapshot in time? Time when the file
+# was added to goop, or time the file has listed as ctime
 
 ensure_dir () {
 	if ! [ -d "$1" ]; then
@@ -34,6 +39,13 @@ ensure_dir () {
 			}
 		fi
 	fi
+}
+
+append_to_file () {
+	f=$1; shift
+	( flock 9
+	  echo "$*" >&9
+	) >>$f
 }
 
 GOOP_CONF=$HOME/.config/goop
@@ -55,6 +67,7 @@ dir_date=`date +%F` # Y-m-d
 goop_dest="$GOOP_DIR"/"$dir_date"
 ensure_dir "$goop_dest" "date directory"
 goop_dest_lock="$GOOP_DIR"/"$dir_date"/.lock
+goop_action_log="$GOOP_DIR"/actions.log
 
 (
 flock 9
@@ -107,9 +120,9 @@ while [ $# -gt 0 ]; do
 		echo "T: maintain a list of failures." >&2
 	}
 
+	append_to_file "$goop_action_log" "mv $goop $goop_file_dest"
 	echo "$file_attrs" > "$goop_file_dest.stat"
 	echo "$origin"     > "$goop_file_dest.origin"
-
 
 	shift
 	goop="$1"
