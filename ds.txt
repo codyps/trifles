@@ -1,3 +1,13 @@
-http://pythonsweetness.tumblr.com/post/45227295342/fast-pypy-compatible-ordered-map-in-89-lines-of-python
+skip list (an ordered map):
+	http://pythonsweetness.tumblr.com/post/45227295342/fast-pypy-compatible-ordered-map-in-89-lines-of-python
+	http://en.wikipedia.org/wiki/Skip_list
 
-http://en.wikipedia.org/wiki/Skip_list
+Rope (designed for string editing):
+	http://en.wikipedia.org/wiki/Rope_%28data_structure%29
+
+Gap buffer (edditing with locality):
+	http://en.wikipedia.org/wiki/Gap_buffer
+
+Zipper: indicates a location within a data structure (concept of "focus"):
+	http://en.wikipedia.org/wiki/Zipper_%28data_structure%29
+
