@@ -14,6 +14,7 @@ levels = [
 
 def usage():
     print('usage: usb_desc')
+    exit(0)
 
 class Section():
     def __init__(self, parent = None, indent = None):
