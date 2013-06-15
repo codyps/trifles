@@ -1,3 +1,6 @@
+* Non-blocking snmp library. (net-snmp does not work for this, see multicast
+  fail)
+
 * Fix per-device setxkbmap so that one can swap super and alt on an usb
   connected mac keyboard, but not on the builtin windows keyboard.
 
