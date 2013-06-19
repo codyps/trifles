@@ -1,1 +1,38 @@
- - __weak vs __attribute__((weak))
+0
+ - checkpatch
+ - make C=1
+ - grep -r '\(TODO\|XXX\)'
+	note that this should be avoided for drivers where we don't have the hardware avaliable.
+ - consistent function naming (and document this)
+	lots of '__func' and 'func' pairs. Figure out a consistent set of rules to define what they mean.
+
+1
+ - __weak vs __attribute__((weak)) [similar cleanups for other attributes]
+	Is using __weak really prefered? What do we get from defining it out?
+ - inotify_at()
+
+2
+ - auto size mem_section
+
+3
+ - detect binfmt_misc loops
+
+4
+ - allow arithmetic in Kconfig (look for #error )
+ - 'perf kvm' callchain support (x86)
+ - 'perf kvm record' symbol resolution
+ - perf callchains: use usespace unwinding (nothing appears to right now).
+ - sysfs memory on non-sparse systems.
+ - [haren] crashtool: get function arguments (implies parsing of dwarf info)
+
+5
+ - fanofity on file modification / file moves (essentially: tree based notifications with inotify level information)
+
+Docs:
+ - various atomicity operations
+	- atomic_*
+	- xchg
+	- local_*
+	- local_irq_*
+	- preemt_*()
+ - pageflag access rules, and struct page (also called "memmap") access rules.
