@@ -88,7 +88,9 @@ s*)	[ $# -ne 3 ] && usage
 t*)	[ $# -ne 2 ] && usage
 	i=0
 	while [ $i -lt "$1" ]; do
-		move_all_to_nid $((i % $2))
+		d=$((i % $2))
+		echo "Moving all to $d"
+		move_all_to_nid $d
 	done
 	;;
 *)	usage ;;
