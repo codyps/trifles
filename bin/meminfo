@@ -1,0 +1,8 @@
+#! /bin/sh
+
+
+cat /proc/meminfo | head -n2
+
+for i in /sys/devices/system/node/node*/meminfo; do
+	cat "$i" | head -n3
+done
