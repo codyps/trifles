@@ -91,6 +91,7 @@ t*)	[ $# -ne 2 ] && usage
 		d=$((i % $2))
 		echo "Moving all to $d"
 		move_all_to_nid $d
+		: $((i = i + 1))
 	done
 	;;
 *)	usage ;;
