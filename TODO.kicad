@@ -12,6 +12,7 @@
  - get rid of the pop up warning for zones when zones are hidden
  - show the autoroute options in all modes (wire, select, and zone)
 
+ - on export, trim the silkscreen to edge cuts
  - allow changing the width of layed/placed tracks
  - support autowidening of tracks
  - alignment targets
