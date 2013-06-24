@@ -10,6 +10,8 @@ usage() {
 	echo " stripe <base-nid> <end-nid> <pfn-per-stripe>"
 	echo "       stripe memory between nodes <base-nid> and <end-nid>, inclusive"
 	echo "       For example, \`stripe 1 2 1\` results in 0-0:1,1-1:2,2-2:1,3-3:2"
+	echo " block <base-nid> <end-nid>"
+	echo "       split memory between nodes equally with 1 chunk per node"
 	echo " t1 <iterations> <max nid>"
 	echo "       repeate 'all' <iterations> times, incrimenting the nid used each iteration"
 	echo " t2 <iterations> <max nid> <stripe size>"
@@ -69,6 +71,24 @@ stripe () {
 	echo 1 > $M/commit
 }
 
+block () {
+	local base_nid=$1
+	local end_nid=$2
+	local next_pfn
+	local pfn=0
+
+	local nid_ct=$((end_nid - base_nid + 1))
+	local pfn_per_nid=$((high_pfn / nid_ct))
+
+	local nid=$base_nid
+	while [ $nid -lt $((end_nid + 1)) ]; do
+		: $((next_pfn = pfn + pfn_per_nid))
+		create_rme $pfn $next_pfn $nid
+		: $((pfn = next_pfn + 1))
+		: $((nid = nid + 1))
+	done
+}
+
 [ $# -lt 1 ] && usage
 act="$1"; shift
 
@@ -87,6 +107,9 @@ a*)	[ $# -ne 1 ] && usage
 s*)	[ $# -ne 3 ] && usage
 	stripe $1 $2 $3
 	;;
+b*)	[ $# -ne 2 ] && usage
+	block $1 $2
+	;;
 t1)	[ $# -ne 2 ] && usage
 	i=0
 	while [ $i -lt "$1" ]; do
@@ -100,16 +123,17 @@ t2)	[ $# -ne 3 ] && usage
 	s=0 # start pos
 	e=0 # end pos
 	i=0 # iteration count
+	: $((l = $2 + 1)) # limit
 	while [ $i -lt "$1" ]; do
 		# Move tail twice as fast as start.
 
 		echo "Stripe $s $e $3"
 		stripe $s $e $3
-		: $((e = ( e + 1 ) % $2))
+		: $((e = ( e + 1 ) % l))
 		echo "Stripe $s $e $3"
 		stripe $s $e $3
-		: $((e = ( e + 1 ) % $2))
-		: $((s = ( s + 1 ) % $2))
+		: $((e = ( e + 1 ) % l))
+		: $((s = ( s + 1 ) % l))
 
 		: $((i = i + 1))
 	done
