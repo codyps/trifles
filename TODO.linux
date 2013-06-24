@@ -12,7 +12,9 @@
  - inotify_at()
 
 2
- - auto size mem_section
+ - auto size mem_section (caveats: tricky to get accepted, and involves some in deptch C knowledge, but otherwise easy)
+ - DEFINE_SIMPLE_ATTR() for proc
+	- they _had_ to just go and not use the ->private fields and use containers instead...
 
 3
  - detect binfmt_misc loops
