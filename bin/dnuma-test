@@ -42,12 +42,18 @@ create_rme () {
 	echo "$3"       > $M/node  || fatal "failed to write $3 to node"
 }
 
+flush_rmes () {
+	echo 1 > "$M/clear"
+}
+
 move_all_to_nid () {
+	flush_rmes
 	create_rme 0 "$high_pfn" "$1"
 	echo 1 > $M/commit
 }
 
 stripe () {
+	flush_rmes
 	local base_nid=$1
 	local end_nid=$2
 	local pfn_per_stripe=$3
@@ -72,6 +78,8 @@ stripe () {
 }
 
 block () {
+	dbg "BLOCK $1 $2"
+	flush_rmes
 	local base_nid=$1
 	local end_nid=$2
 	local next_pfn
@@ -81,12 +89,14 @@ block () {
 	local pfn_per_nid=$((high_pfn / nid_ct))
 
 	local nid=$base_nid
+	dbg " base_nid=$base_nid; end_nid=$end_nid; nid_ct=$nid_ct; pfn_per_nid=$pfn_per_nid"
 	while [ $nid -lt $((end_nid + 1)) ]; do
 		: $((next_pfn = pfn + pfn_per_nid))
 		create_rme $pfn $next_pfn $nid
 		: $((pfn = next_pfn + 1))
 		: $((nid = nid + 1))
 	done
+	echo 1 > $M/commit
 }
 
 [ $# -lt 1 ] && usage
