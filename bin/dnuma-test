@@ -10,8 +10,10 @@ usage() {
 	echo " stripe <base-nid> <end-nid> <pfn-per-stripe>"
 	echo "       stripe memory between nodes <base-nid> and <end-nid>, inclusive"
 	echo "       For example, \`stripe 1 2 1\` results in 0-0:1,1-1:2,2-2:1,3-3:2"
-	echo " test <iterations> <max nid>"
+	echo " t1 <iterations> <max nid>"
 	echo "       repeate 'all' <iterations> times, incrimenting the nid used each iteration"
+	echo " t2 <iterations> <max nid> <stripe size>"
+	echo "       repeate 'stripe' iterations times"
 	exit 1
 }
 
@@ -85,12 +87,30 @@ a*)	[ $# -ne 1 ] && usage
 s*)	[ $# -ne 3 ] && usage
 	stripe $1 $2 $3
 	;;
-t*)	[ $# -ne 2 ] && usage
+t1)	[ $# -ne 2 ] && usage
 	i=0
 	while [ $i -lt "$1" ]; do
-		d=$((i % $2))
+		d=$((i % \( $2 + 1 \) ))
 		echo "Moving all to $d"
 		move_all_to_nid $d
+		: $((i = i + 1))
+	done
+	;;
+t2)	[ $# -ne 3 ] && usage
+	s=0 # start pos
+	e=0 # end pos
+	i=0 # iteration count
+	while [ $i -lt "$1" ]; do
+		# Move tail twice as fast as start.
+
+		echo "Stripe $s $e $3"
+		stripe $s $e $3
+		: $((e = ( e + 1 ) % $2))
+		echo "Stripe $s $e $3"
+		stripe $s $e $3
+		: $((e = ( e + 1 ) % $2))
+		: $((s = ( s + 1 ) % $2))
+
 		: $((i = i + 1))
 	done
 	;;
