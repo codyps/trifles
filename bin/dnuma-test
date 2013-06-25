@@ -102,11 +102,11 @@ block () {
 [ $# -lt 1 ] && usage
 act="$1"; shift
 
-high_pfn=$(printf "%d" "0x$(for i in $M/current/*-*; do
-				printf "%s" "$(basename "$i" )" | cut -d- -f2
-			    done | sort -rn | head -n1)" )
+high_pfn=$(for i in $M/current/*-*; do
+		printf "%d\n" 0x"$(basename "$i" | cut -d- -f2)"
+	   done | sort -rn | head -n1)
 
-dbg "high_pfn = $high_pfn"
+dbg "high_pfn = $high_pfn = $(printf 0x"%x" $high_pfn)"
 
 case "$act" in
 	# all-to <node id>
