@@ -1,0 +1,21 @@
+#! /bin/sh
+
+M=/sys/kernel/debug/memlayout
+
+print_stats () {
+	local d=$1 n=$2
+	local i v s
+	for i in $d/*; do
+		s=$(basename $i)
+		read v < $i
+		if [ "$v" -ne 0 ]; then
+			echo "$n : $s : $v"
+		fi
+	done
+}
+
+print_stats $M/stats global
+
+for i in $M/layout.*; do
+	print_stats $i $(basename $i)
+done
