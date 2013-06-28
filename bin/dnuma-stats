@@ -1,13 +1,24 @@
 #! /bin/sh
 
+debug () {
+	[ -n "$DEBUG" ]
+}
+
+dbg () {
+	debug && echo "$@"
+}
+
+
 M=/sys/kernel/debug/memlayout
 
 print_stats () {
 	local d=$1 n=$2
 	local i v s
+	dbg "PRINT_STATS $d $n"
 	for i in $d/*; do
 		s=$(basename $i)
 		read v < $i
+		dbg ">> $s $v"
 		if [ "$v" -ne 0 ]; then
 			echo "$n : $s : $v"
 		fi
@@ -17,5 +28,5 @@ print_stats () {
 print_stats $M/stats global
 
 for i in $M/layout.*; do
-	print_stats $i $(basename $i)
+	print_stats $i/stats $(basename $i)
 done

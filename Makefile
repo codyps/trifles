@@ -24,6 +24,6 @@ include base.mk
 .PHONY: install-dnuma
 install-dnuma:
 	mkdir -p $(BINDIR) &&	\
-	cp debugfs-test   $(BINDIR)/dnuma &&	\
-	cp bin/dnuma-test $(BINDIR)/dnuma-test
-	cp bin/meminfo    $(BINDIR)/meminfo
+	cp bin/dnuma-test $(BINDIR)/dnuma-test && \
+	cp bin/meminfo    $(BINDIR)/meminfo && \
+	cp bin/dnuma-stats $(BINDIR)/dnuma-stats
