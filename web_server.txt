@@ -50,4 +50,14 @@ Duda+Monkey
 	http://blog.monkey-project.com/2012/03/13/duda-web-services-framework-for-monkey/
 
 
+KORE [xxx: is this just a server?]
+	http://kore.io
+	https://github.com/jorisvink/kore
+
+openresty + nginx
+	http://openresty.org
+
+lapis + nginx
+	http://leafo.net/lapis/
+
 

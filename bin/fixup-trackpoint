@@ -36,7 +36,7 @@ if [ -e "$f" ]; then
 	esac
 fi
 
-cat | sudo tee /etc/X11/xorg.conf.d/99-trackpoint-fixup.conf >/dev/null << EOF
+cat | sudo tee /etc/X11/xorg.conf.d/99-trackpoint-fixup.conf >/dev/null <<EOF
 Section "InputClass"
         Identifier "Trackpoint Wheel Emulation"
         MatchProdct "TPPS/2 IBM TrackPoint|DualPoint Stick|Synaptics Inc. Composite TouchPad / TrackPoint|ThinkPad USB Keyboard with TrackPoint|USB Trackpoint pointing device|Composite TouchPad / TrackPoint"
@@ -47,6 +47,7 @@ Section "InputClass"
 	Option		"XAxisMapping"		"6 7"
 	Option		"YAxisMapping"		"4 5"
 EndSection
+
 EOF
 
 fi
