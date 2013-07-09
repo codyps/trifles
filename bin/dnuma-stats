@@ -25,8 +25,18 @@ print_stats () {
 	done
 }
 
+p_node_stats () {
+	for i in $1/node_stats/*; do
+		n=$(basename $i)
+		print_stats $i "$2:Node $n"
+	done
+}
+
 print_stats $M/stats global
+p_node_stats $M ""
 
 for i in $M/layout.*; do
-	print_stats $i/stats $(basename $i)
+	l=$(basename $i)
+	print_stats $i/stats $l
+	p_node_stats $i $l
 done
