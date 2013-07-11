@@ -21,7 +21,7 @@ if ! [ -e "$i" ]; then
 	# Confirm new install.
 	echo "This looks like a new install in"
 	echo "    $PWD"
-	echo "Are you sure you want to continue? [Yn]"
+	printf "Are you sure you want to continue? [Yn]"
 	read res
 	[ -z "$res" ] && res=y
 	case "$res" in
