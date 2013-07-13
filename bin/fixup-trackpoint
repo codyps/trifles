@@ -1,4 +1,53 @@
 #! /bin/sh
+
+if [ $# -ne 1 ]; then
+	echo "usage: $(basename $0) {runtime|config|both}"
+	exit 1
+fi
+
+r=false
+c=false
+case $1 in
+r*)	r=true;;
+c*)	c=true;;
+b*)	r=true; c=true;;
+*)
+	echo "nope"
+	exit 1;;
+esac
+
+if $r; then
 xinput set-prop 'TPPS/2 IBM TrackPoint' "Evdev Wheel Emulation" 1
 xinput set-prop 'TPPS/2 IBM TrackPoint' "Evdev Wheel Emulation Button" 2
 xinput set-prop 'TPPS/2 IBM TrackPoint' "Evdev Wheel Emulation Timeout" 200
+xinput set-prop 'TPPS/2 IBM TrackPoint' "Evdev Wheel Emulation Axes"  6 7 4 5
+fi
+
+if $f; then
+f=/etc/X11/xorg.conf.d/99-trackpoint-fixup.conf
+if [ -e "$f" ]; then
+	printf "%s" "config file $f exists, overwrite? [Yn]"
+	read r
+	case $r in
+	n*|N*)
+		echo "exiting without writing config file"
+		exit 0
+		;;
+	esac
+fi
+
+cat | sudo tee /etc/X11/xorg.conf.d/99-trackpoint-fixup.conf >/dev/null <<EOF
+Section "InputClass"
+        Identifier "Trackpoint Wheel Emulation"
+        MatchProdct "TPPS/2 IBM TrackPoint|DualPoint Stick|Synaptics Inc. Composite TouchPad / TrackPoint|ThinkPad USB Keyboard with TrackPoint|USB Trackpoint pointing device|Composite TouchPad / TrackPoint"
+        MatchDevicePath "/dev/input/event*"
+	Option		"EmulateWheel"		"true"
+	Option		"EmulateWheelButton"	"2"
+	Option		"Emulate3Buttons"	"false"
+	Option		"XAxisMapping"		"6 7"
+	Option		"YAxisMapping"		"4 5"
+EndSection
+
+EOF
+
+fi

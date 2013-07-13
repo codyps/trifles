@@ -1,0 +1,91 @@
+
+Java serializer benchmarks: https://github.com/eishay/jvm-serializers/wiki
+
+API's for Serialization
+-----------------------
+
+"Binary Protocols"
+
+
+s11n/c11n
+	http://s11n.net/c11n/
+	No documentation.
+	Project lacks momentum.
+	Compared to tpl
+		higherlevel client api
+		larger
+
+tpl
+	http://tpl.sourceforge.net/
+	Message layout defined all at once via format strings.
+	Uses format strings to specify structuring.
+	Doesn't handle non-blocking FD writing properly (would need to place
+		encoders into seperate threads to avoid uneeded copying).
+	Wireformat does not encode types.
+
+Avro-c
+	http://avro.apache.org/docs/current/api/c/index.html
+	Message layout defined all at once via schemas (json & XXX formats supported).
+	API encourages Key-Value storage of fields instead of index based.
+	Reference Counts all "schema" and "data" objects.
+
+Blink ("The Blink Protocol"):
+	blinkprotocol.org
+	Predefined Schema.
+	Schema can be encoded.
+	?Switches within schema?
+	Length Prefixed
+	No library.
+
+ASN.1
+	No opensource library.
+
+Hessian
+	http://hessian.caucho.com/
+	No C library.
+
+Fast Infoset:
+	http://en.wikipedia.org/wiki/Fast_Infoset
+	binary encoding of XML
+
+protobuf (nanopb, protobuf-c)
+	http://koti.kapsi.fi/jpa/nanopb/
+	http://code.google.com/p/protobuf-c/
+	Wireformat encodes types.
+
+Eet
+	http://www.enlightenment.org/p.php?p=about/efl/eet&l=en
+	52KiB-56KiB (x86, arm)
+	No documentation.
+
+MessagePack
+	http://msgpack.org/
+	Wireformat encodes types.
+	Message layout defined gradually as "pack" calls are made.
+
+Thrift
+
+BSON
+	http://bsonspec.org/#/implementation
+	No real library, embedded into Mongo-DB driver.
+
+protostuff, kryo
+	Only JAVA.
+
+SPDataPickle
+	http://code.google.com/p/spdatapickle/
+	Uses XML to generate C data structures.
+	Uses XML, JSON, or Protobuf as the output format.
+
+http://www.happyponyland.net/serialize.php
+
+https://github.com/Nehmulos/N0Strain-Serialization-Library
+
+XDR:
+	http://linux.die.net/man/3/xdr
+	http://tools.ietf.org/html/rfc4506
+Bencoding
+	http://wiki.theory.org/BitTorrentSpecification#bencoding
+
+TNetstrings
+	http://tnetstrings.org/

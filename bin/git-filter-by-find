@@ -1,0 +1,10 @@
+#! /bin/sh
+
+# All args are matchers for find.
+
+# use find semantics to filter-branch a repo
+# TODO: allow renaming via remapping of paths
+# TODO: avoid tree-filter, index-filter is faster.
+
+git filter-branch --tree-filter '
+find . \! \( '"$*"' \) \! -type d \! -path '\''./.git/*'\'' -exec rm \{} \+' --prune-empty -- HEAD

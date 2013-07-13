@@ -1,0 +1,13 @@
+#! /bin/sh
+
+sudo loadkeys <<EOF
+keycode 1 = Caps_Lock
+keycode 58 = Escape
+	alt		keycode 58 = Meta_Escape
+	shift	alt	keycode 58 = Meta_Escape
+	control alt	keycode 58 = Meta_Escape
+EOF
+
+echo "create /usr/share/keymaps/i386/include/caps-swap-escape.map.gz" >&2
+echo "gentoo: sed -i 's/extended_keymaps=""/extended_keymaps="caps-swap-escape"/' /etc/conf.d/keymaps"
+echo "arch: edit /etc/<something>"

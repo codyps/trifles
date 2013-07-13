@@ -1,3 +1,14 @@
+* Non-blocking snmp library. (net-snmp does not work for this, see multicast
+  fail)
+
+* Fix per-device setxkbmap so that one can swap super and alt on an usb
+  connected mac keyboard, but not on the builtin windows keyboard.
+
+* config file library with the following features:
+  - can programmatically modify config files
+  - allows embedded shell/enough variable use to approximate it and avoid the
+    need for generating the config files on a per system basis.
+
 * Decent opensource CAM program
 
 * Model updates to datastructures as modifications followed by a "commit"

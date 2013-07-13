@@ -1,0 +1,14 @@
+#! /bin/sh
+
+PAGE_SZ=4096
+MEMINFO_UNIT=1024
+MEMINFO_TO_PAGE_MULT=$((PAGE_SZ / MEMINFO_UNIT))
+meminfo_kb_to_pages () {
+	awk -F: '{ printf "%-20s %10d\n", $1":", ($2 / '$MEMINFO_TO_PAGE_MULT') }'
+}
+
+cat /proc/meminfo | head -n2 | meminfo_kb_to_pages
+
+for i in /sys/devices/system/node/node*/meminfo; do
+	cat "$i" | head -n3 | meminfo_kb_to_pages
+done

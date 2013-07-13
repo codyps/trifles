@@ -1,0 +1,22 @@
+#! /bin/sh
+
+if [ $# -lt 1 ]; then
+	echo "usage: $0 <args to filter-branch>"
+	exit 1
+fi
+
+name=`git var GIT_COMMITTER_IDENT`
+name="${name%>*}>"
+
+SOB="Signed-off-by: $name"
+git filter-branch --msg-filter '
+	msg="$(cat)" &&
+	printf "%s\n" "$msg" &&
+	case "$msg" in
+	*"'"$SOB"'")
+		;;
+	*)
+		printf "\n%s\n" "'"$SOB"'"
+		;;
+	esac
+	' "$@"
