@@ -1,0 +1,2 @@
+#! /bin/sh
+sudo emerge -pv --deselect $(eix --system -c | gawk '{print $2}'| grep '/')
