@@ -32,7 +32,7 @@ fi
 
 hash=$(cd $d; git show --pretty=format:%H base.mk)
 ver=$(cd $d; git describe --always --dirty=+)
-tmp=`tempfile --prefix=base.mk`
+tmp=`mktemp --tmpdir base.mk.XXXXXXXXX`
 
 echo "## base.mk: $ver, see https://github.com/jmesmon/trifles.git" >>$tmp
 cat "$f" >>$tmp
