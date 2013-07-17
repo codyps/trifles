@@ -18,6 +18,9 @@
 
 3
  - detect binfmt_misc loops
+ - add BQL (byte queue limits) to ethernet drivers
+	- r8169?
+	- e1000e reportedly already has them)
 
 4
  - allow arithmetic in Kconfig (look for #error )
