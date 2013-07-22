@@ -15,6 +15,7 @@
  - auto size mem_section (caveats: tricky to get accepted, and involves some in deptch C knowledge, but otherwise easy)
  - DEFINE_SIMPLE_ATTR() for proc
 	- they _had_ to just go and not use the ->private fields and use containers instead...
+	- I have this written up in my "toshiba" branch.
 
 3
  - detect binfmt_misc loops
@@ -23,7 +24,6 @@
 	- e1000e reportedly already has them)
 
 4
- - allow arithmetic in Kconfig (look for #error )
  - 'perf kvm' callchain support (x86)
  - 'perf kvm record' symbol resolution
  - perf callchains: use usespace unwinding (nothing appears to right now).
@@ -32,6 +32,7 @@
 
 5
  - fanofity on file modification / file moves (essentially: tree based notifications with inotify level information)
+ - allow arithmetic in Kconfig (look for #error )
 
 Docs:
  - various atomicity operations
