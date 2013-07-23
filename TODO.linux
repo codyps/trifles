@@ -12,7 +12,7 @@
  - inotify_at()
 
 2
- - auto size mem_section (caveats: tricky to get accepted, and involves some in deptch C knowledge, but otherwise easy)
+ - auto size mem_section (caveats: tricky to get accepted, and involves some in depth C knowledge, but otherwise easy)
  - DEFINE_SIMPLE_ATTR() for proc
 	- they _had_ to just go and not use the ->private fields and use containers instead...
 	- I have this written up in my "toshiba" branch.
@@ -21,7 +21,7 @@
  - detect binfmt_misc loops
  - add BQL (byte queue limits) to ethernet drivers
 	- r8169?
-	- e1000e reportedly already has them)
+	- e1000e reportedly already has them
 
 4
  - 'perf kvm' callchain support (x86)
@@ -29,6 +29,7 @@
  - perf callchains: use usespace unwinding (nothing appears to right now).
  - sysfs memory on non-sparse systems.
  - [haren] crashtool: get function arguments (implies parsing of dwarf info)
+ - kill the stop_machine() and/or mutex around zonelist updates
 
 5
  - fanofity on file modification / file moves (essentially: tree based notifications with inotify level information)
