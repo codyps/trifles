@@ -2,11 +2,11 @@
 
 shapath=$HOME/.boot.sha512
 
-function update() {
+update() {
 	sha512sum /boot/vm* > $shapath
 }
 
-function check() {
+check() {
 	if ! sha512sum /boot/vm* | cmp $shapath /dev/stdin; then
 		echo "OMG. DIFFERENT."
 	else
@@ -14,7 +14,7 @@ function check() {
 	fi
 }
 
-function usage() {
+usage() {
 	echo "$0 <check|update>"
 	exit 1
 }

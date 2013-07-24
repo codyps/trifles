@@ -1,6 +1,7 @@
 0
  - checkpatch
  - make C=1
+ - make coccicheck
  - grep -r '\(TODO\|XXX\)'
 	note that this should be avoided for drivers where we don't have the hardware avaliable.
  - consistent function naming (and document this)
