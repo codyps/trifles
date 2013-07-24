@@ -1,13 +1,26 @@
 # Usage:
 #
+# == Targets ==
+# 'all'
+# $(TARGETS)
+# show-cflags		Set the var FILE=some-c-file.c to see cflags for a
+#                       particular file
+# show-targets
+# install
+# clean
+# TARGET.clean
+# TARGET.install
+#
 # == For use by the one who runs 'make' (or in some cases the Makefile) ==
+# $(O)		    set to a directory to write build output to that directory
 # $(V)              when defined, prints the commands that are run.
 # $(CFLAGS)         expected to be overridden by the user or build system.
 # $(LDFLAGS)        same as CFLAGS, except for LD.
 # $(ASFLAGS)
 # $(CXXFLAGS)
 #
-# $(CROSS_COMPILE)  a prefix on gcc. "CROSS_COMPILE=arm-linux-" (note the trailing '-')
+# $(CROSS_COMPILE)  a prefix on $(CC) and other tools.
+#                   "CROSS_COMPILE=arm-linux-" (note the trailing '-')
 # $(CC)
 # $(CXX)
 # $(LD)
@@ -43,7 +56,7 @@
 # OBJ_TRASH		$(1) expands to the object. Expanded for every object.
 # TARGET_TRASH		$* expands to the target. Expanded for every target.
 # TRASH
-# BIN_EXT
+# BIN_EXT		Add an extention to each binary produced (.elf, .exe)
 #
 # == How to use with FLEX + BISON support ==
 #
@@ -58,7 +71,6 @@
 # - install disable per target.
 # - flag tracking per target.'.obj.o.cmd'
 # - profile guided optimization support.
-# - output directory support ("make O=blah")
 # - build with different flags placed into different output directories.
 # - library building (shared & static)
 # - per-target CFLAGS (didn't I hack this in already?)
