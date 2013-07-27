@@ -36,3 +36,8 @@ Docs:
 	- local_irq_*
 	- preemt_*()
  - pageflag access rules, and struct page (also called "memmap") access rules.
+
+Big Projects:
+ - multimonitor support improvements
+   - dpi
+   - subpixel ordering
