@@ -1,0 +1,9 @@
+
+Run:
+	xdotool key "XF86LogGrabInfo"
+With DISPLAY set appropriately (probably ":0")
+
+This will print in /var/log/Xorg.?.log (usualy ?=0) the currect active device
+grabs. Simply kill the listed pid(s), and you will be able to reclaim your
+xsession.
+

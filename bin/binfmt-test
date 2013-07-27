@@ -1,0 +1,24 @@
+#! /bin/sh
+
+D=$(dirname "$0")
+T=/tmp/binfmt-test
+B=/proc/sys/fs/binfmt_misc/
+mkdir -p "$T"
+
+register () {
+	MAGIC=$1
+	HANDLER=$2
+	echo ":TEST-$MAGIC:M::#? $MAGIC::$HANDLER:" | sudo tee $B/register
+}
+
+gen_handler () {
+	INNER_MAGIC=$1
+	OUTER_MAGIC=$2
+	echo "#? $INNER_MAGIC" > $T/$OUTER_MAGIC
+	chmod +x $T/$OUTER_MAGIC
+}
+
+gen_handler A B
+gen_handler B A
+register A $T/A
+register B $T/B

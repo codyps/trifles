@@ -21,7 +21,7 @@ if ! [ -e "$i" ]; then
 	# Confirm new install.
 	echo "This looks like a new install in"
 	echo "    $PWD"
-	echo "Are you sure you want to continue? [Yn]"
+	printf "Are you sure you want to continue? [Yn]"
 	read res
 	[ -z "$res" ] && res=y
 	case "$res" in
@@ -32,7 +32,7 @@ fi
 
 hash=$(cd $d; git show --pretty=format:%H base.mk)
 ver=$(cd $d; git describe --always --dirty=+)
-tmp=`tempfile --prefix=base.mk`
+tmp=`mktemp --tmpdir base.mk.XXXXXXXXX`
 
 echo "## base.mk: $ver, see https://github.com/jmesmon/trifles.git" >>$tmp
 cat "$f" >>$tmp
