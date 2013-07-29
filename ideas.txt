@@ -1,8 +1,15 @@
+* unlikely() and likely() that take probabilities.
+  Even better: if they can be given an equation for probability that an
+  expresion equals a range of values. Then, of course, a compiler to use that
+  info.
+
 * Non-blocking snmp library. (net-snmp does not work for this, see multicast
   fail)
 
 * Fix per-device setxkbmap so that one can swap super and alt on an usb
   connected mac keyboard, but not on the builtin windows keyboard.
+  The setxkbmap command thinks it supports this, but it doesn't appear to work
+  (Potentially an X11 protocol/server issue).
 
 * config file library with the following features:
   - can programmatically modify config files
@@ -17,6 +24,8 @@
     an example).
 
 * vpn that bootstraps via a DHT (bittorrent dht, for example)
+
+* vpn/generic acceptance of new nodes via ssh-like or ff-sync-like mechanism.
 
 * irc-tunnel - transmit ip/ethernet packets using an IRC server as the middle
   man
@@ -38,6 +47,7 @@
     sizes can be allocated (ie: set a min&max for each size of hugepage for
 each pool) + some ruleset to decide which pool applications take from
 (iptables-like?)
+  - cgroups?
 
 * filters
  - escape regex
@@ -142,6 +152,10 @@ each pool) + some ruleset to decide which pool applications take from
   - disk images vs tar: disk images are writable. Otherwise tar would be a
     decent idea. Perhaps tar + some delta format?
   - qemu metadata passthrough format (used for virtio).
+  - need rw file system drivers. :(
+  - feels like those type of things should be library code at this point
+  - grub2 builds their fs drivers as grub2 modules _and_ fuse drivers, but
+    they are Read Only.
 
 * a system for building single system images (ie: something like openwrt or
   buildroot)
