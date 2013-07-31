@@ -130,7 +130,7 @@ ALL_CXXFLAGS += $(COMMON_CFLAGS) $(CXXFLAGS)
 ifndef NO_BUILD_ID
 LDFLAGS += -Wl,--build-id
 else
-LDFLAGS += -Wl,--no-build-id
+LDFLAGS += -Wl,--build-id=none
 endif
 
 ifndef NO_AS_NEEDED
