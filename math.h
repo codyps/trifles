@@ -17,6 +17,16 @@
 #define DIV_ROUND_UP_POS_OR_ZERO(n,d)
 #endif
 
+
+static inline uint16_t linear_interp_u16(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x)
+{
+	/* multiplication overflow */
+	return (y2 - y1) * (uint32_t)x / (x2 - x1);
+}
+
+#define LINEAR_INTERPOLATE(x1, y1, x2, y2, x) \
+	(((y2)-(y1)) * (x) / ((x2)-(x1)))
+
 #define DIV_OR_ZERO(n, d) ((n < 0)?0:(n)/(d))
 
 #define SUB_SAT(a,b) ({					\
