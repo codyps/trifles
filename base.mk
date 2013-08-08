@@ -127,10 +127,19 @@ ALL_CFLAGS += -Wstrict-prototypes -Wmissing-prototypes
 ALL_CFLAGS   += $(COMMON_CFLAGS) $(CFLAGS)
 ALL_CXXFLAGS += $(COMMON_CFLAGS) $(CXXFLAGS)
 
-ALL_LDFLAGS += -Wl,--build-id
-ALL_LDFLAGS += -Wl,--as-needed
-ALL_LDFLAGS += $(LDFLAGS)
+ifndef NO_BUILD_ID
+LDFLAGS += -Wl,--build-id
+else
+LDFLAGS += -Wl,--build-id=none
+endif
 
+ifndef NO_AS_NEEDED
+LDFLAGS += -Wl,--as-needed
+else
+LDFLAGS += -Wl,--no-as-needed
+endif
+
+ALL_LDFLAGS += $(LDFLAGS)
 ALL_ASFLAGS += $(ASFLAGS)
 
 ifndef V
