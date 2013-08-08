@@ -1,0 +1,4 @@
+#! /bin/sh
+cd "$1"
+export O="$2"
+make -j10 && make modules_install && make install
