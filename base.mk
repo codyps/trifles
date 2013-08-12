@@ -142,8 +142,10 @@ endif
 ALL_LDFLAGS += $(LDFLAGS)
 ALL_ASFLAGS += $(ASFLAGS)
 
-MAKE_ENV = CC="$(CC)" LD="$(LD)" AS="$(AS)" CXX="$(CXX)" \
-	   CFLAGS="$(ALL_CFLAGS)" \
+# FIXME: need to exclude '-I', '-l', '-L' options
+# - potentially seperate those flags from ALL_*?
+MAKE_ENV = CC="$(CC)" LD="$(LD)" AS="$(AS)" CXX="$(CXX)"
+# CFLAGS="$(ALL_CFLAGS)" \
 	   LDFLAGS="$(ALL_LDFLAGS)" \
 	   CXXFLAGS="$(ALL_CXXFLAGS)" \
 	   ASFLAGS="$(ALL_ASFLAGS)"
