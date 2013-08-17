@@ -21,6 +21,8 @@
 /utime
 /test-dep
 /modll
+/pipe
+/unix-test
 
 /parse-datetime.c
 
