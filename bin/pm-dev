@@ -1,0 +1,6 @@
+#! /bin/sh
+
+d=$(dirname "$0")
+
+$d/pm-pci "$@"
+$d/pm-usb "$@"
