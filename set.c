@@ -4,12 +4,6 @@
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
 #define SET_SIZE 10
 
-union set {
-	int id[SET_SIZE];
-	struct set_qf qf;
-	struct set_qu qu;
-};
-
 struct set_qf {
 	int id[SET_SIZE];
 };
@@ -17,6 +11,12 @@ struct set_qf {
 struct set_qu {
 	int id[SET_SIZE];
 	int sz[SET_SIZE];
+};
+
+union set {
+	int id[SET_SIZE];
+	struct set_qf qf;
+	struct set_qu qu;
 };
 
 static void set_qf_init(struct set_qf *s)
@@ -47,6 +47,7 @@ static int set_root(union set *s, int elem)
 	}
 	return elem;
 }
+#define set_root(s, elem) set_root((union set *)s, elem)
 
 static void set_qu_union(struct set_qu *s, int p, int q)
 {
