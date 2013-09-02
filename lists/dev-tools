@@ -1,7 +1,34 @@
 
+== Semantic Patching/Searching ==
+
 coccinelle
 	http://lwn.net/Articles/380835/
 spdiff
 	http://www.diku.dk/hjemmesider/ansatte/jespera/
 pork (fork of oink, fork of elsa)
 	https://wiki.mozilla.org/Pork
+
+== Continuous Integration ==
+
+travis-ci
+	not open source, free to public users.
+
+gitlab-ci
+	Ruby
+	Requires gitlab
+
+Jenkins
+	Java
+	Community effort after split from Oracle's Hudson.
+
+buildbot
+	python
+	By the python guys
+
+tinderbox
+	perl
+	By mozilla
+	MPL
+
+CABIE
+	perl

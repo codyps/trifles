@@ -1,0 +1,15 @@
+#! /bin/sh
+
+d=$(dirname "$0")
+
+$d/pm-pci "$@"
+$d/pm-usb "$@"
+
+for i in /sys/class/scsi_host/host*/link_power_management_policy; do
+        echo 'min_power' >"$i"
+done
+
+# VM writeback time.
+
+echo 'powersave' > /sys/module/pcie_aspm/parameters/policy
+

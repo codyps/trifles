@@ -142,6 +142,14 @@ endif
 ALL_LDFLAGS += $(LDFLAGS)
 ALL_ASFLAGS += $(ASFLAGS)
 
+# FIXME: need to exclude '-I', '-l', '-L' options
+# - potentially seperate those flags from ALL_*?
+MAKE_ENV = CC="$(CC)" LD="$(LD)" AS="$(AS)" CXX="$(CXX)"
+         # CFLAGS="$(ALL_CFLAGS)" \
+	   LDFLAGS="$(ALL_LDFLAGS)" \
+	   CXXFLAGS="$(ALL_CXXFLAGS)" \
+	   ASFLAGS="$(ALL_ASFLAGS)"
+
 ifndef V
 	QUIET_CC    = @ echo '  CC   ' $@;
 	QUIET_CXX   = @ echo '  CXX  ' $@;
@@ -164,8 +172,7 @@ target-obj = $(addprefix $(O)/,$(obj-$(1)))
 # Defines a target '.TRACK-$(flag-prefix)FLAGS'.
 # if $(ALL_$(flag-prefix)FLAGS) or $(var) changes, any rules depending on this
 # target are rebuilt.
-vpath .TRACK_%FLAGS $(O)
-define flags-template
+	define flags-template
 TRACK_$(1)FLAGS = $$($(2)):$$(subst ','\'',$$(ALL_$(1)FLAGS))
 $(O)/.TRACK-$(1)FLAGS: FORCE
 	@FLAGS='$$(TRACK_$(1)FLAGS)'; \
