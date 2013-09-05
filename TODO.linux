@@ -18,6 +18,9 @@
 	- they _had_ to just go and not use the ->private fields and use containers instead...
 	- I have this written up in my "toshiba" branch.
 
+2.5
+ - rbtree: unify rotations using an array of 2 leaves instead of ->left,->right.
+
 3
  - detect binfmt_misc loops
  - add BQL (byte queue limits) to ethernet drivers
