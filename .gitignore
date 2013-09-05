@@ -21,6 +21,11 @@
 /utime
 /test-dep
 /modll
+/pipe
+/unix-test
+set-qf-union
+set-qu-union
+set-to-dot
 
 /parse-datetime.c
 
