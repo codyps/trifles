@@ -26,6 +26,10 @@
  - add BQL (byte queue limits) to ethernet drivers
 	- r8169?
 	- e1000e reportedly already has them
+ - crash:
+   - "gdb bt" or some symbolic backtrace imitating that format (show line numbers, variable names, types)
+ - makekdumpimage to ELF converter support
+   - lets us just use gdb, thank you very much.
 
 4
  - 'perf kvm' callchain support (x86)
