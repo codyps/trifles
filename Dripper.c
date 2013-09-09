@@ -27,6 +27,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <time.h>
  
 in_addr_t *dns_servers;
 int   NUM_DNS    = 0;
