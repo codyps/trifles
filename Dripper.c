@@ -79,7 +79,7 @@ struct ipv4_network {
  
 void convert_to_dns(char *dns);
 void convert_to_str(char *pkt, int len, char *max);
-void error(char *format, ...);
+void error(const char *format, ...);
 void forward_brute(char *target);
 int  ip_range_init(char *range, struct ipv4_network *network);
 int  ip_range_next(struct ipv4_network *network);
@@ -134,7 +134,7 @@ void convert_to_str(char *pkt, int len, char *max) {
 // arguments:
 //   format -> format string
 //   format string arguments
-void error(char *format, ...) {
+void error(const char *format, ...) {
   char error_buffer[1024];
   va_list args;
  
