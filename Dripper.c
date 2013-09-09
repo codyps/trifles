@@ -483,7 +483,8 @@ int send_dns(char *target, int type) {
 // arguments:
 //   domain -> only print matching PTR records
 void sniff_dns_replies(char *domain) {
-  int sniffer, sockaddr_size = sizeof(struct sockaddr), len_pkt;
+  int sniffer;
+  socklen_t sockaddr_size = sizeof(struct sockaddr), len_pkt;
   char *buffer = calloc(65560, 1);
   struct sockaddr saddr;
  
