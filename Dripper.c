@@ -83,9 +83,9 @@ void error(const char *format, ...);
 void forward_brute(char *target);
 int  ip_range_init(char *range, struct ipv4_network *network);
 int  ip_range_next(struct ipv4_network *network);
-void parse_dns_reply(unsigned char *pkt, int len_pkt, char *domain);
+void parse_dns_reply(char *pkt, int len_pkt, char *domain);
 void parse_resolv_conf(void);
-void print_hex(unsigned char *pkt, int len);
+void print_hex(char *pkt, int len);
 void reverse_search(char *range);
 void rstrip(char *str);
 int  send_dns(char *target, int type);
@@ -116,20 +116,20 @@ void convert_to_dns(char *dns) {
 //   max -> highest offset to go to
 void convert_to_str(char *pkt, int len, char *max) {
   int i, j;
- 
+
   if((len == 0 && pkt + strlen(pkt) > max) || (len > 0 && pkt + len > max))
     return;
- 
+
   for(i=0; i< (len > 0 ? len : strlen(pkt)); i++) {
     j = pkt[i];
     pkt[i] = '.';
     i += j;
   }
- 
+
   if(len > 0)
     pkt[len] = '\0';
 }
- 
+
 // print an error
 // arguments:
 //   format -> format string
@@ -239,7 +239,7 @@ int ip_range_next(struct ipv4_network *network) {
 //   pkt     -> packet
 //   len_pkt -> packet length
 //   domain  -> only print if domain matches (for PTR records only)
-void parse_dns_reply(unsigned char *pkt, int len_pkt, char *domain) {
+void parse_dns_reply(char *pkt, int len_pkt, char *domain) {
   int length = 0, i, to_dns = 0;
   char *name;
   struct iphdr  *ip_header;
@@ -280,7 +280,7 @@ void parse_dns_reply(unsigned char *pkt, int len_pkt, char *domain) {
       return;
  
     // get the offset of the domain name for the answer
-    name = (pkt + to_dns + (ntohs(answer->name) & 0xff) + 1);
+    name = pkt + to_dns + (ntohs(answer->name) & 0xff) + 1;
  
     if(length + ntohs(answer->len) > len_pkt)
       return;
@@ -351,7 +351,7 @@ void parse_resolv_conf() {
 // arguments:
 //   pkt -> char array to dump
 //   len -> number of bytes to print
-void print_hex(unsigned char *pkt, int len) {
+void print_hex(char *pkt, int len) {
   int i, j;
  
   for(i=0, j=0; i<len; i++, j++) {
@@ -484,7 +484,7 @@ int send_dns(char *target, int type) {
 //   domain -> only print matching PTR records
 void sniff_dns_replies(char *domain) {
   int sniffer, sockaddr_size = sizeof(struct sockaddr), len_pkt;
-  unsigned char *buffer = (unsigned char *)calloc(65560, 1);
+  char *buffer = calloc(65560, 1);
   struct sockaddr saddr;
  
   // start a raw socket
