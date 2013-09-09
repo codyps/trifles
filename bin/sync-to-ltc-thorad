@@ -1,0 +1,38 @@
+#! /bin/sh
+
+# Assumes
+#  - a git repo on the remote machine exists
+#  - is checked out to the branch we are pushing
+#  - is setup to accept checked out pushes
+
+D=$(dirname "$0")
+
+# build names
+RBN=topo-update-rework
+LBN=linux-dnuma-ppc64
+
+# source dirs
+RSD=linux
+LSD=$HOME/g/linux
+
+# build dirs
+RBD=build/$RBN
+LBD=$HOME/build/$LBN
+
+# H = remote host
+H=ltcthorad5
+
+# B = branch name
+B=ppc-numa
+
+###
+
+ssh $H mkdir -p $RBD || exit 1
+scp $LBD/.config $H:$RBD/.config || exit 2
+( cd $LSD && git push -f "$H:$RSD" "$B"; ) || exit 3
+
+# Xfer and execute script
+S=do-linux-rebuild
+scp "$D/$S" "$H:$S" || exit 4
+ssh "$H" chmod +x "$S" || exit 5
+ssh "$H" ./"$S" "$RSD" "$RBD" || exit 6

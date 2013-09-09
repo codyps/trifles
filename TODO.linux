@@ -1,6 +1,7 @@
 0
  - checkpatch
  - make C=1
+ - make coccicheck
  - grep -r '\(TODO\|XXX\)'
 	note that this should be avoided for drivers where we don't have the hardware avaliable.
  - consistent function naming (and document this)
@@ -17,11 +18,18 @@
 	- they _had_ to just go and not use the ->private fields and use containers instead...
 	- I have this written up in my "toshiba" branch.
 
+2.5
+ - rbtree: unify rotations using an array of 2 leaves instead of ->left,->right.
+
 3
  - detect binfmt_misc loops
  - add BQL (byte queue limits) to ethernet drivers
 	- r8169?
 	- e1000e reportedly already has them
+ - crash:
+   - "gdb bt" or some symbolic backtrace imitating that format (show line numbers, variable names, types)
+ - makekdumpimage to ELF converter support
+   - lets us just use gdb, thank you very much.
 
 4
  - 'perf kvm' callchain support (x86)
@@ -43,3 +51,8 @@ Docs:
 	- local_irq_*
 	- preemt_*()
  - pageflag access rules, and struct page (also called "memmap") access rules.
+
+Big Projects:
+ - multimonitor support improvements
+   - dpi
+   - subpixel ordering
