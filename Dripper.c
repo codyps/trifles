@@ -84,13 +84,13 @@ void forward_brute(char *target);
 int  ip_range_init(char *range, struct ipv4_network *network);
 int  ip_range_next(struct ipv4_network *network);
 void parse_dns_reply(unsigned char *pkt, int len_pkt, char *domain);
-void parse_resolv_conf();
+void parse_resolv_conf(void);
 void print_hex(unsigned char *pkt, int len);
 void reverse_search(char *range);
 void rstrip(char *str);
 int  send_dns(char *target, int type);
 void sniff_dns_replies(char *domain);
-void usage();
+void usage(void);
  
 // convert dotted format to domain name format
 // arguments:
