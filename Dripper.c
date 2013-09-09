@@ -242,13 +242,11 @@ int ip_range_next(struct ipv4_network *network) {
 void parse_dns_reply(char *pkt, int len_pkt, char *domain) {
   int length = 0, i, to_dns = 0;
   char *name;
-  struct iphdr  *ip_header;
   struct udphdr *udp_header;
   struct dnshdr *dns_header;
   struct dnsanswer *answer;
   struct in_addr *inaddr;
  
-  ip_header  = (struct iphdr*)pkt;
   length    += sizeof(struct iphdr);
   udp_header = (struct udphdr*)(pkt + length);
   length    += sizeof(struct udphdr);
