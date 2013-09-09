@@ -30,8 +30,8 @@
  
 in_addr_t *dns_servers;
 int   NUM_DNS    = 0;
-char *RESOLVCONF = "resolv.conf";
-char *SUBDOMAINS = "subs.txt";
+const char *RESOLVCONF = "resolv.conf";
+const char *SUBDOMAINS = "subs.txt";
  
 // structs for the DNS protocol
 struct dnsflags {
