@@ -89,7 +89,7 @@ void parse_resolv_conf(void);
 void print_hex(char *pkt, int len);
 void reverse_search(char *range);
 void rstrip(char *str);
-int  send_dns(char *target, int type);
+void send_dns(char *target, int type);
 void sniff_dns_replies(char *domain);
 void usage(void);
  
@@ -402,7 +402,7 @@ void rstrip(char *str) {
 // arguments:
 //   target -> domain to lookup
 //   type   -> DNS query type (1 for A, 12 for PTR)
-int send_dns(char *target, int type) {
+void send_dns(char *target, int type) {
   char  *pkt = (char*)calloc(4096, 1);
   int sock, value = 1, length = 0;
   struct iphdr  *ip_header;
