@@ -97,7 +97,7 @@ void usage();
 //   dns -> domain name
 void convert_to_dns(char *dns) {
   char *mark = NULL;
-  int i, j;
+  int i;
  
   for(i=0; i<=strlen(dns); i++) {
     if(dns[i] == '.' && !mark)
