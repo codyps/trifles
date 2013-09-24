@@ -1,6 +1,6 @@
 #! /bin/sh
 
-a="B. Poettering <seccure@point-at-infinity.org>"
+a="B. Poettering <ssss@point-at-infinity.org>"
 
 
 proc_file() {
