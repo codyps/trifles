@@ -1,0 +1,18 @@
+debugWire - atmel debugging
+aWire - atmel programming
+ISP (above SPI) - atmel programming
+SpyByWire - TI 2 or 4 wire JTAG
+
+SD (layer 0) - bi directional split data and cmd lines
+SD (layer 1, above SPI or SD{1}) - block device access
+
+RS232 - async (no clock), start and stop bits + syncronization used
+
+1wire
+
+i2c
+
+i2s
+
+JTAG - generic
+SPI - generic
