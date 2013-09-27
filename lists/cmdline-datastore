@@ -1,0 +1,38 @@
+
+
+not required:
+	locking (can be done via flock externally)
+
+nice to have:
+	mergable (2 people make changes to the same db, and then can merge the resulting db)
+		changes are _mostly_ append, some are edits and deletions
+
+
+
+-----
+json
+
+	http://stedolan.github.io/jq/
+	http://trentm.com/json/
+	https://github.com/ddopson/underscore-cli
+	https://github.com/micha/jsawk/
+	http://kmkeen.com/jshon/
+
+	[related] https://github.com/micha/resty
+
+
+git-style config files? ("ini")
+
+xml (please no)
+
+yaml (almost json...)
+
+ssh config style
+
+sqlite (others?)
+
+"command line dbm"
+	http://www.stats.ox.ac.uk/~davison/software/dbm/dbmcli.php
+	http://zeptodb.invergo.net/fossil/index
+
+"no-sql"
