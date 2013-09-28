@@ -34,5 +34,7 @@ sqlite (others?)
 "command line dbm"
 	http://www.stats.ox.ac.uk/~davison/software/dbm/dbmcli.php
 	http://zeptodb.invergo.net/fossil/index
+	http://www.eskimo.com/~scs/src/dbmutil.man.html
+	http://adamspiers.org/computing/dbm/
 
 "no-sql"
