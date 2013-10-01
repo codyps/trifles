@@ -1,0 +1,25 @@
+* cubieboard needs new uboot and kernel
+  - sunxi project only supports 3.0, 3.4, or 3.9
+  - need new u-boot for 3.4 or 3.9
+  - for now skip uboot and build custom 3.0 kernel
+  - how much of this crap is upstream? Can I build a patchset to apply on top of upstream?
+
+* dns 343
+  - install serial port
+  - openwrt
+  - u-boot
+
+* dns 323
+  - install serial port
+  - openwrt
+  - u-boot
+
+* packaging
+  - Pin
+  - jshon
+  - CERT fuzzing tools
+
+* LED Heart using WS led controllers
+
+* Update x201 bios
+  - not coreboot yet :(
