@@ -1,0 +1,12 @@
+
+
+ - a small gap exists at the bottom of the screen allowing light to escape.
+	- turn the brightness up in a dark room to see if your pixel has this failure
+	- appears to be an issue with glue application on the glass covering the LCD
+
+ - playing 4K youtube videos eventially causes the screen to become covered with white and grey stripes. These persist between boots.
+
+ - touching the trackpad causes the top left area of the keyboard to emit a high pitched buzzing
+	- test in a relatively quiet area
+	- independent of a/c adapter presense, volume, and brightness
+
