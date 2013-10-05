@@ -1,0 +1,4 @@
+#! /bin/sh
+
+gcc -march=native -E -v - </dev/null 2>&1 | grep cc1 | sed 's/.* - //'
+
