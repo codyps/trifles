@@ -11,3 +11,8 @@ Gap buffer (edditing with locality):
 Zipper: indicates a location within a data structure (concept of "focus"):
 	http://en.wikipedia.org/wiki/Zipper_%28data_structure%29
 
+
+--- Libs
+
+uthash
+	macro lists & hashtables

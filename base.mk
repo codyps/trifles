@@ -105,6 +105,7 @@ endif
 DBG_FLAGS = -ggdb3
 
 ifndef NO_LTO
+# TODO: use -flto=jobserver
 CFLAGS  ?= -flto $(DBG_FLAGS)
 LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fuse-linker-plugin
 else

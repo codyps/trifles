@@ -29,7 +29,7 @@ B=ppc-numa
 
 ssh $H mkdir -p $RBD || exit 1
 scp $LBD/.config $H:$RBD/.config || exit 2
-( cd $LSD && git push "$H:$RSD" "$B"; ) || exit 3
+( cd $LSD && git push -f "$H:$RSD" "$B"; ) || exit 3
 
 # Xfer and execute script
 S=do-linux-rebuild

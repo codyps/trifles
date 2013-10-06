@@ -1,0 +1,19 @@
+#! /bin/sh
+
+cd $HOME/distro || exit 1
+
+# RHEL - none avaliable
+
+# Fedora
+git clone http://pkgs.fedoraproject.org/git/kernel.git fedora-kernel-pkg
+
+# Centos
+
+# OpenSUSE reference
+# http://en.opensuse.org/openSUSE:Kernel_git
+
+git clone git://kernel.opensuse.org/kernel.git        suse-kernel-pkg
+git clone git://kernel.opensuse.org/kernel-source.git suse-kernel-src
+( cd kernel-source
+  ./scripts/install-git-hooks
+)

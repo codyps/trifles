@@ -23,6 +23,10 @@
 /modll
 /pipe
 /unix-test
+/dripper
+set-qf-union
+set-qu-union
+set-to-dot
 
 /parse-datetime.c
 

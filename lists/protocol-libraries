@@ -89,3 +89,10 @@ Bencoding
 
 TNetstrings
 	http://tnetstrings.org/
+
+capnproto:
+	http://kentonv.github.io/capnproto/index.html
+	C++ only
+	ALPHA, UNSTABLE, WIP.
+	Uses tools written in Haskell.
+	Designed by the guy who did protocol buffers.
