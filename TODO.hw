@@ -10,6 +10,11 @@ Projects:
   Optional:
   - human interface (buttons and a display)
 
+2. avr programmer & debug wire debugger
+  - something smaller than my current usbtiny, with some better fw.
+  - someone on reddit posted a nice build.
+  - debug wire is only paritally reverse engineered, need to get a dragon
+
 3. slim line usb stick
   - only as wide as the plug
   - impliment mtp (fake MSC is a mess)
