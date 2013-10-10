@@ -1,0 +1,42 @@
+
+
+liquorice
+	http://liquorice.sourceforge.net/index.html
+	arch: AVR, x86
+	last release in 2000
+	misc: Networking, ISA support
+
+freertos
+	http://www.freertos.org/
+	arch: lots
+
+Chibios/RT
+	http://www.chibios.org/dokuwiki/doku.php
+	arch: ARM Cortex, ARM v7, AVR MEGA, msp430, ppc, stm8
+
+NuttX
+	http://nuttx.org/
+	arch: ARM, Intel 80x86, PIC32 (MIPS), Zilog, AVR, 68HCS12
+
+
+==== Comercial ====
+
+
+ti-rtos
+	http://www.ti.com/tool/ti-rtos
+	Source avaliable, licensing unclear
+
+ThreadX
+	http://www.rtos.com/
+	Proprietary
+
+VxWorks
+	Proprietary, some source for old versions leaked
+
+
+
+=====
+
+
+List for ARM:
+http://www.arm.com/community/software-enablement/rtos-real-time-operating-system.php

@@ -1,0 +1,42 @@
+
+Projects:
+
+1. data logger
+  - sd card
+  - a sensor
+    - what sensor? sensors?
+    - many chips have internal temperature sensors, easy to access.
+  - power (coin cells?)
+  Optional:
+  - human interface (buttons and a display)
+
+2. avr programmer & debug wire debugger
+  - something smaller than my current usbtiny, with some better fw.
+  - someone on reddit posted a nice build.
+  - debug wire is only paritally reverse engineered, need to get a dragon
+
+3. slim line usb stick
+  - only as wide as the plug
+  - impliment mtp (fake MSC is a mess)
+  - use an atmega8 or that cheap stm32 I have
+  - no battery use :)
+  - HW usb support or software stack?
+
+4. Audio player
+  - I have no idea how to do D2A the right way (PCM chips)
+  - full sized sd or micro only? Does size end up being a concern?
+
+5. Cell phone?
+
+Parts:
+
+- Ethernet
+  - SPI
+- rf24
+  - spi with a bunch of IRQ lines
+- SD card (spi or custom)
+  - some sd cards don't speak SPI despite it being required, see the
+    transend WIFI sd cards, which run linux)
+- Cell phone battery usage
+- compass, gyro, bari-presure, accelerometer
+- gps (expensive)

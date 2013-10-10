@@ -27,9 +27,20 @@
 	- r8169?
 	- e1000e reportedly already has them
  - crash:
-   - "gdb bt" or some symbolic backtrace imitating that format (show line numbers, variable names, types)
+   - "gdb bt" or some symbolic backtrace imitating that format (show line
+     numbers, variable names, types)
  - makekdumpimage to ELF converter support
    - lets us just use gdb, thank you very much.
+ - 'mount' enhancments:
+   - always allow remount as ro
+     - handling tasks with open rw handles:
+       - SIGPIPE, error codes, userspace mount killing
+   - handle unmounting layered mountpoints
+   - give filesystems a namespace outside of mount points
+   - add a way to prohibit additional mounting over a current mount
+   - force unmount by in the same way remount as ro works
+     - we can already do this by doing bad things at the block layer, we should
+       add a way to properly sync the fs
 
 4
  - 'perf kvm' callchain support (x86)
@@ -38,6 +49,13 @@
  - sysfs memory on non-sparse systems.
  - [haren] crashtool: get function arguments (implies parsing of dwarf info)
  - kill the stop_machine() and/or mutex around zonelist updates
+
+
+* Fix per-device setxkbmap so that one can swap super and alt on an usb
+  connected mac keyboard, but not on the builtin windows keyboard.
+  The setxkbmap command thinks it supports this, but it doesn't appear to work
+  (Potentially an X11 protocol/server issue).
+
 
 5
  - fanofity on file modification / file moves (essentially: tree based notifications with inotify level information)

@@ -1,0 +1,5 @@
+
+
+# running this.
+# brcm?mac doesn't seem to get picked up.
+ make image PROFILE=broadcom-b43 PACKAGES="luci nvram wpad-mini wide-dhcpv6-client rsync iw ip htop rdisc6 terminfo collectd-mod-interface collectd-mod-iwinfo collectd-mod-load collectd-mod-rrdtool htop nvram miniupnpd iwinfo lrzsz xxd wol wget wknock wavemon sshfs rsync kmod-b44 kmod-tg3 kmod-bgmac kmod-b43 kmod-brcmfmac kmod-brcmsmac -kmod-brcm-wl"
