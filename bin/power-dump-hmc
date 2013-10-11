@@ -1,0 +1,4 @@
+#! /bin/sh
+# Runs on the host to determine the HMC which owns it.
+
+for i in {0..15}; do serv_config -e hmc$i; done
