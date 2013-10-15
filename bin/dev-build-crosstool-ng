@@ -1,0 +1,3 @@
+#! /bin/sh
+
+./bootstrap && ./configure --prefix=$HOME/x/ct-ng && make && make install
