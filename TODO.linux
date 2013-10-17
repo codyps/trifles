@@ -12,6 +12,8 @@
 	Is using __weak really prefered? What do we get from defining it out?
  - inotify_at()
 
+ - add a /sys/devices/system/node/topology_update directory to put topo update related files under.
+
 2
  - auto size mem_section (caveats: tricky to get accepted, and involves some in depth C knowledge, but otherwise easy)
  - DEFINE_SIMPLE_ATTR() for proc

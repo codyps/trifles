@@ -1,3 +1,8 @@
+
+* Tooling and Testing
+ - 'mock' for non-rpm distros (build packages in chroots)
+ - 'koji' for non-fedora distros (distributed build system)
+
 * arch linux package tools:
   - autobuilder: use a VM or Container to automatically build pkgbuilds
   - update checker: check PKGBUILDs for updates. Potentially automatically
