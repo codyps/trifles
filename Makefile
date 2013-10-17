@@ -1,5 +1,6 @@
 all::
 
+obj-test-netlink = test-netlink.o
 obj-set-qf-union = set_qf_union.o
 obj-set-qu-union = set_qu_union.o
 obj-set-to-dot = id_array_to_dot.o
@@ -22,6 +23,6 @@ obj-parse-datetime = parse-datetime.o
 parse-datetime.o: ALL_CFLAGS += -DTEST
 parse-datetime : $(obj-parse-datetime)
 
-TARGETS = hd gkr-decrypt lsalsa test-pm-timer debugfs-test utime test-dep modll pipe unix-test set-qf-union set-qu-union set-to-dot dripper
+TARGETS = hd gkr-decrypt lsalsa test-pm-timer debugfs-test utime test-dep modll pipe unix-test set-qf-union set-qu-union set-to-dot dripper test-netlink
 
 include base.mk
