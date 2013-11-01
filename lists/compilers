@@ -1,0 +1,39 @@
+gcc
+
+clang/llvm
+
+tcc	"Tiny C Compiler"
+	http://bellard.org/tcc/
+	x86, x86-64, arm
+	OSX, WinCE, kFreeBSD, Hurd
+
+sdcc	"Small Device C Compiler"
+
+pcc	"Portable C Compiler"
+	http://pcc.ludd.ltu.se/
+	C99
+	x86, AMD64
+
+lcc	"Local/Little C Compiler"
+	https://sites.google.com/site/lccretargetablecompiler/
+	lic: non-comercial use only
+
+TinyCC
+	http://landley.net/code/tinycc/
+
+qcc (successor to Tinycc)
+	http://landley.net/qcc/a
+
+Deputy
+
+Fail-Safe C
+	https://staff.aist.go.jp/y.oiwa/FailSafeC/index-en.html
+
+SubC
+	http://www.t3x.org/subc/
+	FreeBSD/386, FreeBSD/x86-64,
+	 Linux/386, Linux/x86-64,
+	 NetBSD/x86-64, Windows/386 via MinGW
+	Public Domain
+	Generates code for GAS (the GNU Assembler)
+	Supports a limited subset of C

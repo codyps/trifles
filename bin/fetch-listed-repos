@@ -1,0 +1,20 @@
+#! /bin/sh
+
+if [ $# -eq 0 ]; then
+        echo "usage: $(basename $0) <repo/.git>..."
+        echo "for usage by fetch-all-repos"
+fi
+
+for i in "$@"; do
+        d=$(dirname "$i")
+        ( cd "$d" && git fetch $Q --all; exit $?)
+        r=$?
+        b=$(basename "$d")
+        if [ $r -eq 0 ]; then
+                echo "Fetched $b"
+        elif [ $r -eq 128 ]; then
+                [ -n $DEBUG ] && echo "Tried to fetch non-repo $b"
+        else
+                echo "Failed to fetch $b"
+        fi
+done

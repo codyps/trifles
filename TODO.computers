@@ -1,0 +1,42 @@
+nb205
+	- brightness adjustment via brightness keys now broken (works in 3.8,
+	  broken in 3.9)
+		- looks like a config option that got enabled in my 3.9 may
+		  have broken it, not enough changes between 3.8 and 3.9 to
+		  break anything
+		- ACPI_TOSHIBA breaks the brightness keys :(
+	- boot time stall after usb init in kernel
+	  - 3.10 and later (at least)
+	  - potentially random occurence, bisect failed
+	  - Appears to disapear when ACPI_TOSHIBA is disabled, need to confirm
+
+	- runtime stalls in the latest kernel (3.11), probably a broken timer
+	  issue (already using acpi_skip_timer_override)
+	  - still occurs with ACPI_TOSHIBA disabled, need to re-bisect
+	- io performance sucks (might just be the netbook being a netbook)
+
+	- hotkeys not working at all:
+		- zoom out (FN+1)
+		- zoom in (FN+2)
+		- lightbulb? (FN+F2)
+		- wifi (FN+F8)
+		- hibernate (FN+F4)
+		- zoom (FN+space)
+
+	- hotkeys that emit keycombos
+		- lock (FN+F1) => Super_L + l
+
+	- hotkeys that work
+		- vol up (FN+4)
+		- vol down (FN+3)
+		- mute (FN+ESC)
+		- brightness up (FN+F7)
+		- brightness down (FN+F6)
+		- suspend to ram (FN+F3)
+
+	- jamming on the hotkeys appears to lead to system freezes (or that may
+	  just be uptime related, unclear)
+	  - screen stop changing, though keyboard status lights appear to work
+	    (might just be some bios/ec stuff). Jamming more buttons got to a
+	    black text mode screen with a cursor in the 0,0 location.
+
