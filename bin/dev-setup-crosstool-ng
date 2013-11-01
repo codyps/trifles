@@ -1,5 +1,5 @@
 #! /bin/sh
 
 hg qclone -p https://bitbucket.org/jmesmon/crosstool-ng-pq http://crosstool-ng.org/hg/crosstool-ng "$@"
-
+cd crosstool-ng
 hg qpush -a
