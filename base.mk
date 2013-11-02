@@ -89,15 +89,22 @@ BIN_TARGETS=$(addprefix $(O)/,$(addsuffix $(BIN_EXT),$(TARGETS)))
 .PHONY: all FORCE
 all:: $(BIN_TARGETS)
 
-# FIXME: overriding these in a Makefile while still allowing the user to
+
+# Prioritize environment specified variables over our defaults
+var-def = $(if $(findstring $(origin $(1)),default undefined),$(eval $(1) = $(2)))
+
+# overriding these in a Makefile while still allowing the user to
 # override them is tricky.
-CC    = $(CROSS_COMPILE)gcc
-CXX   = $(CROSS_COMPILE)g++
-LD    = $(CC)
-AS    = $(CC)
-RM    = rm -f
-FLEX  = flex
-BISON = bison
+$(call var-def,CC,$(CROSS_COMPILE)gcc)
+$(call var-def,CXX,$(CROSS_COMPILE)g++)
+$(call var-def,LD,$(CC))
+$(call var-def,AS,$(CC))
+$(call var-def,RM,rm -f)
+$(call var-def,FLEX,flex)
+$(call var-def,BISON,bison)
+
+show-cc:
+	@echo $(CC)
 
 ifdef DEBUG
 OPT=-O0
