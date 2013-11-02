@@ -40,3 +40,14 @@ nb205
 	    (might just be some bios/ec stuff). Jamming more buttons got to a
 	    black text mode screen with a cursor in the 0,0 location.
 
+
+	- bios tunables
+		- "cpu_mode"
+		- usb sleep and charge configuration
+
+x201
+	- bios tunables not avaliable:
+		- (battery limits/health, beeps, et c)
+		- not configurable without extra stuff that uses acpi_call and talks with EC.
+	- hotkeys
+		- FN+space doesn't give "Zoom"
