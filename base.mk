@@ -51,9 +51,9 @@
 #
 # $(ldflags-some-target)
 #
-# $(cflags-some-object)
+# $(cflags-some-object-without-suffix)
 # $(cflags-some-target)
-# $(cxxflags-some-object)
+# $(cxxflags-some-object-without-suffix)
 # $(cxxflags-some-target)
 #
 # OBJ_TRASH		$(1) expands to the object. Expanded for every object.
@@ -121,14 +121,21 @@ COMMON_CFLAGS += -pipe
 COMMON_CFLAGS += -Wcast-align
 COMMON_CFLAGS += -Wwrite-strings
 
+C_CFLAGS = $(COMMON_CFLAGS)
+C_CFLAGS += -Wstrict-prototypes
+C_CFLAGS += -Wmissing-prototypes
+C_CFLAGS += -Wold-style-definition
+C_CFLAGS += -Wmissing-declarations
+C_CFLAGS += -Wundef
+C_CFLAGS += -Wbad-function-cast
+
+# -Wpointer-arith		I like pointer arithmetic
 # -Wnormalized=id		not supported by clang
 # -Wunsafe-loop-optimizations	not supported by clang
 
 ALL_CFLAGS += -std=gnu99
-ALL_CFLAGS += -Wbad-function-cast
-ALL_CFLAGS += -Wstrict-prototypes -Wmissing-prototypes
 
-ALL_CFLAGS   += $(COMMON_CFLAGS) $(CFLAGS)
+ALL_CFLAGS   += $(C_CFLAGS) $(CFLAGS)
 ALL_CXXFLAGS += $(COMMON_CFLAGS) $(CXXFLAGS)
 
 ifndef NO_BUILD_ID
@@ -176,7 +183,7 @@ target-obj = $(addprefix $(O)/,$(obj-$(1)))
 # Defines a target '.TRACK-$(flag-prefix)FLAGS'.
 # if $(ALL_$(flag-prefix)FLAGS) or $(var) changes, any rules depending on this
 # target are rebuilt.
-	define flags-template
+define flags-template
 TRACK_$(1)FLAGS = $$($(2)):$$(subst ','\'',$$(ALL_$(1)FLAGS))
 $(O)/.TRACK-$(1)FLAGS: FORCE
 	@FLAGS='$$(TRACK_$(1)FLAGS)'; \
@@ -194,6 +201,18 @@ $(eval $(call flags-template,LD,LD,link flags))
 
 parser-prefix = $(if $(PP_$*),$(PP_$*),$*_)
 
+dep-gen = -MMD -MF $(call obj-to-dep,$@)
+
+define BIN-LINK
+$(foreach obj,$(obj-$(1)),$(eval cflags-$(obj:.o=) += $(cflags-$(1))))
+$(foreach obj,$(obj-$(1)),$(eval cxxflags-$(obj:.o=) += $(cxxflags-$(1))))
+
+$(O)/$(1)$(BIN_EXT) : $(O)/.TRACK-LDFLAGS $(call target-obj,$(1))
+	$$(QUIET_LINK)$(LD) -o $$@ $(call target-obj,$(1)) $(ALL_LDFLAGS) $(ldflags-$(1))
+endef
+
+$(foreach target,$(TARGETS),$(eval $(call BIN-LINK,$(target))))
+
 $(O)/%.tab.h $(O)/%.tab.c : %.y
 	$(QUIET_BISON)$(BISON) --locations -d \
 		-p '$(parser-prefix)' -k -b $* $<
@@ -202,23 +221,13 @@ $(O)/%.ll.c : %.l
 	$(QUIET_FLEX)$(FLEX) -P '$(parser-prefix)' --bison-locations --bison-bridge -o $@ $<
 
 $(O)/%.o: %.c $(O)/.TRACK-CFLAGS
-	$(QUIET_CC)$(CC)   -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(ALL_CFLAGS) $(cflags-$*)
+	$(QUIET_CC)$(CC) $(dep-gen) -c -o $@ $< $(ALL_CFLAGS) $(cflags-$*)
 
 $(O)/%.o: %.cc $(O)/.TRACK-CXXFLAGS
-	$(QUIET_CXX)$(CXX) -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(ALL_CXXFLAGS) $(cxxflags-$*)
+	$(QUIET_CXX)$(CXX) $(dep-gen) -c -o $@ $< $(ALL_CXXFLAGS) $(cxxflags-$*)
 
 $(O)/%.o : %.S $(O)/.TRACK-ASFLAGS
 	$(QUIET_AS)$(AS) -c $(ALL_ASFLAGS) $< -o $@
-
-define BIN-LINK
-$(foreach obj,$(obj-$(1)),$(eval cflags-$(obj) += $(cflags-$(1))))
-$(foreach obj,$(obj-$(1)),$(eval cxxflags-$(obj) += $(cxxflags-$(1))))
-
-$(O)/$(1)$(BIN_EXT) : $(O)/.TRACK-LDFLAGS $(call target-obj,$(1))
-	$$(QUIET_LINK)$(LD) -o $$@ $(call target-obj,$(1)) $(ALL_LDFLAGS) $(ldflags-$(1))
-endef
-
-$(foreach target,$(TARGETS),$(eval $(call BIN-LINK,$(target))))
 
 ifndef NO_INSTALL
 PREFIX  ?= $(HOME)   # link against things here
