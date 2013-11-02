@@ -49,9 +49,12 @@
 #		    commands). The use of $(ldflags-sometarget) is recommended
 #		    instead.
 #
-# $(ldflags-sometarget)
-# $(cflags-someobject)
-# $(cxxflags-someobject)
+# $(ldflags-some-target)
+#
+# $(cflags-some-object)
+# $(cflags-some-target)
+# $(cxxflags-some-object)
+# $(cxxflags-some-target)
 #
 # OBJ_TRASH		$(1) expands to the object. Expanded for every object.
 # TARGET_TRASH		$* expands to the target. Expanded for every target.
@@ -208,6 +211,9 @@ $(O)/%.o : %.S $(O)/.TRACK-ASFLAGS
 	$(QUIET_AS)$(AS) -c $(ALL_ASFLAGS) $< -o $@
 
 define BIN-LINK
+$(foreach obj,$(obj-$(1)),$(eval cflags-$(obj) += $(cflags-$(1))))
+$(foreach obj,$(obj-$(1)),$(eval cxxflags-$(obj) += $(cxxflags-$(1))))
+
 $(O)/$(1)$(BIN_EXT) : $(O)/.TRACK-LDFLAGS $(call target-obj,$(1))
 	$$(QUIET_LINK)$(LD) -o $$@ $(call target-obj,$(1)) $(ALL_LDFLAGS) $(ldflags-$(1))
 endef
