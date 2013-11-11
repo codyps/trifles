@@ -310,7 +310,7 @@ void parse_dns_reply(char *pkt, int len_pkt, char *domain) {
 // parse a newline delimited resolv.conf file
 // arguments:
 //   none
-void parse_resolv_conf() {
+void parse_resolv_conf(void) {
   FILE *f;
   char ns[80];
   int i = 0;
@@ -503,7 +503,7 @@ void sniff_dns_replies(char *domain) {
 // print usage and exit
 // arguments:
 //   void
-void usage() {
+void usage(void) {
   fprintf(stderr, "dripper usage:\n");
   fprintf(stderr, " * -h                     -- display this message.\n");
   fprintf(stderr, " * -r <resolv conf>       -- resolv.conf (list of nameservers).\n");

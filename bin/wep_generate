@@ -1,0 +1,42 @@
+#! /bin/sh
+
+to_hex () {
+	hexdump -e '13/1 "%02x" "\n"'
+}
+
+
+random_bytes () {
+	dd if=/dev/random of=/dev/stdout bs="$1" count=1 conv=notrunc oflag=append 2>/dev/null
+}
+
+random_ascii () {
+	pwgen -s 13 1
+}
+
+usage () {
+	echo "usage: $(basename $0) [options]"
+	echo "  -b                 generate a binary WEP key"
+	echo "  -a                 generate an ascii WEP key"
+	echo "  -A <ascii string>  convert <ascii string> to hex"
+	echo "  -H <hex string>    convert <hex string> to ascii"
+
+	exit 1
+}
+
+
+while getopts baA:H: arg; do
+	case "$arg" in
+	b)	random_bytes 13 | to_hex
+		;;
+	a)	str=`random_ascii`
+		printf "%s\n" "$str"
+		printf "%s" "$str" | to_hex
+		;;
+	H)	printf "%s" "$OPTARG" | xxd -p -r
+		;;
+	A)	printf "%s" "$OPTARG" | to_hex
+		;;
+	*)	usage
+		;;
+	esac
+done

@@ -1,0 +1,12 @@
+
+
+ - how do mounts _really_ work in linux inside the kernel?
+   - bind mounts?
+   - remounting?
+ - what is _all_ of the information avaliable about current mount points _outside the kernel_
+ - what info about mount points exists but is not exposed to userspace?
+ - what is the distinction (if any) between file system instances and mount points?
+   - Is each driver implimenting this themselves?
+ - what keeps things from being unmounted
+   - open files
+   - double mount

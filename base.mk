@@ -49,9 +49,12 @@
 #		    commands). The use of $(ldflags-sometarget) is recommended
 #		    instead.
 #
-# $(ldflags-sometarget)
-# $(cflags-someobject)
-# $(cxxflags-someobject)
+# $(ldflags-some-target)
+#
+# $(cflags-some-object-without-suffix)
+# $(cflags-some-target)
+# $(cxxflags-some-object-without-suffix)
+# $(cxxflags-some-target)
 #
 # OBJ_TRASH		$(1) expands to the object. Expanded for every object.
 # TARGET_TRASH		$* expands to the target. Expanded for every target.
@@ -86,15 +89,22 @@ BIN_TARGETS=$(addprefix $(O)/,$(addsuffix $(BIN_EXT),$(TARGETS)))
 .PHONY: all FORCE
 all:: $(BIN_TARGETS)
 
-# FIXME: overriding these in a Makefile while still allowing the user to
+
+# Prioritize environment specified variables over our defaults
+var-def = $(if $(findstring $(origin $(1)),default undefined),$(eval $(1) = $(2)))
+
+# overriding these in a Makefile while still allowing the user to
 # override them is tricky.
-CC    = $(CROSS_COMPILE)gcc
-CXX   = $(CROSS_COMPILE)g++
-LD    = $(CC)
-AS    = $(CC)
-RM    = rm -f
-FLEX  = flex
-BISON = bison
+$(call var-def,CC,$(CROSS_COMPILE)gcc)
+$(call var-def,CXX,$(CROSS_COMPILE)g++)
+$(call var-def,LD,$(CC))
+$(call var-def,AS,$(CC))
+$(call var-def,RM,rm -f)
+$(call var-def,FLEX,flex)
+$(call var-def,BISON,bison)
+
+show-cc:
+	@echo $(CC)
 
 ifdef DEBUG
 OPT=-O0
@@ -118,14 +128,21 @@ COMMON_CFLAGS += -pipe
 COMMON_CFLAGS += -Wcast-align
 COMMON_CFLAGS += -Wwrite-strings
 
+C_CFLAGS = $(COMMON_CFLAGS)
+C_CFLAGS += -Wstrict-prototypes
+C_CFLAGS += -Wmissing-prototypes
+C_CFLAGS += -Wold-style-definition
+C_CFLAGS += -Wmissing-declarations
+C_CFLAGS += -Wundef
+C_CFLAGS += -Wbad-function-cast
+
+# -Wpointer-arith		I like pointer arithmetic
 # -Wnormalized=id		not supported by clang
 # -Wunsafe-loop-optimizations	not supported by clang
 
 ALL_CFLAGS += -std=gnu99
-ALL_CFLAGS += -Wbad-function-cast
-ALL_CFLAGS += -Wstrict-prototypes -Wmissing-prototypes
 
-ALL_CFLAGS   += $(COMMON_CFLAGS) $(CFLAGS)
+ALL_CFLAGS   += $(C_CFLAGS) $(CFLAGS)
 ALL_CXXFLAGS += $(COMMON_CFLAGS) $(CXXFLAGS)
 
 ifndef NO_BUILD_ID
@@ -173,7 +190,7 @@ target-obj = $(addprefix $(O)/,$(obj-$(1)))
 # Defines a target '.TRACK-$(flag-prefix)FLAGS'.
 # if $(ALL_$(flag-prefix)FLAGS) or $(var) changes, any rules depending on this
 # target are rebuilt.
-	define flags-template
+define flags-template
 TRACK_$(1)FLAGS = $$($(2)):$$(subst ','\'',$$(ALL_$(1)FLAGS))
 $(O)/.TRACK-$(1)FLAGS: FORCE
 	@FLAGS='$$(TRACK_$(1)FLAGS)'; \
@@ -191,6 +208,18 @@ $(eval $(call flags-template,LD,LD,link flags))
 
 parser-prefix = $(if $(PP_$*),$(PP_$*),$*_)
 
+dep-gen = -MMD -MF $(call obj-to-dep,$@)
+
+define BIN-LINK
+$(foreach obj,$(obj-$(1)),$(eval cflags-$(obj:.o=) += $(cflags-$(1))))
+$(foreach obj,$(obj-$(1)),$(eval cxxflags-$(obj:.o=) += $(cxxflags-$(1))))
+
+$(O)/$(1)$(BIN_EXT) : $(O)/.TRACK-LDFLAGS $(call target-obj,$(1))
+	$$(QUIET_LINK)$(LD) -o $$@ $(call target-obj,$(1)) $(ALL_LDFLAGS) $(ldflags-$(1))
+endef
+
+$(foreach target,$(TARGETS),$(eval $(call BIN-LINK,$(target))))
+
 $(O)/%.tab.h $(O)/%.tab.c : %.y
 	$(QUIET_BISON)$(BISON) --locations -d \
 		-p '$(parser-prefix)' -k -b $* $<
@@ -199,20 +228,13 @@ $(O)/%.ll.c : %.l
 	$(QUIET_FLEX)$(FLEX) -P '$(parser-prefix)' --bison-locations --bison-bridge -o $@ $<
 
 $(O)/%.o: %.c $(O)/.TRACK-CFLAGS
-	$(QUIET_CC)$(CC)   -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(ALL_CFLAGS) $(cflags-$*)
+	$(QUIET_CC)$(CC) $(dep-gen) -c -o $@ $< $(ALL_CFLAGS) $(cflags-$*)
 
 $(O)/%.o: %.cc $(O)/.TRACK-CXXFLAGS
-	$(QUIET_CXX)$(CXX) -MMD -MF $(call obj-to-dep,$@) -c -o $@ $< $(ALL_CXXFLAGS) $(cxxflags-$*)
+	$(QUIET_CXX)$(CXX) $(dep-gen) -c -o $@ $< $(ALL_CXXFLAGS) $(cxxflags-$*)
 
 $(O)/%.o : %.S $(O)/.TRACK-ASFLAGS
 	$(QUIET_AS)$(AS) -c $(ALL_ASFLAGS) $< -o $@
-
-define BIN-LINK
-$(O)/$(1)$(BIN_EXT) : $(O)/.TRACK-LDFLAGS $(call target-obj,$(1))
-	$$(QUIET_LINK)$(LD) -o $$@ $(call target-obj,$(1)) $(ALL_LDFLAGS) $(ldflags-$(1))
-endef
-
-$(foreach target,$(TARGETS),$(eval $(call BIN-LINK,$(target))))
 
 ifndef NO_INSTALL
 PREFIX  ?= $(HOME)   # link against things here
