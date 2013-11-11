@@ -122,12 +122,14 @@ else
 CFLAGS  ?= $(OPT) $(DBG_FLAGS)
 endif
 
+# c/c+++ shared flags
 COMMON_CFLAGS += -Wall
 COMMON_CFLAGS += -Wundef -Wshadow
 COMMON_CFLAGS += -pipe
 COMMON_CFLAGS += -Wcast-align
 COMMON_CFLAGS += -Wwrite-strings
 
+# C only flags that just turn on some warnings
 C_CFLAGS = $(COMMON_CFLAGS)
 C_CFLAGS += -Wstrict-prototypes
 C_CFLAGS += -Wmissing-prototypes
