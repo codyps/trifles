@@ -150,7 +150,7 @@ main (int argc, const char *argv[])
 					  USB_DIR_IN | USB_RT_HUB,
 					  USB_REQ_GET_DESCRIPTOR,
 					  USB_DT_HUB << 8, 0, 
-					  buf, 1024, 1000)) > 0)
+					  (char *)buf, 1024, 1000)) > 0)
 		{
 		  /* Should check wHubCharacteristic for power control */
 		  ;
