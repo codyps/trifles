@@ -11,7 +11,7 @@
 #define CIRC_SPACE(head,tail,size) CIRC_CNT((tail),((head)+1),(size))
 
 /* is circ_buf full */
-#define CIRC_FULL(head,tail,size) (CIRC_NEXT(tail,size) == (head))
+#define CIRC_FULL(head,tail,size) (CIRC_NEXT(head,size) == (tail))
 
 /* empty? */
 #define CIRC_EMPTY(head,tail,size) ((head) == (tail))
