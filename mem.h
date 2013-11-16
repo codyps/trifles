@@ -61,5 +61,7 @@ static inline size_t memchr_len(const void *s, int c, size_t n)
 #define memeqstr(bytes, length, string) \
 	memeq(bytes, length, string, strlen(string))
 
+#define memstarts_str(a, al, s) memstarts(a, al, s, strlen(s))
+
 #endif
 
