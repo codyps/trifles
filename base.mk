@@ -79,6 +79,7 @@
 # - per-target CFLAGS (didn't I hack this in already?)
 # - will TARGETS always be outputs from Linking?
 # - continous build mechanism ('watch' is broken)
+# - handle the mess that is linking for C++ vs C vs ld -r
 
 # Delete the default suffixes
 .SUFFIXES:

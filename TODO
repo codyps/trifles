@@ -18,6 +18,10 @@
   - jshon
   - CERT fuzzing tools
 
+* djmount - fixup for new upnp version & ebuild resurection
+
+* brscan - build from source code
+
 * LED Heart using WS led controllers
 
 * x201 bios
@@ -28,3 +32,5 @@
 
 * Sane,minimal SNMP library
   - depends on a ASN.1 lib with the same attributes
+	- liblasn
+
