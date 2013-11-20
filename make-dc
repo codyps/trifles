@@ -1,0 +1,18 @@
+#! /bin/sh
+
+CHOST=i686-pc-linux-gnu
+GCC_V=4.7.3
+
+make CCACHE_PREFIX=distcc \
+HOSTCC=ccache\ $CHOST-gcc-$GCC_V \
+HOSTCXX=ccache\ $CHOST-g++-$GCC_V \
+CC=ccache\ $CHOST-gcc-$GCC_V \
+CXX=ccache\ $CHOST-g++-$GCC_V \
+"$@"
+
+#pump make \
+#HOSTCC=$CHOST-gcc-$GCC_V \
+#HOSTCXX=$CHOST-g++-$GCC_V \
+#CC=$CHOST-gcc-$GCC_V \
+#CXX=$CHOST-g++-$GCC_V \
+#"$@"
