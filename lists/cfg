@@ -1,0 +1,29 @@
+Also see lists/cmdline-datastore and lists/dbm
+
+shell scripts
+	great for programs written in shell
+	In accessable for anything else
+	Potentially slow
+	Not really programmatically editable (too flexible)
+
+lua
+	similar drawbacks as shell scripts, but faster
+
+general programming language (extention of lua and shell scripts)
+	example: write C, build shared libs for each
+	config issues (for compilable langs): need compilation, reloading
+		config is hard.
+
+liblcfg
+	http://liblcfg.carnivore.it/
+	C API
+	Programatically editable?
+
+json
+	see lists/cmdline-datastore
+	cmdline tools to read/edit exist but aren't in distros
+	Not very expressive (no conditional syntax, must generate cfg)
+
+ini
+	lack of smdline tools
+	not nestable

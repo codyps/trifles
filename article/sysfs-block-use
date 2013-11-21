@@ -1,0 +1,20 @@
+= How can we block users from opening a sysfs directory until it is fully initialized? =
+
+- Why do we need to do this?
+  - memory hotplug initialization is slow on ppc64 systems with lots of memory because of how memory is tracked for memory hotplug. Each hotplug able region of memory is split into memory_blocks, with each memory block being the size of a region that is individually hotplugable. On x86, this isn't an issue because these memory_block sizes grow with physical DIMM sizes. On ppc, we use memory hotplug inside of virtualization, so the size of a memory block stays constant as the size of memory increases, meaning that the number of memory blocks grows linearly with memory. This makes things slow.
+
+- Wait, aren't other sysfs subsystems dynamic?
+  - yep, and they emit events to let listeners (typically udev) know that new devices have shown up.
+  -- XXX: does the memory subsystem do this? Does anyone actually watch these events for the memory subsystem? Right now the assumption is NO.
+
+
+- Can we block user space and other (potential) kernel space users while we're initializing?
+  - What do we really want to block?
+    - any thing that determines the existence or non-existence of a file or reads it's contents.
+    - stat, open, readdir, etc.
+  - All of this seems to be things that get looked up in the dcache, so it might be that we need to do this at the dcache level. Unfortunately, this probably means expanding the per-dcache-entry footprint, which is very, very bad.
+  - Can we block in the sysfs fs operations themselves?
+    - What if some of our actions cause things to be pulled into dcache?
+    - Can we invalidate our entries in the dcache? Can this be done in a thread safe manner? Should we do this (performance impact)?
+
+
