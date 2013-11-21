@@ -1,0 +1,14 @@
+#! /bin/sh
+
+# 3.12.0-24x7-02857-g3bb60fe vmlinux System.map /tmp/tmp.hrsLW5UWDL arch/powerpc/boot/zImage.pseries arch/powerpc/boot/zImage.epapr
+
+VER=$1
+KERNEL=$2
+MAP=$3
+INSTALL_DIR=$4
+# No one cares about $5 and $6
+
+cp $KERNEL  $INSTALL_DIR/boot/$KERNEL-$VER
+cp $MAP     $INSTALL_DIR/boot/$MAP-$VER
+cp .config  $INSTALL_DIR/boot/config-$VER
+echo $VER > $INSTALL_DIR/version

@@ -1,0 +1,26 @@
+#! /bin/sh
+
+D="$(dirname "$0")"
+export ARCH=powerpc
+export CROSS_COMPILE="ccache powerpc64-linux-"
+O=~/obj/linux-el7-ppc64
+MAKE_OPTS="-j8"
+
+die () {
+	echo "$*" >>/dev/stderr
+	exit 1
+}
+
+T=`mktemp -d`
+trap "rm -rf \"$T\"" EXIT
+
+make O="$O" $MAKE_OPTS || die "make failed"
+make O="$O" $MAKE_OPTS INSTALL_MOD_PATH="$T" modules_install || die "modules_install failed"
+
+make O="$O" $MAKE_OPTS INSTALL_PATH="$T" INSTALLKERNEL="$D/make-ktar.installkernel" install || die "install failed"
+
+# HACK HACK HACK
+VER=`cat "$T"/version`
+
+cd "$T" || die "can't get to $T"
+tar acf $O/linux-$ARCH-$VER.tar.xz . || die "failed to create tarball"
