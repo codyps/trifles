@@ -60,4 +60,8 @@ openresty + nginx
 lapis + nginx
 	http://leafo.net/lapis/
 
+hughes' libhttpd
+	http://www.hughes.com.au/products/libhttpd/
+	GPL (version?), or proprietary (for $995)
+	Last release (1.4) Feb 2, 2005 (OLD)
 
