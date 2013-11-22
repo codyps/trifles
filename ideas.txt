@@ -1,4 +1,17 @@
 
+* Fix the pain that is multilib
+ - triplets defining ABI suck, people can configure things so they lie
+ - triplets defining what tools to use suck, prefix definitions are more
+   flexible
+ - no standard way to determine
+   - what multilib "targets" a compiler supports (gcc has -print-multi-*)
+   - what the meaning of it's "default" multilib target is
+   - where to put libraries built for a particular multilib (glibc and gcc
+     have different ideas)
+   - what compiler options change ABI
+ - Automated way to build libs for all (or a subset of) multi-libs would be
+   useful.
+
 * Tooling and Testing
  - 'mock' for non-rpm distros (build packages in chroots)
  - 'koji' for non-fedora distros (distributed build system)
@@ -14,7 +27,8 @@
   info.
 
 * Non-blocking snmp library. (net-snmp does not work for this, see multicast
-  fail)
+  fail). Also, potentially split the message sending from the message
+  serialization/deserialization.
 
 * config file library with the following features:
   - can programmatically modify config files
