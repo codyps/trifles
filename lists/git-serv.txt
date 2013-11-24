@@ -1,0 +1,20 @@
+gitlab - github clone
+	ruby
+	install process sucks
+	
+gitblit.com
+
+https://github.com/takezoe/gitbucket
+	scala
+	"no install required"
+	
+gitolite - ssh hosting
+	perl
+	install relatively easy, sometimes gets broken
+	no web interface, ssh only
+	
+cgit - webif
+
+git-daemon - webif
+
+repo.or.cz (they run their own opensource IF, right?)
