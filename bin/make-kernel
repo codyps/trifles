@@ -96,11 +96,23 @@ r $make
 r $make INSTALL_MOD_PATH="$I" modules_install
 
 VER=`$make kernelrelease | tail -n1`
-KERNEL=vmlinux
+case "$ARCH" in
+	powerpc) KERNEL=vmlinux ;;
+	*) die "I don't know the kernel image for ARCH='$ARCH'" ;;
+esac
 MAP=System.map
 
 mkdir -p "$I/boot"
-r cp $O/$KERNEL  $I/boot/$KERNEL-$VER
+if [ "$KERNEL" = vmlinux ]; then
+	kcp () {
+		r eu-strip --remove-comment "$1" -o "$2"
+	}
+else
+	kcp () {
+		r cp "$@"
+	}
+fi
+kcp $O/$KERNEL  $I/boot/$KERNEL-$VER
 r cp $O/$MAP     $I/boot/$MAP-$VER
 r cp $O/.config  $I/boot/config-$VER
 r echo $VER > $I/version
@@ -118,4 +130,5 @@ fi
 
 if $DO_RSYNC; then
 	# XXX: rsync it!
+	:
 fi
