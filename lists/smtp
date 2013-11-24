@@ -1,0 +1,16 @@
+= SMTP "client" (send only) librarys =
+
+libcurl
+	http://curl.haxx.se/libcurl/c/smtp-tls.html
+
+libsmtpc
+	http://libsmtpc.nerdfeliz.com/
+	LGPL v?
+
+libsmtp
+	http://libsmtp.berlios.de/
+	LGPL v?
+
+libesmtp
+	http://www.stafford.uklinux.net/libesmtp/
+	LGPL v3
