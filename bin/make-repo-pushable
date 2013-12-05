@@ -8,7 +8,9 @@ fi
 host=$1
 location=$2
 
-ssh $host sh -c 'cd '"$location"'&& pwd && git config --local --add receive.denyCurrentBranch ignore && cat - >.git/hooks/post-update && chmod +x .git/hooks/post-update' <<EOF
+
+
+ssh $host sh -c  "echo --git-dir="$location"/.git config --local --add receive.denyCurrentBranch ignore && cat - >"$location"/.git/hooks/post-update && chmod +x "$location"/.git/hooks/post-update" <<EOF
 #!/bin/sh
 #
 # This hook does two things:

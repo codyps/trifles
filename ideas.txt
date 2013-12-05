@@ -1,3 +1,8 @@
+* initramfs based recovery & repartition live system
+ - actually, may already be supported via using the iso file and some boot
+   parameters.
+ - key: cross-architecture. I'm stuck with some ppc servers I want to resize
+   partitions on :(
 
 * Fix the pain that is multilib
  - triplets defining ABI suck, people can configure things so they lie
