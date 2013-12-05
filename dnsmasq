@@ -1,0 +1,11 @@
+#! /bin/sh
+
+ip=192.168.2.1
+nm=24
+ip_first=192.168.2.2
+ip_last=192.168.2.200
+dev=enp0s25
+
+sudo ip addr add dev $dev $ip/$nm
+sudo dnsmasq -Khdq -p 0 -F $ip_first,$ip_last -a $ip
+sudo ip addr del dev $dev $ip/$nm
