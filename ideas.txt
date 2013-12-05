@@ -3,6 +3,7 @@
    parameters.
  - key: cross-architecture. I'm stuck with some ppc servers I want to resize
    partitions on :(
+ - For that matter, are there any ppc recovery cds that can run gparted?
 
 * Fix the pain that is multilib
  - triplets defining ABI suck, people can configure things so they lie
