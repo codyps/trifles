@@ -4,6 +4,7 @@ CCAN_LD ?= ld
 ifndef BASE_MK_MANUAL_CCAN
 $(obj-all) : ccan
 ALL_CPPFLAGS += -Iccan
+ALL_LDFLAGS  += -Lccan -lccan
 endif
 
 .PHONY: ccan
