@@ -18,6 +18,7 @@
 # $(LDFLAGS)        same as CFLAGS, except for LD.
 # $(ASFLAGS)
 # $(CXXFLAGS)
+# $(CPPFLAGS)
 #
 # $(CROSS_COMPILE)  a prefix on $(CC) and other tools.
 #                   "CROSS_COMPILE=arm-linux-" (note the trailing '-')
@@ -48,6 +49,8 @@
 #		    (such as some of the ldflags being passed to other link
 #		    commands). The use of $(ldflags-sometarget) is recommended
 #		    instead.
+#
+# $(ALL_CPPFLAGS)
 #
 # $(ldflags-some-target)
 #
@@ -145,8 +148,10 @@ C_CFLAGS += -Wbad-function-cast
 
 ALL_CFLAGS += -std=gnu99
 
-ALL_CFLAGS   += $(C_CFLAGS) $(CFLAGS)
-ALL_CXXFLAGS += $(COMMON_CFLAGS) $(CXXFLAGS)
+ALL_CPPFLAGS += $(CPPFLAGS)
+
+ALL_CFLAGS   += $(ALL_CPPFLAGS) $(C_CFLAGS) $(CFLAGS)
+ALL_CXXFLAGS += $(ALL_CPPFLAGS) $(COMMON_CFLAGS) $(CXXFLAGS)
 
 ifndef NO_BUILD_ID
 LDFLAGS += -Wl,--build-id
