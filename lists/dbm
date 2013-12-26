@@ -1,5 +1,12 @@
+aka: disk serialized key value stores
+
+Also see cmdline-datastore
+---
+
 tokyocabinet
 
 unqlite
 	BSD
 	unqlite.org
+
+leveldb

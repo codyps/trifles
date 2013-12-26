@@ -18,6 +18,7 @@
 # $(LDFLAGS)        same as CFLAGS, except for LD.
 # $(ASFLAGS)
 # $(CXXFLAGS)
+# $(CPPFLAGS)
 #
 # $(CROSS_COMPILE)  a prefix on $(CC) and other tools.
 #                   "CROSS_COMPILE=arm-linux-" (note the trailing '-')
@@ -48,6 +49,8 @@
 #		    (such as some of the ldflags being passed to other link
 #		    commands). The use of $(ldflags-sometarget) is recommended
 #		    instead.
+#
+# $(ALL_CPPFLAGS)
 #
 # $(ldflags-some-target)
 #
@@ -80,6 +83,8 @@
 # - will TARGETS always be outputs from Linking?
 # - continous build mechanism ('watch' is broken)
 # - handle the mess that is linking for C++ vs C vs ld -r
+# - CCLD vs LD and LDFLAGS
+# - per target CCLD/LD
 
 # Delete the default suffixes
 .SUFFIXES:
@@ -98,7 +103,8 @@ var-def = $(if $(findstring $(origin $(1)),default undefined),$(eval $(1) = $(2)
 # override them is tricky.
 $(call var-def,CC,$(CROSS_COMPILE)gcc)
 $(call var-def,CXX,$(CROSS_COMPILE)g++)
-$(call var-def,LD,$(CC))
+$(call var-def,CCLD,$(CC))
+$(call var-def,LD,ld)
 $(call var-def,AS,$(CC))
 $(call var-def,RM,rm -f)
 $(call var-def,FLEX,flex)
@@ -145,8 +151,10 @@ C_CFLAGS += -Wbad-function-cast
 
 ALL_CFLAGS += -std=gnu99
 
-ALL_CFLAGS   += $(C_CFLAGS) $(CFLAGS)
-ALL_CXXFLAGS += $(COMMON_CFLAGS) $(CXXFLAGS)
+ALL_CPPFLAGS += $(CPPFLAGS)
+
+ALL_CFLAGS   += $(ALL_CPPFLAGS) $(C_CFLAGS) $(CFLAGS)
+ALL_CXXFLAGS += $(ALL_CPPFLAGS) $(COMMON_CFLAGS) $(CXXFLAGS)
 
 ifndef NO_BUILD_ID
 LDFLAGS += -Wl,--build-id
@@ -165,7 +173,7 @@ ALL_ASFLAGS += $(ASFLAGS)
 
 # FIXME: need to exclude '-I', '-l', '-L' options
 # - potentially seperate those flags from ALL_*?
-MAKE_ENV = CC="$(CC)" LD="$(LD)" AS="$(AS)" CXX="$(CXX)"
+MAKE_ENV = CC="$(CC)" CCLD="$(CCLD)" AS="$(AS)" CXX="$(CXX)"
          # CFLAGS="$(ALL_CFLAGS)" \
 	   LDFLAGS="$(ALL_LDFLAGS)" \
 	   CXXFLAGS="$(ALL_CXXFLAGS)" \
@@ -194,7 +202,7 @@ target-obj = $(addprefix $(O)/,$(obj-$(1)))
 # if $(ALL_$(flag-prefix)FLAGS) or $(var) changes, any rules depending on this
 # target are rebuilt.
 define flags-template
-TRACK_$(1)FLAGS = $$($(2)):$$(subst ','\'',$$(ALL_$(1)FLAGS))
+TRACK_$(1)FLAGS = $(foreach var,$(2),$$($(var))):$$(subst ','\'',$$(ALL_$(1)FLAGS))
 $(O)/.TRACK-$(1)FLAGS: FORCE
 	@FLAGS='$$(TRACK_$(1)FLAGS)'; \
 	if test x"$$$$FLAGS" != x"`cat $(O)/.TRACK-$(1)FLAGS 2>/dev/null`" ; then \
@@ -207,7 +215,7 @@ endef
 $(eval $(call flags-template,AS,AS,assembler build flags))
 $(eval $(call flags-template,C,CC,c build flags))
 $(eval $(call flags-template,CXX,CXX,c++ build flags))
-$(eval $(call flags-template,LD,LD,link flags))
+$(eval $(call flags-template,CCLD LD,LD,link flags))
 
 parser-prefix = $(if $(PP_$*),$(PP_$*),$*_)
 
@@ -218,7 +226,7 @@ $(foreach obj,$(obj-$(1)),$(eval cflags-$(obj:.o=) += $(cflags-$(1))))
 $(foreach obj,$(obj-$(1)),$(eval cxxflags-$(obj:.o=) += $(cxxflags-$(1))))
 
 $(O)/$(1)$(BIN_EXT) : $(O)/.TRACK-LDFLAGS $(call target-obj,$(1))
-	$$(QUIET_LINK)$(LD) -o $$@ $(call target-obj,$(1)) $(ALL_LDFLAGS) $(ldflags-$(1))
+	$$(QUIET_LINK)$$(CCLD) -o $$@ $$(call target-obj,$(1)) $$(ALL_LDFLAGS) $$(ldflags-$(1))
 endef
 
 $(foreach target,$(TARGETS),$(eval $(call BIN-LINK,$(target))))

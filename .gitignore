@@ -27,6 +27,9 @@
 set-qf-union
 set-qu-union
 set-to-dot
+test-netlink
+usbreset
+hub-ctrl
 
 /parse-datetime.c
 
