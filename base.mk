@@ -95,6 +95,10 @@ BIN_TARGETS=$(addprefix $(O)/,$(addsuffix $(BIN_EXT),$(TARGETS)))
 .PHONY: all FORCE
 all:: $(BIN_TARGETS)
 
+ifndef DISABLE_VERSION
+VERSION := $(shell $(HOME)/trifles/setlocalversion)
+ALL_CPPFLAGS += -DVERSION="\"$(VERSION)\""
+endif
 
 # Prioritize environment specified variables over our defaults
 var-def = $(if $(findstring $(origin $(1)),default undefined),$(eval $(1) = $(2)))
