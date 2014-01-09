@@ -7,11 +7,17 @@ ALL_CPPFLAGS += -Iccan
 ALL_LDFLAGS  += -Lccan -lccan
 endif
 
+ifndef V
+	QUIET_SUBMAKE  = @ echo '  MAKE ' $@;
+endif
+
 .PHONY: ccan
 ccan: FORCE
-	$(MAKE) $(MAKE_ENV) CCAN_CFLAGS="$(CCAN_CFLAGS)" CCAN_LDFLAGS="$(CCAN_LDFLAGS)" --no-print-directory -C ccan $(MAKEFLAGS)
+	$(QUIET_SUBMAKE)$(MAKE) $(MAKE_ENV) CCAN_CFLAGS="$(CCAN_CFLAGS)" CCAN_LDFLAGS="$(CCAN_LDFLAGS)" --no-print-directory -C $@ $(MAKEFLAGS)
+
+.PHONY: ccan.clean
+ccan.clean :
+	$(QUIET_SUBMAKE)$(MAKE) --no-print-directory -C $(@:.clean=) $(MAKEFLAGS) clean
 
 .PHONY: dirclean
-dirclean: clean
-	$(MAKE) $(MAKE_ENV) --no-print-directory -C ccan $(MAKEFLAGS) clean
-
+dirclean : clean ccan.clean
