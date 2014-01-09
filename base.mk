@@ -85,6 +85,10 @@
 # - handle the mess that is linking for C++ vs C vs ld -r
 # - CCLD vs LD and LDFLAGS
 # - per target CCLD/LD
+# - check if certain code builds
+# - check if certain flags work
+# - check if certain headers/libs are installed
+# - use the above 3 to conditionally enable certain targets
 
 # Delete the default suffixes
 .SUFFIXES:
