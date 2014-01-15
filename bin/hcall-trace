@@ -1,5 +1,10 @@
 #! /bin/sh
 
+# Ways to look at the data:
+#  - totals over all cpus (current)
+#  - average per call (for each cpu or summed over all cpus)
+#  - also might want details on a particular hcall or set of hcalls only
+
 : ${SYSFS:=/sys}
 : ${DEBUGFS:=$SYSFS/kernel/debug}
 : ${HCALL_INST:=$DEBUGFS/hcall_inst}

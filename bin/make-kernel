@@ -59,11 +59,30 @@ echo "ARCH=$ARCH"
 echo "CROSS_COMPILE=$CROSS_COMPILE"
 echo "O=$O"
 
+cfg_to_arch () {
+	head -n3 "$1" | tail -n1 | cut -d' ' -f2 | cut -d/ -f2
+}
+
+safe_cfg_to_arch () {
+	if [ -e "$1" ]; then
+		cfg_to_arch "$1"
+	else
+		echo "unknown"
+	fi
+}
+
+cfg_arch=$(safe_cfg_to_arch $O/.config)
+echo ".config ARCH=$cfg_arch"
+
+if [ $cfg_arch != "unknown" ] && [ $cfg_arch != "$ARCH" ]; then
+	echo "!! ARCH mismatch !!"
+	exit 1
+fi
+
 die () {
 	echo "$*" >>/dev/stderr
 	exit 1
 }
-
 
 if [ -n "$ARCH" ]; then
 	export ARCH
