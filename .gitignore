@@ -30,6 +30,7 @@ set-to-dot
 test-netlink
 usbreset
 hub-ctrl
+test-type-info
 
 /parse-datetime.c
 
