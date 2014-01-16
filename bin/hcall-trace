@@ -19,5 +19,5 @@ done | awk '/^[^#]/ {
 }
 END {
 	for (hcall in calls)
-		printf "%-6d\t%-7d\t%-7d (%-7d)\t%-7d (%-7d)\n", hcall, calls[hcall], tb_total[hcall], tb_total[hcall] / calls[hcall], purr_total[hcall], purr_total[hcall]/ calls[hcall];
+		printf "%-6d\t%-7d\t%-10d (%-7d)\t%-10d (%-7d)\n", hcall, calls[hcall], tb_total[hcall], tb_total[hcall] / calls[hcall], purr_total[hcall], purr_total[hcall]/ calls[hcall];
 }' | sort -n
