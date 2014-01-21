@@ -233,7 +233,7 @@ define BIN-LINK
 $(foreach obj,$(obj-$(1)),$(eval cflags-$(obj:.o=) += $(cflags-$(1))))
 $(foreach obj,$(obj-$(1)),$(eval cxxflags-$(obj:.o=) += $(cxxflags-$(1))))
 
-$(O)/$(1)$(BIN_EXT) : $(O)/.TRACK-LDFLAGS $(call target-obj,$(1))
+$(O)/$(1)$(BIN_EXT) : $(O)/.TRACK-CCLDFLAGS $(call target-obj,$(1))
 	$$(QUIET_LINK)$$(CCLD) -o $$@ $$(call target-obj,$(1)) $$(ALL_LDFLAGS) $$(ldflags-$(1))
 endef
 
