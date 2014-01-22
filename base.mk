@@ -223,7 +223,7 @@ endef
 $(eval $(call flags-template,AS,AS,assembler build flags))
 $(eval $(call flags-template,C,CC,c build flags))
 $(eval $(call flags-template,CXX,CXX,c++ build flags))
-$(eval $(call flags-template,CCLD LD,LD,link flags))
+$(eval $(call flags-template,LD,LD,link flags))
 
 parser-prefix = $(if $(PP_$*),$(PP_$*),$*_)
 
@@ -233,7 +233,7 @@ define BIN-LINK
 $(foreach obj,$(obj-$(1)),$(eval cflags-$(obj:.o=) += $(cflags-$(1))))
 $(foreach obj,$(obj-$(1)),$(eval cxxflags-$(obj:.o=) += $(cxxflags-$(1))))
 
-$(O)/$(1)$(BIN_EXT) : $(O)/.TRACK-CCLDFLAGS $(call target-obj,$(1))
+$(O)/$(1)$(BIN_EXT) : $(O)/.TRACK-LDFLAGS $(call target-obj,$(1))
 	$$(QUIET_LINK)$$(CCLD) -o $$@ $$(call target-obj,$(1)) $$(ALL_LDFLAGS) $$(ldflags-$(1))
 endef
 
