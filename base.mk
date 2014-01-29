@@ -101,7 +101,7 @@ all:: $(BIN_TARGETS)
 
 ifndef DISABLE_VERSION
 VERSION := $(shell $(HOME)/trifles/setlocalversion)
-ALL_CPPFLAGS += -DVERSION="\"$(VERSION)\""
+ALL_CPPFLAGS += -DVERSION=\"$(VERSION)\"
 endif
 
 # Prioritize environment specified variables over our defaults

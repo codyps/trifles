@@ -1,4 +1,4 @@
-CCAN_CFLAGS ?= $(C_CFLAGS)
+CCAN_CFLAGS ?= $(ALL_CFLAGS)
 # Blah, fix LDFLAGS
 
 ifndef BASE_MK_MANUAL_CCAN
@@ -11,9 +11,12 @@ ifndef V
 	QUIET_SUBMAKE  = @ echo '  MAKE ' $@;
 endif
 
+export CCAN_CFLAGS
+export CCAN_LDFLAGS
+
 .PHONY: ccan
 ccan: FORCE
-	$(QUIET_SUBMAKE)$(MAKE) $(MAKE_ENV) CCAN_CFLAGS="$(CCAN_CFLAGS)" CCAN_LDFLAGS="$(CCAN_LDFLAGS)" --no-print-directory -C $@ $(MAKEFLAGS)
+	$(QUIET_SUBMAKE)$(MAKE) $(MAKE_ENV) --no-print-directory -C $@ $(MAKEFLAGS)
 
 .PHONY: ccan.clean
 ccan.clean :
