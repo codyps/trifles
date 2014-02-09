@@ -1,0 +1,10 @@
+
+Q:
+	gnutls_dtls_prestate_set(sess, prestate);
+
+	- how long do we need to keep prestate around?
+	- can we free/reuse it after the handshake occurs?
+	- can we free/reuse it after this set_prestate() call?
+A:
+	prestate is only used in the gnutls_dtls_prestate_set() call itself.
+	What you do with prestate after that call is entirely up to you.
