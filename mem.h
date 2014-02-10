@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 /* TODO: make this less stupid */
+#ifndef _GNU_SOURCE
 static inline void *memmem(const void *haystack, size_t haystacklen,
 	     const void *needle, size_t needlelen)
 {
@@ -21,6 +22,7 @@ static inline void *memmem(const void *haystack, size_t haystacklen,
 
 	return NULL;
 }
+#endif
 
 /*
  * returns a pointer to the first character which is _not_ c
@@ -58,6 +60,8 @@ static inline size_t memchr_len(const void *s, int c, size_t n)
 #define memeq(a, al, b, bl) (al == bl && !memcmp(a, b, bl))
 #define memeqstr(bytes, length, string) \
 	memeq(bytes, length, string, strlen(string))
+
+#define memstarts_str(a, al, s) memstarts(a, al, s, strlen(s))
 
 #endif
 

@@ -17,7 +17,16 @@
 #define DIV_ROUND_UP_POS_OR_ZERO(n,d)
 #endif
 
-#define DIV_OR_ZERO(n, d) ((n < 0)?0:n/d)
+static inline uint16_t linear_interp_u16(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x)
+{
+	/* potential for multiplication overflow */
+	return (x - x1) * (y2 - y1) / (x2 - x1) + y1;
+}
+
+#define LINEAR_INTERPOLATE(x1, y1, x2, y2, x) \
+	(((x)-(x1)) * ((y2) - (y1)) / ((x2)-(x1)) + (y1))
+
+#define DIV_OR_ZERO(n, d) ((n < 0)?0:(n)/(d))
 
 #define SUB_SAT(a,b) ({					\
 		typeof(a) __sub_sat_a = (a);		\
@@ -35,6 +44,35 @@
 		if (__val > max)	\
 			__val = max;	\
 		__val; })
+
+/* WARNING: widens to 'int' */
+#define PROMOTE(v, expr_constraint) \
+	(1 ? (v) : (expr_constraint))
+
+#define EXPR_IS_SIGNED(e) (PROMOTE(-1, e) < PROMOTE(1, e))
+#define TYPE_IS_SIGNED(t) ((t)-1 < (t) 1)
+
+#if 0
+#define EXPR_UMAX(expr) (~((TYPE_OF_UNSIGNED(expr))0))
+#define EXPR_MAX(expr)  
+
+#define TYPE_UMAX(t)
+#define TYPE_MAX(t)
+
+#define SAT_ADD(x, y) ({						\
+		check_types_match(x, y);				\
+		typeof(x) __sat_add_x = x;				\
+		typeof(y) __sat_add_y = y;				\
+		TYPE_UNION(x, y) __sat_add_r;				\
+		if (EXPR_MAX(x) - __sat_add_x < __sat_add_y)		\
+			r = EXPR_MAX(x);				\
+		else if (EXPR_MIN(x) + __sat_add_x < __sat_add_y)	\
+			r = EXPR_MIN(x);				\
+		else							\
+			r = x + y;					\
+		r;							\
+		})
+#endif
 
 #define MEGA(x) ((x) * 1000000)
 #define KILO(x) ((x) *    1000)
