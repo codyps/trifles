@@ -16,11 +16,11 @@ export CCAN_LDFLAGS
 
 .PHONY: ccan
 ccan: FORCE
-	$(QUIET_SUBMAKE)$(MAKE) $(MAKE_ENV) --no-print-directory $(MAKEFLAGS) -C $@
+	$(QUIET_SUBMAKE)$(MAKE) $(MAKE_ENV) $(MFLAGS) --no-print-directory -C $@
 
 .PHONY: ccan.clean
 ccan.clean :
-	$(QUIET_SUBMAKE)$(MAKE) --no-print-directory $(MAKEFLAGS) -C $(@:.clean=) clean
+	$(QUIET_SUBMAKE)$(MAKE) $(MAKE_ENV) $(MFLAGS) --no-print-directory -C $(@:.clean=) clean
 
 .PHONY: dirclean
 dirclean : clean ccan.clean
