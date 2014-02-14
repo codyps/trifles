@@ -7,6 +7,7 @@ usage () {
 	echo "          [-a arch] [-c cross-compile-prefix] \\"
 	echo "		[-o output-dir] [-i install-dir] \\"
 	echo "		[-t [tarfile]] [-r rsync-not-yet-impl]"
+	echo "		[-C]"
 	echo ""
 	echo "environment var alternatives:"
 	echo "ARCH   -a"
@@ -18,7 +19,7 @@ usage () {
 
 GEN_TARBALL=false
 TARBALL_NAME=
-while getopts a:c:i:o:t arg; do
+while getopts a:c:i:o:tC arg; do
 	case "$arg" in
 	a)	ARCH="$OPTARG"
 		;;
@@ -33,6 +34,7 @@ while getopts a:c:i:o:t arg; do
 		fi
 		GEN_TARBALL=true
 		;;
+	C)	export C=1 ;;
 	*)
 		usage
 	esac
@@ -91,6 +93,10 @@ if [ -n "$CROSS_COMPILE" ]; then
 	export CROSS_COMPILE
 fi
 make="make O=\"$O\" $MAKE_OPTS"
+
+if [ -n "$C" ]; then
+	make="$make C=\'$C\'"
+fi
 
 r () {
 	"$@" || {
