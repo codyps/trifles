@@ -1,0 +1,15 @@
+#! /bin/sh
+
+msg_file="$1"
+
+
+name=`git var GIT_COMMITTER_IDENT`
+name="${name%>*}>"
+
+commit=`git rev-parse "$1"`
+SOB="Signed-off-by: $name"
+
+if ! grep -F "$SOB" "$msg_file" >/dev/null; then
+  echo "WARNING: no signoff found!"
+fi
+

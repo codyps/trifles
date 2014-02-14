@@ -1,0 +1,23 @@
+#! /bin/sh
+
+# Ways to look at the data:
+#  - totals over all cpus (current)
+#  - average per call (for each cpu or summed over all cpus)
+#  - also might want details on a particular hcall or set of hcalls only
+
+: ${SYSFS:=/sys}
+: ${DEBUGFS:=$SYSFS/kernel/debug}
+: ${HCALL_INST:=$DEBUGFS/hcall_inst}
+
+
+for cpu in $HCALL_INST/cpu*; do
+	cat $cpu
+done | awk '/^[^#]/ {
+	calls[$1]      += $2;
+	tb_total[$1]   += $3;
+	purr_total[$1] += $4;
+}
+END {
+	for (hcall in calls)
+		printf "%-6d\t%-7d\t%-10d (%-7d)\t%-10d (%-7d)\n", hcall, calls[hcall], tb_total[hcall], tb_total[hcall] / calls[hcall], purr_total[hcall], purr_total[hcall]/ calls[hcall];
+}' | sort -n

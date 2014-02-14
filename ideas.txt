@@ -1,3 +1,48 @@
+* filesystem
+ - can change the way things are stored per directory tree (recursive)
+ - optional CRC or stronger hash checking
+ - automatic badblocks wr detection
+ - raid-like funtionality both across disks and on a single disk (to avoid
+   single block corruption)
+ - compression
+ - don't get mad when corruption occurs
+
+* initramfs based recovery & repartition live system
+ - actually, may already be supported via using the iso file and some boot
+   parameters.
+ - key: cross-architecture. I'm stuck with some ppc servers I want to resize
+   partitions on :(
+ - For that matter, are there any ppc recovery cds that can run gparted?
+
+* Garmin updater
+  - _appears_ to be a matter of retreving the proper files from garmin's
+    server, droping them in the right place, asking the user to restart the
+    device occasionally (it appears there is a way to run code on boot), and
+    repeat.
+
+* password sync
+  - firefox and chrome both have "secret" syncronization built in.
+  - but we can't get at those secrets from the command line.
+  - can we build a command line tool to access them?
+  - Issues:
+    - authentication in chrome is potentially a google webpage login flow,
+      meaning we need the webbrowser.
+    - for FF, it appears to be custom.
+
+* Fix the pain that is multilib
+ - triplets defining ABI suck, people can configure things so they lie
+ - ABI being changed by arbitrary (undifferentiated) compiler flags is not
+   good
+ - triplets defining what tools to use suck, prefix definitions are more
+   flexible
+ - no standard way to determine
+   - what multilib "targets" a compiler supports (gcc has -print-multi-*)
+   - what the meaning of it's "default" multilib target is
+   - where to put libraries built for a particular multilib (glibc and gcc
+     have different ideas)
+   - what compiler options change ABI
+ - Automated way to build libs for all (or a subset of) multi-libs would be
+   useful.
 
 * Tooling and Testing
  - 'mock' for non-rpm distros (build packages in chroots)
@@ -14,7 +59,8 @@
   info.
 
 * Non-blocking snmp library. (net-snmp does not work for this, see multicast
-  fail)
+  fail). Also, potentially split the message sending from the message
+  serialization/deserialization.
 
 * config file library with the following features:
   - can programmatically modify config files

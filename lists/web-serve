@@ -49,7 +49,6 @@ Raphters
 Duda+Monkey
 	http://blog.monkey-project.com/2012/03/13/duda-web-services-framework-for-monkey/
 
-
 KORE [xxx: is this just a server?]
 	http://kore.io
 	https://github.com/jorisvink/kore
@@ -60,4 +59,44 @@ openresty + nginx
 lapis + nginx
 	http://leafo.net/lapis/
 
+hughes' libhttpd
+	http://www.hughes.com.au/products/libhttpd/
+	GPL (version?), or proprietary (for $995)
+	Last release (1.4) Feb 2, 2005 (OLD)
 
+Apache Axis2/C
+	http://axis.apache.org/axis2/c/core/
+	License: ?
+	Last release: April 20, 2009
+
+libonion
+	http://www.coralbits.com/libonion/
+	http://github.com/davidmoreno/onion
+	LGPL v3
+
+http://www.fastcgi.com/devkit/doc/fastcgi-prog-guide/ch2c.htm
+
+Klone
+	http://www.koanlogic.com/klone/index.html
+	4 Clause BSD
+
+---- Not C
+
+CppCMS
+	http://cppcms.com/wikipp/en/page/main
+	LGPL v3
+	C++ (not C)
+WT
+	http://www.webtoolkit.eu/wt
+	C++ (not C)
+	"web application development library"
+
+opa
+	http://opalang.org/
+	Javascript (not C)
+
+http://ocsigen.org/
+	OCAML
+
+http://www.impredicative.com/ur/
+	Language = itself (-_-)

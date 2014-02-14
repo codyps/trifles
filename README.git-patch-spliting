@@ -1,0 +1,15 @@
+git rebase -i
+# mark patch to split as 'e'
+git reset -p HEAD^
+# select ("y") patch pieces that will go in _later_ patches.
+# pieces marked "n" will stay in the original patch.
+# XXX: this provides the only way I've found to reset the working tree _without_ reseting HEAD
+git commit --amend
+# ^ update original patch to be smaller
+
+# ---*---:
+git add -p
+# select pieces "y" to add to the next patch (logic is "normal" now)
+git commit -m "bleh"
+# go back to "---*---" and repeat as needed.
+
