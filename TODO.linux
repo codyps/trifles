@@ -53,12 +53,6 @@
  - kill the stop_machine() and/or mutex around zonelist updates
 
 
-* Fix per-device setxkbmap so that one can swap super and alt on an usb
-  connected mac keyboard, but not on the builtin windows keyboard.
-  The setxkbmap command thinks it supports this, but it doesn't appear to work
-  (Potentially an X11 protocol/server issue).
-
-
 5
  - fanofity on file modification / file moves (essentially: tree based notifications with inotify level information)
  - allow arithmetic in Kconfig (look for #error )
@@ -73,6 +67,3 @@ Docs:
  - pageflag access rules, and struct page (also called "memmap") access rules.
 
 Big Projects:
- - multimonitor support improvements
-   - dpi
-   - subpixel ordering

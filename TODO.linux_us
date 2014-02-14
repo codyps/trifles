@@ -1,0 +1,18 @@
+- multimonitor support improvements
+   - dpi
+   - subpixel ordering
+- Fix per-device setxkbmap so that one can swap super and alt on an usb
+  connected mac keyboard, but not on the builtin windows keyboard.
+  The setxkbmap command thinks it supports this, but it doesn't appear to work
+  (Potentially an X11 protocol/server issue).
+- audio
+  - libao
+    - using alsa->pulse->alsa doesn't work
+    - using alsa doesn't work "Cannot open audio device"
+  - pulse
+    - sounds pops and crackles
+    - seems to trigger other bugs
+  - mocp
+    - when using alsa->pulse as it's output, occasionally gets stuck fast
+      forwarding through tracks, I expect something it expects to block is not
+      blocking.
