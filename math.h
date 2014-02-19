@@ -79,6 +79,13 @@ static inline uint16_t linear_interp_u16(uint16_t x1, uint16_t y1, uint16_t x2, 
 
 #define ABS(x) ((x) < 0?(-(x)) : (x))
 
+#define max(x, y) ({		\
+	typeof(x) __x = x;	\
+	typeof(y) __y = y;	\
+	(void)(&__y == &__x);	\
+	__x > __y ? __x : __y;	\
+	})
+
 #define MAX(x, y) ((x) > (y)?(x):(y))
 #define MAX3(x, y, z) MAX(MAX(x, y), z)
 #define MAX4(a, b, c, d) MAX(MAX(a,b),MAX(c,d))

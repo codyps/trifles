@@ -9,6 +9,8 @@ typedef unsigned long long ull;
 #define ACCESS_ONCE(x)  (*(volatile typeof(x) *) &(x))
 #define barrier() __asm__ __volatile__ ("":::"memory")
 
+#define IS_ALIGNED(x, a) (((x) & ((typeof(x))(a) - 1)) == 0)
+
 /* prefetch for reading */
 #define prefetch(x)  __builtin_prefetch(x)
 
