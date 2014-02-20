@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <ctype.h>
+#include <limits.h>
+#include <string.h>
 
 static const char hex_lookup[] = "0123456789abcdef";
 static inline void print_hex_byte(char byte, FILE *f)
@@ -90,9 +92,8 @@ static inline void print_bytes_as_sh_no_quote_string(void *data, size_t data_len
 	}
 }
 
-static inline void print_bytes_as_cstring(const void *data, size_t data_len, FILE *f)
+static inline void print_bytes_as_cstring_(const void *data, size_t data_len, FILE *f)
 {
-	putc('"', f);
 	const char *p = data;
 	size_t i;
 	for (i = 0; i < data_len; i++) {
@@ -126,19 +127,50 @@ static inline void print_bytes_as_cstring(const void *data, size_t data_len, FIL
 			}
 		}
 	}
+}
+
+static inline void print_bytes_as_cstring(const void *data, size_t data_len, FILE *f)
+{
+	putc('"', f);
+	print_bytes_as_cstring_(data, data_len, f);
 	putc('"', f);
 }
 
 static inline void print_hex_dump(void *vbuf, size_t buf_len, FILE *f) {
-	int i;
+	size_t i;
 	uint8_t *buf = vbuf;
 	for (i = 0; i < buf_len; i++) {
 		fprintf(f, "%02X ", buf[i]);
 	}
 }
 
+static inline void print_hex_dump_fmt(void *vbuf, size_t buf_len, FILE *f) {
+	size_t i;
+	uint8_t *buf = vbuf;
+	int off_width = ffs(buf_len) / 2;
+
+	for (i = 0; (int)i < off_width + 2; i++)
+		putc(' ', f);
+	for (i = 0; i < 0x10; i++) {
+		fprintf(f, " %zX ", i);
+	}
+
+	putc('\n', f);
+
+	for (i = 0; i < buf_len; i++) {
+		if (i % 0x10 == 0)
+			fprintf(f, "%0*lX: ", off_width, i);
+		fprintf(f, "%02X ", buf[i]);
+		if ((i + 1) % 0x10 == 0)
+			putc('\n', f);
+	}
+
+	if (i % 0x10 != 0)
+		putc('\n', f);
+}
+
 static inline void print_char_dump(void *vbuf, size_t buf_len, FILE *f) {
-	int i;
+	size_t i;
 	uint8_t *buf = vbuf;
 	for (i = 0; i < buf_len; i++) {
 		if (!iscntrl(buf[i]) && isprint(buf[i])) {
