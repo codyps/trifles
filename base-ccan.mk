@@ -20,10 +20,10 @@ $1 : FORCE
 	$$(QUIET_SUBMAKE)$$(MAKE) $$(MAKE_ENV) $$(MFLAGS) --no-print-directory -C $$(dir $$@) $$(notdir $$@)
 endef
 
-sub-make ccan/config.h
-sub-make ccan/libccan.a
+$(call sub-make ccan/config.h)
+$(call sub-make ccan/libccan.a)
 .PHONY: ccan/clean
-sub-make ccan/clean
+$(call sub-make ccan/clean)
 
 
 .PHONY: dirclean
