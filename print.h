@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include <string.h>
+#include <penny/math.h>
 
 static const char hex_lookup[] = "0123456789abcdef";
 static inline void print_hex_byte(char byte, FILE *f)
@@ -147,20 +148,20 @@ static inline void print_hex_dump(void *vbuf, size_t buf_len, FILE *f) {
 static inline void print_hex_dump_fmt(void *vbuf, size_t buf_len, FILE *f) {
 	size_t i;
 	uint8_t *buf = vbuf;
-	int off_width = ffs(buf_len) / 2;
+	int off_width = DIV_ROUND_UP(fls(buf_len), 4);
 
-	for (i = 0; (int)i < off_width + 2; i++)
+	for (i = 0; (int)i < off_width + 1; i++)
 		putc(' ', f);
 	for (i = 0; i < 0x10; i++) {
-		fprintf(f, " %zX ", i);
+		fprintf(f, "  %zX", i);
 	}
 
 	putc('\n', f);
 
 	for (i = 0; i < buf_len; i++) {
 		if (i % 0x10 == 0)
-			fprintf(f, "%0*lX: ", off_width, i);
-		fprintf(f, "%02X ", buf[i]);
+			fprintf(f, "%0*lX:", off_width, i);
+		fprintf(f, " %02X", buf[i]);
 		if ((i + 1) % 0x10 == 0)
 			putc('\n', f);
 	}

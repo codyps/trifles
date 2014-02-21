@@ -1,6 +1,8 @@
 #ifndef PENNY_MATH_H_
 #define PENNY_MATH_H_
 
+#include <limits.h>
+
 /* potential for overflow when doing (n + d - 1) */
 #define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
 #if 0
@@ -26,7 +28,7 @@ static inline uint16_t linear_interp_u16(uint16_t x1, uint16_t y1, uint16_t x2, 
 #define LINEAR_INTERPOLATE(x1, y1, x2, y2, x) \
 	(((x)-(x1)) * ((y2) - (y1)) / ((x2)-(x1)) + (y1))
 
-#define DIV_OR_ZERO(n, d) ((n < 0)?0:(n)/(d))
+#define DIV_OR_ZERO(n, d) ((n <= 0)?0:(n)/(d))
 
 #define SUB_SAT(a,b) ({					\
 		typeof(a) __sub_sat_a = (a);		\
@@ -97,5 +99,15 @@ static inline uint16_t linear_interp_u16(uint16_t x1, uint16_t y1, uint16_t x2, 
 #define MIN4(a, b, c, d) MIN(MIN(a,b),MIN(c,d))
 #define MIN6(a,b,c,d,e,f) MIN(MIN4(a,b,c,d),MIN(e,f))
 #define MIN8(a,b,c,d,e,f,g,h) MIN(MIN4(a,b,c,d),MIN4(e,f,g,h))
+
+static inline unsigned fls(unsigned x)
+{
+	unsigned i;
+	for (i = sizeof(x) * CHAR_BIT + 1; i > 0; i--) {
+		if (x & (1 << (i - 1)))
+			return i;
+	}
+	return i;
+}
 
 #endif
