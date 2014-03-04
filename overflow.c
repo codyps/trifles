@@ -36,6 +36,10 @@ unsigned long long max_4(unsigned bit_start, unsigned bit_end)
 #endif
 
 /*
+ *
+ * "The output only uses so many values."
+ * "Why not use the low bit as a marker/flag?"
+ *
  * Derivation:
  * 2**(N) - 1
  * 2**(N - 1 + 1) - 1
