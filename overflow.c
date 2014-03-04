@@ -1,6 +1,12 @@
 
 #include <limits.h>
 
+/* Undefined behavior: n1256 6.5.7.4 -
+ *
+ * If E1 has a signed type and nonnegative value, and E1×2**E2 is representable
+ * in the result type, then that is the resulting value; otherwise, the
+ * behavior is undefined
+ */
 unsigned long long max_1(unsigned bit_start, unsigned bit_end)
 {
 	return (0x1ULL << ((bit_end) - (bit_start) + 1)) - 1ULL;

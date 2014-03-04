@@ -41,9 +41,9 @@ CFG=$XDG_CONFIG_HOME/passrc
 
 found_pass () {
 	if $print_it; then
-		echo "$1"
+		printf "%s\n" "$1"
 	else
-		echo "$1" | xclip -i -selection $wr_buf
+		printf "%s" "$1" | xclip -i -selection $wr_buf
 	fi
 	exit 1
 }

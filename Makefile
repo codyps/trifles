@@ -17,6 +17,7 @@ obj-gkr-decrypt = gkr-decrypt.o
 obj-hd = hd.o
 obj-dripper = Dripper.o
 obj-test-type-info = test_type.o
+ojb-static-array = static_array.o
 
 obj-lsalsa = hw_params.o
 ldflags-lsalsa = -lasound
@@ -32,6 +33,6 @@ obj-parse-datetime = parse-datetime.o
 
 ALL_CFLAGS += -I.
 
-TARGETS = hd gkr-decrypt lsalsa test-pm-timer debugfs-test utime test-dep modll pipe unix-test set-qf-union set-qu-union set-to-dot dripper test-netlink usbreset hub-ctrl test-type-info uinput
+TARGETS = hd gkr-decrypt lsalsa test-pm-timer debugfs-test utime test-dep modll pipe unix-test set-qf-union set-qu-union set-to-dot dripper test-netlink usbreset hub-ctrl test-type-info uinput static-array
 
 include base.mk
