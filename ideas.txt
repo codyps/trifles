@@ -4,8 +4,10 @@
  - automatic badblocks wr detection
  - raid-like funtionality both across disks and on a single disk (to avoid
    single block corruption)
- - compression
  - don't get mad when corruption occurs
+ - compression
+ - online and offline grow/shrink
+ - ability to "throw another disk at it"
 
 * initramfs based recovery & repartition live system
  - actually, may already be supported via using the iso file and some boot

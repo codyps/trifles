@@ -16,3 +16,12 @@
     - when using alsa->pulse as it's output, occasionally gets stuck fast
       forwarding through tracks, I expect something it expects to block is not
       blocking.
+
+- lxc
+  - create doesn't work
+    - '-t' doesn't search the right dir, have to manually specify full path
+    - even when a template is specified, trys to run it and encounters commands
+      that aren't commands ('arch') and complains, then later fails
+    - When no template is specified, it just says "Error creating container
+      foo" and doesn't give any feedback. The usage doesn't say a template is
+      required (is it?).
