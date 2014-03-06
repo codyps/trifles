@@ -160,7 +160,7 @@ static inline void print_hex_dump_fmt(void *vbuf, size_t buf_len, FILE *f) {
 
 	for (i = 0; i < buf_len; i++) {
 		if (i % 0x10 == 0)
-			fprintf(f, "%0*lX:", off_width, i);
+			fprintf(f, "%0*zX:", off_width, i);
 		fprintf(f, " %02X", buf[i]);
 		if ((i + 1) % 0x10 == 0)
 			putc('\n', f);

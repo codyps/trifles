@@ -92,14 +92,14 @@ struct i2c_state {
 	uint8_t prev_sda:1,
 		prev_scl:1,
 		state:4,
-		unused:2;
+		reserved1:2;
 };
 
 typedef int_least8_t im11;
 #define bool_to_im11(b) ((im11)(b) << 1 - 1)
 
 
-#define DEFINE_I2C_TRACKER(_n) DEFINE_I2C_TRACKER_(_n, \
+#define DEFINE_I2C_TRACKER(_n) DEFINE_I2C_TRACKER_(_n##_, \
 		_n##_start, _n##_stop, _n##_data, _n##_invalid)
 
 /*
@@ -126,7 +126,7 @@ static void _n##i2c_state_data(struct i2c_state *s, bool sda)	\
 		s->byte |= sda;					\
 		s->state ++;					\
 	} else {						\
-		I2C_BYTE(s, sda);				\
+		_data(s, sda);					\
 		s->state = I2C_STATE_0;				\
 	}							\
 }								\
@@ -136,7 +136,7 @@ static void _n##i2c_state_invalid(struct i2c_state *s,		\
 	_invalid(s, d_sda, d_scl);				\
 	_n##i2c_state_stop(s);					\
 }								\
-static void i2c_inputs(struct i2c_state *s,			\
+static void _n##i2c_inputs(struct i2c_state *s,			\
 		bool sda, bool scl)				\
 {								\
 	im11 d_sda = (im11)sda - s->prev_sda,			\
