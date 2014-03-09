@@ -14,7 +14,7 @@ api_url="https://api.github.com"
 
 function check_config() {
 	if [ -z "$user" ] || [ -z "$password" ]; then
-		warn "aborting: github.user or github.password not set"
+		warn "aborting: github.user or github.pass not set"
 		exit 1
 	fi
 }
