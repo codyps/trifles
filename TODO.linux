@@ -77,3 +77,5 @@ Uncategorized:
    - a way to forbid userspace writes to a memory range (for some duration)
    - Rather than use memory ranges, these will probably have to deal with
      pages, which may make the userspace interface less than ideal.
+
+ - kmemcheck for non-x86 cpus (powerpc)
