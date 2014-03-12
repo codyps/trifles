@@ -35,13 +35,6 @@ math.h::
 	- DIV_OR_ZERO()
 	- DIV_ROUND_UP()
 
-debug.h::
-	Debugging prints based on value of DEBUG env var.
-
-	- pr_debug(lvl, fmt, ...)
-	- debug_is(lvl)
-	- debug_level()
-
 mem.h::
 	Some handy compaions to the common str*() functions that operate on
 	lenth specified byte arrays instead of null terminated arrays.
