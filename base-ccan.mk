@@ -25,6 +25,5 @@ $(eval $(call sub-make,ccan/libccan.a))
 .PHONY: ccan/clean
 $(eval $(call sub-make,ccan/clean))
 
-
 .PHONY: dirclean
-dirclean : clean ccan.clean
+dirclean : clean ccan/clean

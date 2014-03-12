@@ -99,9 +99,12 @@ BIN_TARGETS=$(addprefix $(O)/,$(addsuffix $(BIN_EXT),$(TARGETS)))
 .PHONY: all FORCE
 all:: $(BIN_TARGETS)
 
-ifndef DISABLE_VERSION
+ifdef WANT_VERSION
 VERSION := $(shell $(HOME)/trifles/setlocalversion)
-ALL_CPPFLAGS += -DVERSION=\"$(VERSION)\"
+VERSION_FLAGS = -DVERSION=$(VERSION)
+ifeq ($(WANT_VERSION),global)
+ALL_CPPFLAGS += $(VERSION_FLAGS)
+endif
 endif
 
 # Prioritize environment specified variables over our defaults
@@ -129,10 +132,17 @@ endif
 
 DBG_FLAGS = -ggdb3
 
+CC_TYPE ?= gcc
+
 ifndef NO_LTO
 # TODO: use -flto=jobserver
+ifeq ($(CC_TYPE),gcc)
 CFLAGS  ?= -flto $(DBG_FLAGS)
 LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fuse-linker-plugin
+else ifeq ($(CC_TYPE),clang)
+LDFLAGS ?= $(OPT)
+CFLAGS  ?= -emit-llvm $(DBG_FLAGS)
+endif
 else
 CFLAGS  ?= $(OPT) $(DBG_FLAGS)
 endif
