@@ -58,7 +58,6 @@
   The setxkbmap command thinks it supports this, but it doesn't appear to work
   (Potentially an X11 protocol/server issue).
 
-
 5
  - fanofity on file modification / file moves (essentially: tree based notifications with inotify level information)
  - allow arithmetic in Kconfig (look for #error )
@@ -76,3 +75,4 @@ Big Projects:
  - multimonitor support improvements
    - dpi
    - subpixel ordering
+ - Intel QuickSync support (programming manual exists)
