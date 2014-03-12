@@ -1,0 +1,159 @@
+#! /bin/sh
+
+D="$(dirname "$0")"
+
+usage () {
+	echo "usage: $(basename $0) \\"
+	echo "          [-a arch] [-c cross-compile-prefix] \\"
+	echo "		[-o output-dir] [-i install-dir] \\"
+	echo "		[-t [tarfile]] [-r rsync-not-yet-impl]"
+	echo "		[-C]"
+	echo ""
+	echo "environment var alternatives:"
+	echo "ARCH   -a"
+	echo "CROSS_COMPILE -c"
+	echo "O	-o"
+	echo "I -i"
+	exit 1
+}
+
+GEN_TARBALL=false
+TARBALL_NAME=
+while getopts a:c:i:o:tC arg; do
+	case "$arg" in
+	a)	ARCH="$OPTARG"
+		;;
+	c)	CROSS_COMPILE="$OPTARG"
+		;;
+	i)	I="$OPTARG"
+		;;
+	o)	O="$OPTARG"
+		;;
+	t)	if [ -n "$OPTARG" ]; then
+			TARBALL_NAME="$OPTARG"
+		fi
+		GEN_TARBALL=true
+		;;
+	C)	export C=1 ;;
+	*)
+		usage
+	esac
+done
+
+case "$ARCH" in
+powerpc64)
+	ARCH=powerpc
+	if [ -z "$CROSS_COMPILE" ]; then
+		CROSS_COMPILE="powerpc64-linux-"
+	fi
+	;;
+esac
+
+if [ -z "$CROSS_COMPILE" ] && [ -n "$ARCH" ]; then
+	CROSS_COMPILE="$ARCH-linux-"
+fi
+
+CROSS_COMPILE="ccache $CROSS_COMPILE"
+
+MAKE_OPTS="-j8"
+
+echo "ARCH=$ARCH"
+echo "CROSS_COMPILE=$CROSS_COMPILE"
+echo "O=$O"
+
+cfg_to_arch () {
+	head -n3 "$1" | tail -n1 | cut -d' ' -f2 | cut -d/ -f2
+}
+
+safe_cfg_to_arch () {
+	if [ -e "$1" ]; then
+		cfg_to_arch "$1"
+	else
+		echo "unknown"
+	fi
+}
+
+cfg_arch=$(safe_cfg_to_arch $O/.config)
+echo ".config ARCH=$cfg_arch"
+
+if [ $cfg_arch != "unknown" ] && [ $cfg_arch != "$ARCH" ]; then
+	echo "!! ARCH mismatch !!"
+	exit 1
+fi
+
+die () {
+	echo "$*" >>/dev/stderr
+	exit 1
+}
+
+if [ -n "$ARCH" ]; then
+	export ARCH
+fi
+if [ -n "$CROSS_COMPILE" ]; then
+	export CROSS_COMPILE
+fi
+make="make O=\"$O\" $MAKE_OPTS"
+
+if [ -n "$C" ]; then
+	make="$make C=\'$C\'"
+fi
+
+r () {
+	"$@" || {
+		printf "Failed:\n\t"
+		for i in "$@"; do
+			e=$(printf "%s" "$i" | sed "s;';'\\'';" )
+			printf "'%s' " "$e"
+		done
+		printf "\n"
+		exit 1
+	}
+}
+
+if [ -z "$I" ]; then
+	I=`mktemp -d`
+	trap "rm -rf \"$I\"" EXIT
+fi
+
+r mkdir -p "$I"
+
+r $make
+r $make INSTALL_MOD_PATH="$I" modules_install
+
+VER=`$make kernelrelease | tail -n1`
+case "$ARCH" in
+	powerpc) KERNEL=vmlinux ;;
+	*) die "I don't know the kernel image for ARCH='$ARCH'" ;;
+esac
+MAP=System.map
+
+mkdir -p "$I/boot"
+if [ "$KERNEL" = vmlinux ]; then
+	kcp () {
+		r eu-strip --remove-comment "$1" -o "$2"
+	}
+else
+	kcp () {
+		r cp "$@"
+	}
+fi
+kcp $O/$KERNEL  $I/boot/$KERNEL-$VER
+r cp $O/$MAP     $I/boot/$MAP-$VER
+r cp $O/.config  $I/boot/config-$VER
+r echo $VER > $I/version
+
+if $GEN_TARBALL; then
+	(
+		r cd "$I"
+
+		if [ -z "$TARBALL_NAME" ]; then
+			TARBALL_NAME=$O/linux-$ARCH-$VER.tar.xz
+		fi
+		r tar acf $O/linux-$ARCH-$VER.tar.xz .
+	)
+fi
+
+if $DO_RSYNC; then
+	# XXX: rsync it!
+	:
+fi

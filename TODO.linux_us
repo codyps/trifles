@@ -1,0 +1,27 @@
+- multimonitor support improvements
+   - dpi
+   - subpixel ordering
+- Fix per-device setxkbmap so that one can swap super and alt on an usb
+  connected mac keyboard, but not on the builtin windows keyboard.
+  The setxkbmap command thinks it supports this, but it doesn't appear to work
+  (Potentially an X11 protocol/server issue).
+- audio
+  - libao
+    - using alsa->pulse->alsa doesn't work
+    - using alsa doesn't work "Cannot open audio device"
+  - pulse
+    - sounds pops and crackles
+    - seems to trigger other bugs
+  - mocp
+    - when using alsa->pulse as it's output, occasionally gets stuck fast
+      forwarding through tracks, I expect something it expects to block is not
+      blocking.
+
+- lxc
+  - create doesn't work
+    - '-t' doesn't search the right dir, have to manually specify full path
+    - even when a template is specified, trys to run it and encounters commands
+      that aren't commands ('arch') and complains, then later fails
+    - When no template is specified, it just says "Error creating container
+      foo" and doesn't give any feedback. The usage doesn't say a template is
+      required (is it?).

@@ -1,0 +1,15 @@
+#! /bin/sh
+
+# TODO: add option to create repo
+# TODO: avoid adding duplicate denyCurrentBranch options to the config file
+
+if [ $# -ne 2 ]; then
+	echo "usage: $(basename $0) <hostname> <repo path>"
+	exit 1
+fi
+
+host=$1
+location=$2
+
+ssh $host sh -c  "'git --git-dir=\"$location\"/.git config --local --add receive.denyCurrentBranch ignore && cat - >\"$location\"/.git/hooks/post-update && chmod +x \"$location\"/.git/hooks/post-update || { echo FAILED; exit 1; }'" \
+	< $(dirname "$0")/../git-hooks/post-update.checkout-non-bare

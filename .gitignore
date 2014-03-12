@@ -27,8 +27,15 @@
 set-qf-union
 set-qu-union
 set-to-dot
+test-netlink
+usbreset
+hub-ctrl
+test-type-info
 
 /parse-datetime.c
+p32
+p64
+uinput
 
 login.keyring
 user.keystore

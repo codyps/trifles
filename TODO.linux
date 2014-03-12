@@ -76,3 +76,15 @@ Big Projects:
    - dpi
    - subpixel ordering
  - Intel QuickSync support (programming manual exists)
+
+Uncategorized:
+ - smt_snooze_delay cleanup
+   http://comments.gmane.org/gmane.linux.kernel.commits.head/430501
+
+ - generic helpers for handling pages from userspace
+   - a way to lock a memory range at a particular location in ram (pin)
+   - a way to forbid userspace writes to a memory range (for some duration)
+   - Rather than use memory ranges, these will probably have to deal with
+     pages, which may make the userspace interface less than ideal.
+
+ - kmemcheck for non-x86 cpus (powerpc)

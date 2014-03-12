@@ -1,8 +1,8 @@
-* cubieboard needs new uboot and kernel
-  - sunxi project only supports 3.0, 3.4, or 3.9
-  - need new u-boot for 3.4 or 3.9
-  - for now skip uboot and build custom 3.0 kernel
-  - how much of this crap is upstream? Can I build a patchset to apply on top of upstream?
+* cubieboard & iteaduino
+  - sunxi project only supports 3.0, 3.4, or 3.10
+  - not all patches upstream (SATA, USB notable)
+  - not clear what/where the latest patches are to rebase them ontop of upstream (ideal)
+  - need a dt for 3.10
 
 * dns 343
   - install serial port
@@ -10,7 +10,6 @@
   - u-boot
 
 * dns 323
-  - install serial port
   - openwrt
   - u-boot
 
@@ -19,7 +18,25 @@
   - jshon
   - CERT fuzzing tools
 
+* djmount - fixup for new upnp version & ebuild resurection
+
+* brscan - build from source code
+
 * LED Heart using WS led controllers
 
-* Update x201 bios
-  - not coreboot yet :(
+* flash new version of openwrt on router
+
+* git sync
+ - gcc _All_ branches (notably, the embedded ones)
+ - gentoo portage tree (in cvs with a very finiky cvs server)
+
+* x201 bios
+  - Well, update the proprietary ones, then:
+  - enable on-system flashrom (and figure out how to recover)
+  - fix S3 in coreboot
+  - reverse engineer Mangment Engine
+
+* Sane,minimal SNMP library
+  - depends on a ASN.1 lib with the same attributes
+	- liblasn
+

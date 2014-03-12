@@ -1,0 +1,9 @@
+uClibc ppc64 support
+buildroot ppc64
+
+musl?
+crosstool-ng testing
+
+open the FSP
+open the partition fw
+
