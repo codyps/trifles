@@ -5,4 +5,34 @@ if [ $# -ne 1 ]; then
 	exit 1
 fi
 
-cut -d'<' -f2 | cut -d'>' -f1 | xargs -r -I '{}' addr2line '{}' -f -e "$1" | paste - - | column -t
+while read line; do
+	# On x86:
+	# [111878.111486]  [<c04aa9d8>] ? get_page_from_freelist+0x346/0x365
+
+	# On powerpc
+	#[    2.347868] NIP [c0000000002f96ec] .internal_create_group+0x10c/0x330
+	#[    2.347872] LR [c0000000002f96fc] .internal_create_group+0x11c/0x330
+	#[    2.347874] Call Trace:
+	#[    2.347877] [c0000001da1038e0] [c0000000002f96fc] .internal_create_group+0x11c/0x330 (unreliable)
+	#[    2.347882] [c0000001da103980] [c0000000002f9a60] .sysfs_create_groups+0x60/0x100
+
+	echo $line
+
+	trimed_time=$(printf "%s" "$line" | sed 's;^\[[^]]*\] ;;')
+
+	# In trimmed_time, everything in "[]" is an address we want to translate.
+	# If 2 [] are on the same line, we need to skip the first one.
+
+	( printf "%s\n" "$trimed_time" | sed 's; \+;\n;g' | while read maybe_addr; do
+		echo "$maybe_addr"
+		if grep -q '\[<[A-Fa-f0-9]\+>\]'; then
+			echo "ADDR: $maybe_addr"
+		elif grep -q '\[[A-Fa-f0-9]\+\]' ; then
+			echo "ADDR: $maybe_addr"
+		else
+			echo "NOT ADDR: $maybe_addr"
+		fi
+	done; )
+done
+
+#cut -d'<' -f2 | cut -d'>' -f1 | xargs -r -I '{}' addr2line '{}' -f -e "$1" | paste - - | column -t

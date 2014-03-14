@@ -88,3 +88,7 @@ Uncategorized:
      pages, which may make the userspace interface less than ideal.
 
  - kmemcheck for non-x86 cpus (powerpc)
+
+ - better file-based encryption
+   - https://defuse.ca/audits/encfs.htm
+   - https://defuse.ca/audits/ecryptfs.htm
