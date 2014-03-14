@@ -32,7 +32,7 @@ static void run_cmd(const char *cmd, ...)
 		const char *arg = va_arg(va, const char *);
 		if (!arg)
 			break;
-		if (i > ARRAY_SIZE(args)) {
+		if (i + 1 > ARRAY_SIZE(args)) {
 			too_many_args = true;
 			continue;
 		}
@@ -41,6 +41,8 @@ static void run_cmd(const char *cmd, ...)
 
 		args[i] = arg;
 	}
+
+	args[i] = NULL;
 
 	dbg_run_cmd("\n");
 
