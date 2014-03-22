@@ -298,8 +298,11 @@ $(O)/%.o : %.S $(O)/.TRACK-ASFLAGS
 	$(QUIET_AS)$(AS) -c $(ALL_ASFLAGS) $< -o $@
 
 ifndef NO_INSTALL
-PREFIX  ?= $(HOME)   # link against things here
-DESTDIR ?= $(PREFIX) # install into here
+# link against things here
+PREFIX  ?= $(HOME)
+# install into here
+DESTDIR ?= $(PREFIX)
+# binarys go here
 BINDIR  ?= $(DESTDIR)/bin
 .PHONY: install %.install
 %.install: %
