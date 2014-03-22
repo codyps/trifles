@@ -206,7 +206,14 @@ ifndef V
 	QUIET_FLEX  = @ echo '  FLEX ' $@;
 	QUIET_BISON = @ echo '  BISON' $*.tab.c $*.tab.h;
 	QUIET_AS    = @ echo '  AS   ' $@;
+	QUIET_SUBMAKE  = @ echo '  MAKE ' $@;
 endif
+
+define sub-make
+$1 : FORCE
+	$$(QUIET_SUBMAKE)$$(MAKE) $$(MAKE_ENV) $$(MFLAGS) --no-print-directory -C $$(dir $$@) $$(notdir $$@)
+endef
+
 
 # Avoid deleting .o files
 .SECONDARY:
