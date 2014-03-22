@@ -303,7 +303,8 @@ DESTDIR ?= $(PREFIX) # install into here
 BINDIR  ?= $(DESTDIR)/bin
 .PHONY: install %.install
 %.install: %
-	install $* $(BINDIR)/$*
+	mkdir -p $(BINDIR)
+	install $* $(BINDIR)
 install: $(foreach target,$(TARGETS),$(target).install)
 endif
 
