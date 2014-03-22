@@ -210,11 +210,21 @@ ifndef V
 	QUIET_AR    = @ echo '  AR   ' $@;
 endif
 
-define sub-make
+define sub-make-no-clean
 $1 : FORCE
 	$$(QUIET_SUBMAKE)$$(MAKE) $$(MAKE_ENV) $$(MFLAGS) --no-print-directory $3 -C $$(dir $$@) $$(notdir $$@)
 endef
 
+define sub-make-clean
+$(eval $(call sub-make-no-clean,$(1),$(2)))
+.PHONY: $(1)
+clean: $(1)
+endef
+
+define sub-make
+$(eval $(call sub-make-no-clean,$(1),$(2)))
+$(eval $(call sub-make-clean,$(1),$(2)))
+endef
 
 # Avoid deleting .o files
 .SECONDARY:
