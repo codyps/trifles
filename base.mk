@@ -223,7 +223,7 @@ endef
 
 define sub-make
 $(eval $(call sub-make-no-clean,$(1),$(2)))
-$(eval $(call sub-make-clean,$(1),$(2)))
+$(eval $(call sub-make-clean,$(dir $(1))/clean,$(2)))
 endef
 
 # Avoid deleting .o files
