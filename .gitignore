@@ -31,6 +31,7 @@ test-netlink
 usbreset
 hub-ctrl
 test-type-info
+oops2line
 
 /parse-datetime.c
 p32

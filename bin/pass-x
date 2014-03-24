@@ -8,7 +8,7 @@ usage () {
 wr_buf=clipboard
 ref=
 print_it=false
-while getopts hP opt; do
+while getopts phP opt; do
 	case $opt in
 	h)	usage 0;;
 	P)	wr_buf=primary;;
@@ -41,7 +41,7 @@ CFG=$XDG_CONFIG_HOME/passrc
 
 found_pass () {
 	if $print_it; then
-		printf "%s\n" "$1"
+		printf "%s" "$1"
 	else
 		printf "%s" "$1" | xclip -i -selection $wr_buf
 	fi

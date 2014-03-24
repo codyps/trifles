@@ -206,7 +206,25 @@ ifndef V
 	QUIET_FLEX  = @ echo '  FLEX ' $@;
 	QUIET_BISON = @ echo '  BISON' $*.tab.c $*.tab.h;
 	QUIET_AS    = @ echo '  AS   ' $@;
+	QUIET_SUBMAKE  = @ echo '  MAKE ' $@;
+	QUIET_AR    = @ echo '  AR   ' $@;
 endif
+
+define sub-make-no-clean
+$1 : FORCE
+	$$(QUIET_SUBMAKE)$$(MAKE) $$(MAKE_ENV) $$(MFLAGS) --no-print-directory $3 -C $$(dir $$@) $$(notdir $$@)
+endef
+
+define sub-make-clean
+$(eval $(call sub-make-no-clean,$(1),$(2)))
+.PHONY: $(1)
+clean: $(1)
+endef
+
+define sub-make
+$(eval $(call sub-make-no-clean,$(1),$(2)))
+$(eval $(call sub-make-clean,$(dir $(1))/clean,$(2)))
+endef
 
 # Avoid deleting .o files
 .SECONDARY:
@@ -239,15 +257,29 @@ parser-prefix = $(if $(PP_$*),$(PP_$*),$*_)
 
 dep-gen = -MMD -MF $(call obj-to-dep,$@)
 
-define BIN-LINK
+define build-link-flags
 $(foreach obj,$(obj-$(1)),$(eval cflags-$(obj:.o=) += $(cflags-$(1))))
 $(foreach obj,$(obj-$(1)),$(eval cxxflags-$(obj:.o=) += $(cxxflags-$(1))))
+endef
+
+define BIN-LINK
+$(eval $(call build-link-flags,$(1)))
 
 $(O)/$(1)$(BIN_EXT) : $(O)/.TRACK-LDFLAGS $(call target-obj,$(1))
 	$$(QUIET_LINK)$$(CCLD) -o $$@ $$(call target-obj,$(1)) $$(ALL_LDFLAGS) $$(ldflags-$(1))
 endef
 
+define SLIB-LINK
+$(eval $(call build-link-flags,$(1)))
+
+$(O)/$(1) : $(O)/.TRACK-ARFLAGS $(call target-obj,$(1))
+	$$(QUIET_AR)$$(AR) -o $$@ $$(call target-obj,$(1)) $$(ALL_ARFLAGS) $$(arflags-$(1))
+
+endef
+
+
 $(foreach target,$(TARGETS),$(eval $(call BIN-LINK,$(target))))
+$(foreach slib,$(TARGET_STATIC_LIBS),$(eval $(call SLIB-LINK,$(slib))))
 
 $(O)/%.tab.h $(O)/%.tab.c : %.y
 	$(QUIET_BISON)$(BISON) --locations -d \
@@ -266,12 +298,16 @@ $(O)/%.o : %.S $(O)/.TRACK-ASFLAGS
 	$(QUIET_AS)$(AS) -c $(ALL_ASFLAGS) $< -o $@
 
 ifndef NO_INSTALL
-PREFIX  ?= $(HOME)   # link against things here
-DESTDIR ?= $(PREFIX) # install into here
+# link against things here
+PREFIX  ?= $(HOME)
+# install into here
+DESTDIR ?= $(PREFIX)
+# binarys go here
 BINDIR  ?= $(DESTDIR)/bin
 .PHONY: install %.install
 %.install: %
-	install $* $(BINDIR)/$*
+	mkdir -p $(BINDIR)
+	install $* $(BINDIR)
 install: $(foreach target,$(TARGETS),$(target).install)
 endif
 

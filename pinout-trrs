@@ -1,0 +1,38 @@
+===== Pinouts of TRRS 3.5mm connections commonly used for video/audio and cell phone headsets =====
+
+"TRRS" - Tip Ring Ring Sleve.
+This indicates the ordering that all the listings here will be in.
+
+
+    S   R   R   T
+   -----------_.-.
+---|  |   |   |  |
+   -----------^--^
+
+==== Headsets ====
+
+OMTP - LRMG - left audio, right audio, microphone, ground.
+TODO: add information about the audio & mic electrical charactiristings
+TODO: add info about the control channel
+
+AHJ/CTIA - LRGM - left audio, right audio, microphone, ground.
+
+
+Android Controls: resistance between GND and MIC (S and R2)
+
+0 Ohms - play/pause
+220 Ohms - skip back
+600 Ohms - skip forward
+
+Apple Volume Controls: ????
+
+
+==== Video ====
+
+LRVG - Archos, Creative, Gigabeat, Zen Vision Series, Cown iAudio, Apple iBook
+
+LVGR - Standard Camcorder
+
+RLGV - iPod Video
+
+LRGV - Zune
