@@ -2,6 +2,7 @@
 #define PENNY_MATH_H_
 
 #include <limits.h>
+#include <stdint.h>
 
 /* potential for overflow when doing (n + d - 1) */
 #define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
