@@ -130,7 +130,7 @@ else
 OPT=-Os
 endif
 
-DBG_FLAGS = -ggdb3
+DBG_FLAGS = -ggdb3 -gdwarf-4 -fvar-tracking-assignments
 
 CC_TYPE ?= gcc
 
