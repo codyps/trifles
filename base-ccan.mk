@@ -1,5 +1,7 @@
 CCAN_CFLAGS ?= $(ALL_CFLAGS)
 # Blah, fix LDFLAGS
+# TODO: rebuild should occur when CFLAGS, CC, LD, or LDFLAGS change.
+# TODO: don't call submake, figure out the objects ourselves.
 
 ifndef BASE_MK_MANUAL_CCAN
 $(obj-all) : ccan/config.h
