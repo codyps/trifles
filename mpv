@@ -1,0 +1,3 @@
+
+env VDPAU_DRIVER=va_gl mpv --hwdec=vdpau --vo=vdpau /path/to/file
+env VDPAU_DRIVER=va_gl mpv --vo=vdpau /path/to/file
