@@ -1,3 +1,9 @@
+* some protocols are very much un-fuzzed
+ - wireless
+   - wpa
+   - wps
+ - ipmi
+
 * filesystem
  - can change the way things are stored per directory tree (recursive)
  - optional CRC or stronger hash checking
