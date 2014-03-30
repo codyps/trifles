@@ -15,12 +15,14 @@ static inline void print_hex_byte(char byte, FILE *f)
 	putc(hex_lookup[byte & 0x0f], f);
 }
 
+#if 0
 /* converts non-printable & control characters to their escaped represenation,
  * if on exsists, otherwise converts to hex */
 static inline void print_bytes_as_sh_dollar_quote_string(void *data, size_t data_len, FILE *f)
 {
 
 }
+#endif
 
 static inline void print_bytes_as_sh_double_quote_string(void *data, size_t data_len, FILE *f)
 {
