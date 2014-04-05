@@ -1,0 +1,55 @@
+#! /usr/bin/env python
+from __future__ import print_function
+from collections import namedtuple
+import re
+import sys
+
+Task = namedtuple('Task', ['name', 'returns'])
+
+ftrace_line_re = re.compile('^(\[ *[0-9]+\.[0-9]+\]  )?([0-9]\).*)$')
+def line_is_ftrace(line):
+    m = ftrace_line_re.search(line)
+    if m is None:
+        return None
+    return m.group(2)
+
+task_switch_re = re.compile('^[0-9]\)(.*)=>(.*)$')
+def line_is_task_switch(line):
+    m = task_switch_re.search(line)
+    if m is None:
+        return None
+    return (m.group(1).strip(), m.group(2).strip())
+
+def main():
+    tasks = {}
+    current_task = Task(None, [])
+
+    for line in sys.stdin:
+        line = line[:-1]
+        line = line_is_ftrace(line)
+        if not line:
+            continue
+        ts = line_is_task_switch(line)
+        if ts:
+            if not current_task.name:
+                # This only occurs for the first task
+                # Essentially, we didn't know where we were initially, so we used the None task
+                # Fixup now that we know the task name
+                current_task = current_task._replace(name = ts[0])
+                tasks[ts[0]] = current_task
+            elif ts[0] != current_task.name:
+                print('WARNING: untracked switch from {} to {}'.format(current_task, ts[0]))
+
+            try:
+                current_task = tasks[ts[1]]
+            except KeyError:
+                tasks[ts[1]] = current_task = Task(ts[1], [])
+        else:
+            current_task.returns.append(line)
+    for task in tasks.values():
+        print('=> {}'.format(task.name))
+        for ret in task.returns:
+            print(ret)
+
+if __name__ == '__main__':
+    main()

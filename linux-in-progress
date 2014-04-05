@@ -1,0 +1,10 @@
+64GB stalls:
+
+in kernel_physical_mapping_init() with args below.
+[    0.000000] kernel_physical_mapping_init 101c000000 101fe00000 0
+
+in call to phys_pud_init()
+in call to phys_pmd_init()
+in call to alloc_low_page()
+in call to alloc_low_pages(1)
+
