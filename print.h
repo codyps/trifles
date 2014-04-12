@@ -8,9 +8,9 @@
 #include <string.h>
 #include <penny/math.h>
 
-static const char hex_lookup[] = "0123456789abcdef";
 static inline void print_hex_byte(char byte, FILE *f)
 {
+	static const char hex_lookup[] = "0123456789abcdef";
 	putc(hex_lookup[(byte >> 4) & 0x0f], f);
 	putc(hex_lookup[byte & 0x0f], f);
 }
