@@ -10,7 +10,6 @@ ALL_CPPFLAGS += -Iccan
 ALL_LDFLAGS  += -Lccan -lccan
 endif
 
-
 export CCAN_CFLAGS
 export CCAN_LDFLAGS
 

@@ -130,7 +130,10 @@ else
 OPT=-Os
 endif
 
-DBG_FLAGS = -ggdb3 -gdwarf-4 -fvar-tracking-assignments -fsanitize=address
+DBG_FLAGS = -ggdb3 -gdwarf-4 -fvar-tracking-assignments
+ifndef NO_SANATIZE
+DBG_FLAGS += -fsanitize=address
+endif
 
 CC_TYPE ?= gcc
 
