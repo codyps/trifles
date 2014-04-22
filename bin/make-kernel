@@ -117,7 +117,13 @@ fi
 
 r mkdir -p "$I"
 
-r $make
+if [ "$ARCH" = powerpc ]; then
+	# LE powerpc trys to build zImage (32bit) when 'all' is the target,
+	# results in epic failure.
+	r $make vmlinux modules
+else
+	r $make
+fi
 r $make INSTALL_MOD_PATH="$I" modules_install
 
 VER=`$make kernelrelease | tail -n1`

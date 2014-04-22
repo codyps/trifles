@@ -1,0 +1,36 @@
+#! /bin/bash
+
+set -euf -o pipefail
+
+REPO=$HOME/public_git/rhel
+RPMHOME=$HOME/rpmbuild
+url=$1
+name=$(basename "$url")
+DL_RPM=/tmp/$name
+SRC_ARCHS="x86_64 ppc64 s390x"
+
+# ACTION
+
+wget "$1" -o "$DL_RPM"
+
+for src_arch in $SRC_ARCHS; do
+	rpm -i --nodeps "$name"
+	rpmbuild -bp $RPMHOME/SPECS/kernel.spec
+
+	full_version=${name%%.src.rpm}
+	full_version=${full_version##kernel-}
+
+	rhel_version=${full_version##*.}
+	rhel_version_num=${rhel_version##el}
+
+	linux_version=${full_version%%.el*}
+
+	bname=rh${rhel_version}-${linux_version}-${src_arch}-orphan
+
+	git -C $REPO checkout --orphan $bname
+	git -C $REPO clean -fdx
+
+	rsync -rHXpKlWSh $RPMHOME/${full_version}/${full_version}.${src_arch}/ $REPO/
+
+	git -C $REPO add -A /
+done
