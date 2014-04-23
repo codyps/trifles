@@ -9,8 +9,9 @@ PRETEND=false
 DEBUG=${DEBUG:-0}
 
 d () {
-	local l=$1
+	local l="$1"
 	shift
+	echo "D: $l $DEBUG"
 	if [ "$l" -lte "$DEBUG" ]; then
 		echo "$@"
 	fi
