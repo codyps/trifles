@@ -63,7 +63,7 @@ add_srpm_wget () {
 
 	d 0 "add_srpm_wget $@"
 
-	run wget -v "$1" -o "$DL_RPM"
+	run wget -v --password="$FTP3_PASS" --user="$FTP3_USER" "$1" -O "$DL_RPM"
 	add_srpm $DL_RPM/$name
 }
 
