@@ -1,4 +1,5 @@
 #! /bin/bash
+
 set -euf -o pipefail
 
 PRETEND=false
@@ -30,10 +31,15 @@ add_srpm () {
 	d 0 "add_srpm $1"
 
 	for src_arch in $SRC_ARCHS; do
+		bname=`srpm_to_branch $name`
+		if have_this_branch $bname; then
+			continue
+		fi
+
+		# FIXME: this rpm -i may be hoisted out of the loop.
 		rpm -i --nodeps "$srpm_path"
 		rpmbuild --target="$src_arch" --nodeps -bp $RPMHOME/SPECS/kernel.spec
 
-		bname=`srpm_to_branch $name`
 		src_dir=$RPMHOME/BUILD/$(srpm_name_to_P $name)/linux-$(srpm_name_to_DPV $name).${src_arch}/
 
 		GIT_DIR=$REPO GIT_WORK_TREE=$src_dir git checkout --orphan $bname
