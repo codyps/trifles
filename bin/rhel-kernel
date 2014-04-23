@@ -41,6 +41,22 @@ add_srpm () {
 	done
 }
 
+quote_word () {
+	printf "%s" "$1" | sed "s;';'\\\\'';"
+}
+
+quoted_args () {
+	for a in "$@"; do
+		printf "%s " "`quote_word $a`"
+	done
+}
+
+run () {
+	printf "RUN: "
+	quoted_args "$@"
+	"$@" || { echo "FAILURE"; exit 1; }
+}
+
 add_srpm_wget () {
 	local url="$1"
 	local name=$(basename "$url")
@@ -48,7 +64,7 @@ add_srpm_wget () {
 
 	d 0 "add_srpm_wget $@"
 
-	wget "$1" -o "$DL_RPM" || { echo "WGET FAILURE"; exit 1; }
+	run wget -v "$1" -o "$DL_RPM"
 	add_srpm $DL_RPM/$name
 }
 
