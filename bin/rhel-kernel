@@ -75,13 +75,13 @@ have_this_srpm () {
 	d 1 "have_this_srpm $1"
 	for src_arch in $SRC_ARCHS; do
 		d 1 "srpm_to_branch = $(srpm_to_branch $1)"
-		if have_this_branch $(srpm_to_branch $1); then
-			d 1 "do have"
-			return 0
+		if ! have_this_branch $(srpm_to_branch $1); then
+			d 1 "do NOT have"
+			return 1
 		fi
 	done
-	d 1 "do not have"
-	return 1
+	d 1 "do have"
+	return 0
 }
 
 scan_url_for_srpms () {
