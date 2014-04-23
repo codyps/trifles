@@ -47,13 +47,12 @@ quote_word () {
 
 quoted_args () {
 	for a in "$@"; do
-		printf "%s " "`quote_word $a`"
+		printf "'%s' " "`quote_word $a`"
 	done
 }
 
 run () {
-	printf "RUN: "
-	quoted_args "$@"
+	d 1 "RUN: $(quoted_args "$@")"
 	"$@" || { echo "FAILURE"; exit 1; }
 }
 
