@@ -31,7 +31,7 @@ add_srpm () {
 
 	for src_arch in $SRC_ARCHS; do
 		rpm -i --nodeps "$srpm_path"
-		rpmbuild --nodeps -bp $RPMHOME/SPECS/kernel.spec
+		rpmbuild --target="$src_arch" --nodeps -bp $RPMHOME/SPECS/kernel.spec
 
 		bname=`srpm_to_branch $name`
 		src_dir=$RPMHOME/BUILD/$(srpm_name_to_P $name)/linux-$(srpm_name_to_DPV $name).${src_arch}/
