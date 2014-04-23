@@ -45,6 +45,9 @@ add_srpm_wget () {
 	local url="$1"
 	local name=$(basename "$url")
 	local DL_RPM=/tmp/$name
+
+	d 0 "add_srpm_wget $@"
+
 	wget "$1" -o "$DL_RPM"
 	add_srpm $DL_RPM/$name
 }
@@ -59,11 +62,11 @@ have_this_srpm () {
 		d 1 "srpm_to_branch = $(srpm_to_branch $1)"
 		if have_this_branch $(srpm_to_branch $1); then
 			d 1 "do have"
-			return 1
+			return 0
 		fi
 	done
 	d 1 "do not have"
-	return 0
+	return 1
 }
 
 scan_url_for_srpms () {
