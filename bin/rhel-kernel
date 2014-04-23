@@ -54,13 +54,15 @@ have_this_branch () {
 }
 
 have_this_srpm () {
-	d 0 "have_this_srpm $1"
-	d 0 "srpm_to_branch = $(srpm_to_branch $1)"
+	d 1 "have_this_srpm $1"
 	for src_arch in $SRC_ARCHS; do
+		d 1 "srpm_to_branch = $(srpm_to_branch $1)"
 		if have_this_branch $(srpm_to_branch $1); then
+			d 1 "do have"
 			return 0
 		fi
 	done
+	d 1 "do not have"
 	return 1
 }
 
