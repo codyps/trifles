@@ -48,7 +48,7 @@ add_srpm_wget () {
 
 	d 0 "add_srpm_wget $@"
 
-	wget "$1" -o "$DL_RPM" || { echo "WGET FAILURE"; exit 1 }
+	wget "$1" -o "$DL_RPM" || { echo "WGET FAILURE"; exit 1; }
 	add_srpm $DL_RPM/$name
 }
 
