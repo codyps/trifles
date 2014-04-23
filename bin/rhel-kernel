@@ -11,7 +11,7 @@ PRETEND=false
 d () {
 	local l=$1
 	shift
-	if [ "$l" -lte $DEBUG ]; then
+	if [ "$l" -lte "$DEBUG" ]; then
 		echo "$@"
 	fi
 }
