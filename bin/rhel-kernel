@@ -38,6 +38,7 @@ add_srpm () {
 
 		GIT_DIR=$REPO GIT_WORK_TREE=$src_dir git checkout --orphan $bname
 		GIT_DIR=$REPO GIT_WORK_TREE=$src_dir git add -A .
+		GIT_DIR=$REPO GIT_WORK_TREE=$src_dir git commit -am "$bname from $name with arch $src_arch"
 	done
 }
 
