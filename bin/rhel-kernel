@@ -6,7 +6,7 @@ PRETEND=false
 . $HOME/priv/rh-to-git.conf
 . $(dirname $0)/../srpm_helpers
 
-: ${DEBUG:=0}
+DEBUG=${DEBUG:-0}
 
 d () {
 	local l=$1
