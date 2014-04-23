@@ -34,7 +34,7 @@ add_srpm () {
 		rpmbuild --nodeps -bp $RPMHOME/SPECS/kernel.spec
 
 		bname=`srpm_to_branch $name`
-		src_dir=$RPMHOME/$(srpm_name_to_DPV $name)/$(srpm_name_to_DPV $name).${src_arch}/
+		src_dir=$RPMHOME/BUILD/$(srpm_name_to_P $name)/linux-$(srpm_name_to_DPV $name).${src_arch}/
 
 		GIT_DIR=$REPO GIT_WORK_TREE=$src_dir git checkout --orphan $bname
 		GIT_DIR=$REPO GIT_WORK_TREE=$src_dir git add -A .
