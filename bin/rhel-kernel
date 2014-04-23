@@ -6,6 +6,18 @@ PRETEND=false
 . $HOME/priv/rh-to-git.conf
 . $(dirname $0)/../srpm_helpers
 
+if [ -z "$DEBUG" ]; then
+	DEBUG=0
+fi
+
+d () {
+	local l=$1
+	shift
+	if [ "$l" -lte $DEBUG ]; then
+		echo "$@"
+	fi
+}
+
 srpm_to_branch () {
 	local name=$1
 	echo rh$(srpm_name_to_DIST $name)-$(srpm_name_to_PV $name)-${src_arch}-orphan
@@ -16,6 +28,8 @@ add_srpm () {
 	local name=$(basename "$srpm_path")
 	local bname
 	local src_dir
+
+	d 0 "add_srpm $1"
 
 	for src_arch in $SRC_ARCHS; do
 		rpm -i --nodeps "$name"
@@ -42,6 +56,8 @@ have_this_branch () {
 }
 
 have_this_srpm () {
+	d 0 "have_this_srpm $1"
+	d 0 "srpm_to_branch = $(srpm_to_branch $1)"
 	for src_arch in $SRC_ARCHS; do
 		if have_this_branch $(srpm_to_branch $1); then
 			return 0
