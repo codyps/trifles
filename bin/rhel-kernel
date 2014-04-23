@@ -30,7 +30,7 @@ add_srpm () {
 	d 0 "add_srpm $1"
 
 	for src_arch in $SRC_ARCHS; do
-		rpm -i --nodeps "$name"
+		rpm -i --nodeps "$srpm_path"
 		rpmbuild -bp $RPMHOME/SPECS/kernel.spec
 
 		bname=`srpm_to_branch $name`
@@ -64,7 +64,7 @@ add_srpm_wget () {
 	d 0 "add_srpm_wget $@"
 
 	run wget -v --password="$FTP3_PASS" --user="$FTP3_USER" "$1" -O "$DL_RPM"
-	add_srpm $DL_RPM/$name
+	add_srpm "$DL_RPM"
 }
 
 have_this_branch () {
