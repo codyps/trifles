@@ -38,7 +38,7 @@ add_srpm_wget () {
 }
 
 have_this_branch () {
-	git -C $REPO branch | grep -q "^$1"
+	GIT_DIR=$REPO git branch | grep -q "^$1"
 }
 
 have_this_srpm () {
