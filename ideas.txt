@@ -1,3 +1,24 @@
+* git
+ - given a commit id, identify the containing branches/tags (git b
+   --contains?)
+ - given a commit id, look at the actual changes made in the commit and find
+   all containing branches and tags
+   - sortof like git cherry, except not quite.
+ - given a diff, look at the changes made and find all containing branches and
+   tags
+ - given an object/blob id, identify the containing commits
+  - http://stackoverflow.com/questions/223678/which-commit-has-this-blob
+    - too slow
+  - should be possible to create a reverse-mapping to make this faster if we
+    can hook everytime a commit is created and add that data to the blob (or a
+    seperate metadata file, git note?)
+ - given a file, give the blob-id
+ - given a file, convert to a blob
+
+* general things
+ - verbose logging via a circular buffer in a shared memory segment (varnish
+   does this).
+
 * some protocols are very much un-fuzzed
  - wireless
    - wpa
@@ -53,7 +74,7 @@
    useful.
 
 * Tooling and Testing
- - 'mock' for non-rpm distros (build packages in chroots)
+ - 'mock' for non-rpm distros    (build packages in chroots)
  - 'koji' for non-fedora distros (distributed build system)
 
 * arch linux package tools:
@@ -64,7 +85,7 @@
 * unlikely() and likely() that take probabilities.
   Even better: if they can be given an equation for probability that an
   expresion equals a range of values. Then, of course, a compiler to use that
-  info.
+  info. PDF (probability distrobution function) or CDF?
 
 * Non-blocking snmp library. (net-snmp does not work for this, see multicast
   fail). Also, potentially split the message sending from the message
