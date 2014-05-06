@@ -15,6 +15,11 @@ int main(void)
 		bool split = true;
 		prev_lvl = lvl;
 		size_t skips = 0;
+		size_t strip_end = 0;
+
+		if (line[line_len - 1] == '\n')
+			strip_end += 1;
+
 
 		/* check for '<' N '>' */
 		if (line_len >= 3)
@@ -29,7 +34,6 @@ int main(void)
 			fprintf(stderr, "[E]: line too short\n");
 			goto spit_it_out;
 		}
-
 
 		/* check of '<d>' following '<N>' */
 		if (line_len >= 6 &&
@@ -46,8 +50,10 @@ spit_it_out:
 		if (split)
 			putchar('\n');
 
-		fwrite(line + skips, SUB_SAT(line_len, skips), 1, stdout);
+		fwrite(line + skips, SUB_SAT(line_len, (ssize_t)(skips + strip_end)), 1, stdout);
 	}
+
+	putchar('\n');
 
 	return 0;
 }
