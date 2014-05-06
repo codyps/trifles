@@ -6,7 +6,7 @@ int main(void)
 {
 	char *line = NULL;
 	size_t line_sz = 0;
-	size_t line_len;
+	ssize_t line_len;
 
 	int prev_lvl = -2;
 	int lvl = -1;
