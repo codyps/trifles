@@ -1,6 +1,7 @@
 #ifndef PENNY_MATH_H_
 #define PENNY_MATH_H_
 
+#include <stdint.h>
 #include <limits.h>
 
 /* potential for overflow when doing (n + d - 1) */
