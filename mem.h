@@ -24,6 +24,30 @@ static inline void *memmem(const void *haystack, size_t haystacklen,
 }
 #endif
 
+static inline void *mempbrkm(const char *data, size_t len, const char *accept, size_t accept_len)
+{
+	size_t i, j;
+	for (i = 0; i < len; i++)
+		for (j = 0; j < accept_len; j++)
+			if (accept[j] == data[i])
+				return (void *)&data[i];
+	return NULL;
+}
+
+static inline void *mempbrk(const char *data, size_t len, const char *accept)
+{
+	return mempbrkm(data, len, accept, strlen(accept));
+}
+
+#define memscan(data, len, is_ok) ({						\
+		size_t __memscan_pos;						\
+		for (__memscan_pos = 0; __memscan_pos < (len); __memscan_pos) {	\
+			if (is_ok((data)[__memscan_pos]))			\
+				break;						\
+		}								\
+		__memscan_pos;							\
+})
+
 /*
  * returns a pointer to the first character which is _not_ c
  * can be viewed as a semi-inverse of memchr()

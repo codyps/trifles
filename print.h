@@ -8,19 +8,21 @@
 #include <string.h>
 #include <penny/math.h>
 
-static const char hex_lookup[] = "0123456789abcdef";
 static inline void print_hex_byte(char byte, FILE *f)
 {
+	static const char hex_lookup[] = "0123456789abcdef";
 	putc(hex_lookup[(byte >> 4) & 0x0f], f);
 	putc(hex_lookup[byte & 0x0f], f);
 }
 
+#if 0
 /* converts non-printable & control characters to their escaped represenation,
  * if on exsists, otherwise converts to hex */
 static inline void print_bytes_as_sh_dollar_quote_string(void *data, size_t data_len, FILE *f)
 {
 
 }
+#endif
 
 static inline void print_bytes_as_sh_double_quote_string(void *data, size_t data_len, FILE *f)
 {
@@ -93,40 +95,57 @@ static inline void print_bytes_as_sh_no_quote_string(void *data, size_t data_len
 	}
 }
 
+static inline void print_cstring_char(int c, FILE *f)
+{
+	if (iscntrl(c) || !isprint(c)) {
+		switch (c) {
+		case '\0':
+			putc('\\', f);
+			putc('0', f);
+			break;
+		case '\n':
+			putc('\\', f);
+			putc('n', f);
+			break;
+		case '\r':
+			putc('\\', f);
+			putc('r', f);
+			break;
+		default:
+			putc('\\', f);
+			putc('x', f);
+			print_hex_byte(c, f);
+		}
+	} else  {
+		switch (c) {
+		case '"':
+		case '\\':
+			putc('\\', f);
+		default:
+			putc(c, f);
+		}
+	}
+}
+
+static inline void print_string_as_cstring_(const void *data, size_t data_len, FILE *f)
+{
+	const char *p = data;
+	size_t i;
+	for (i = 0; i < data_len; i++) {
+		char c = p[i];
+		if (c == '\0')
+			break;
+		print_cstring_char(c, f);
+	}
+}
+
 static inline void print_bytes_as_cstring_(const void *data, size_t data_len, FILE *f)
 {
 	const char *p = data;
 	size_t i;
 	for (i = 0; i < data_len; i++) {
 		char c = p[i];
-		if (iscntrl(c) || !isprint(c)) {
-			switch (c) {
-			case '\0':
-				putc('\\', f);
-				putc('0', f);
-				break;
-			case '\n':
-				putc('\\', f);
-				putc('n', f);
-				break;
-			case '\r':
-				putc('\\', f);
-				putc('r', f);
-				break;
-			default:
-				putc('\\', f);
-				putc('x', f);
-				print_hex_byte(c, f);
-			}
-		} else  {
-			switch (c) {
-			case '"':
-			case '\\':
-				putc('\\', f);
-			default:
-				putc(c, f);
-			}
-		}
+		print_cstring_char(c, f);
 	}
 }
 
