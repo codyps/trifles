@@ -1,3 +1,6 @@
 [submodule "penny"]
 	path = penny
 	url = https://github.com/jmesmon/libpenny
+[submodule "ccan"]
+	path = ccan
+	url = https://github.com/jmesmon/ccan

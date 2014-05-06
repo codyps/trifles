@@ -38,3 +38,4 @@ ALL_CFLAGS += -I.
 TARGETS = hd gkr-decrypt lsalsa test-pm-timer debugfs-test utime test-dep modll pipe unix-test set-qf-union set-qu-union set-to-dot dripper test-netlink usbreset hub-ctrl test-type-info uinput static-array oops2line interp-kmesg
 
 include base.mk
+include base-ccan.mk
