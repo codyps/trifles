@@ -131,7 +131,7 @@ OPT=-Os
 endif
 
 DBG_FLAGS = -ggdb3 -gdwarf-4 -fvar-tracking-assignments
-ifndef NO_SANATIZE
+ifndef NO_SANITIZE
 DBG_FLAGS += -fsanitize=address
 endif
 

@@ -15,6 +15,12 @@
  - given a file, give the blob-id
  - given a file, convert to a blob
 
+ - given a list of commit ids, extrct using format-patch and update each of
+   their messages to include "Upstream-commit: %F" somewhere in the commit
+   message
+
+  "Backport-of: %F" for commits that need changes.
+
 * general things
  - verbose logging via a circular buffer in a shared memory segment (varnish
    does this).
