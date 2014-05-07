@@ -10,14 +10,10 @@
 #include <string.h>
 #include <sys/wait.h>
 
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+#include <ccan/array_size/array_size.h>
+#include <ccan/pr_debug/pr_debug.h>
 
-
-#ifdef DEBUG
-#define dbg_run_cmd(fmt, ...) fprintf(stderr, fmt, ##__VA_ARGS__)
-#else
-#define dbg_run_cmd(fmt, ...) do { } while (0)
-#endif
+#define dbg_run_cmd(fmt, ...) pr_debug(1, fmt, ##__VA_ARGS__)
 
 static void run_cmd(const char *cmd, ...)
 {
@@ -128,7 +124,7 @@ int main(int argc, char **argv)
 
 
 		*end_of_addr = '\0';
-		run_cmd("addr2line", "-fipe", argv[1], start_of_addr + 1, NULL);
+		run_cmd("addr2line", "-fie", argv[1], start_of_addr + 1, NULL);
 	}
 
 #ifdef DEBUG
