@@ -70,7 +70,7 @@ add_srpm_wget () {
 
 	d 0 "add_srpm_wget $@"
 
-	run wget -v --password="$FTP3_PASS" --user="$FTP3_USER" "$1" -O "$DL_RPM"
+	run wget -v "$1" -O "$DL_RPM"
 	add_srpm "$DL_RPM"
 }
 
@@ -93,7 +93,16 @@ have_this_srpm () {
 
 scan_url_for_srpms () {
 	local url="$1"
-	pkgs=$(ftpls --tries 3 -u "$FTP3_USER" -p "$FTP3_PASS" "$url" -m | grep '^N' | cut -dN -f2 | grep '^kernel')
+	echo "Scanning $url..."
+	set +e
+	pkgs=$(ftpls "$url" -m | grep '^N' | cut -dN -f2 | grep '^kernel')
+	if [ $? -ne 0 ]; then
+		echo "ftpls failed, skip"
+		set -e
+		return
+	fi
+	set -e
+	
 
 	for pkg in $pkgs; do
 		if have_this_srpm $pkg; then
