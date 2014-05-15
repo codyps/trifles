@@ -1,3 +1,15 @@
+- sparse
+ - support flattened structs/unions (I believe this is a plan9 extention).
+	struct foo {
+		struct {
+			int x;
+			int y;
+		}; /* omit the name... */
+	} bar;
+
+	/* this is a valid expr: */
+	bar.x = 2;
+
 - multimonitor support improvements
    - dpi
    - subpixel ordering
