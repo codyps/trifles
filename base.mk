@@ -129,6 +129,8 @@ endif
 
 DBG_FLAGS = -ggdb3
 
+CC_TYPE=
+
 ifndef NO_LTO
 # TODO: use -flto=jobserver
 CFLAGS  ?= -flto $(DBG_FLAGS)

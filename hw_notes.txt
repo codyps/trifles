@@ -11,5 +11,18 @@ DNS 323::
    occurs.
    - version: U-Boot 1.1.1 (Feb 26 2009 - 11:33:03) Marvell version: 1.7.3.003
    - avaliable commands:
-	
-	
+
+TEG-S80g H/W:V2.0R (8 port gigabit switch by Trendnet):
+   rtl8370 switch
+   Can't find a data sheet online anywhere
+   rtl8367 drivers appear to include some code for talking to it.
+   There appears to be an i2c chip attached to it, I assume the function is
+   very similar to existing RTL switches: load a bunch of data on boot from
+   the i2c chip, then listen to i2c commands.
+
+   "api_8370" references smi_write() and smi_read(), making it a bit unclear
+   what the actual interface is. (IF "EMBEDDED", "setReg()" and getReg() are
+   used.
+
+   i2c rom = ATMLH142 (TSSOP/SOIC)
+   690BG regulator? (Q1)
