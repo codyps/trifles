@@ -1,0 +1,38 @@
+Phrases
+-------
+lifecycle & lifetime : refer to when the object is
+	valid/allocated/freed/invalid, who has control over that, and what
+	requirements are placed on this.
+
+
+
+
+Verbs
+-----
+
+create - allocate and initialize
+destroy - dinitialize and deallocate
+
+init
+dinit (?)
+
+
+----
+
+put
+take
+
+get
+set
+
+give - lifecycle control passed to the called function
+grab - lifecycle control is now the caller's responsibility
+
+
+# I use these for reference counting. put/take may be better.
+up   - 
+down -
+
+# Used by avro for reference counting
+incref
+decref

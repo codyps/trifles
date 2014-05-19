@@ -1,4 +1,7 @@
 
+http://leopard.in.ua/2013/10/13/binary-serialization-formats/
+
+
 Java serializer benchmarks: https://github.com/eishay/jvm-serializers/wiki
 
 API's for Serialization
@@ -38,7 +41,7 @@ Blink ("The Blink Protocol"):
 	No library.
 
 ASN.1
-	No opensource library.
+	asn1c (also talks about the encodings) - http://lionet.info/asn1c/blog/
 
 Hessian
 	http://hessian.caucho.com/
@@ -84,6 +87,10 @@ https://github.com/Nehmulos/N0Strain-Serialization-Library
 XDR:
 	http://linux.die.net/man/3/xdr
 	http://tools.ietf.org/html/rfc4506
+
+Sexp:
+	http://people.csail.mit.edu/rivest/Sexp.txt
+
 Bencoding
 	http://wiki.theory.org/BitTorrentSpecification#bencoding
 
@@ -96,3 +103,21 @@ capnproto:
 	ALPHA, UNSTABLE, WIP.
 	Uses tools written in Haskell.
 	Designed by the guy who did protocol buffers.
+
+transenc
+	http://sourceforge.net/p/transenc/wiki/Specification/
+	token based, length determined in a per-token manner.
+	Very clear spec.
+	Includes length-arrays (with a redundant close for some reason) and
+	open-close-arrays.
+	map ("associative array") is not defined as an attribute of normal
+	arrays. Only a length-map variant is avaliable.
+	Wastes tokens by failing to reuse the 'close' token.
+
+http://ubjson.org/
+
+
+BERT
+	.
+
+

@@ -1,0 +1,163 @@
+#! /bin/bash
+
+set -euf -o pipefail
+
+PRETEND=false
+
+. $HOME/priv/rh-to-git.conf
+. $(dirname $0)/../srpm_helpers
+
+DEBUG=${DEBUG:-0}
+
+d () {
+	local l="$1"
+	shift
+	if [ "$l" -le "$DEBUG" ]; then
+		echo "$@"
+	fi
+}
+
+srpm_to_branch () {
+	local name=$1
+	echo rh$(srpm_name_to_DIST $name)-$(srpm_name_to_PV $name)-${src_arch}-orphan
+}
+
+add_srpm () {
+	local srpm_path=$1
+	local name=$(basename "$srpm_path")
+	local bname
+	local src_dir
+
+	d 0 "add_srpm $1"
+
+	for src_arch in $SRC_ARCHS; do
+		bname=`srpm_to_branch $name`
+		if have_this_branch $bname; then
+			continue
+		fi
+
+		# FIXME: this rpm -i may be hoisted out of the loop.
+		rpm -i --nodeps "$srpm_path"
+		rpmbuild --target="$src_arch" --nodeps -bp $RPMHOME/SPECS/kernel.spec
+
+		src_dir=$RPMHOME/BUILD/$(srpm_name_to_P $name)/linux-$(srpm_name_to_DPV $name).${src_arch}/
+
+		GIT_DIR=$REPO GIT_WORK_TREE=$src_dir git checkout --orphan $bname
+		GIT_DIR=$REPO GIT_WORK_TREE=$src_dir git add -A .
+		GIT_DIR=$REPO GIT_WORK_TREE=$src_dir git commit -am "$bname from $name with arch $src_arch"
+	done
+}
+
+quote_word () {
+	printf "%s" "$1" | sed "s;';'\\\\'';"
+}
+
+quoted_args () {
+	for a in "$@"; do
+		printf "'%s' " "`quote_word $a`"
+	done
+}
+
+run () {
+	d 1 "RUN: $(quoted_args "$@")"
+	"$@" || { echo "FAILURE"; exit 1; }
+}
+
+add_srpm_wget () {
+	local url="$1"
+	local name=$(basename "$url")
+	local DL_RPM=/tmp/$name
+
+	d 0 "add_srpm_wget $@"
+
+	run wget -v "$1" -O "$DL_RPM"
+	add_srpm "$DL_RPM"
+}
+
+have_this_branch () {
+	GIT_DIR=$REPO git branch | grep -q "^..$1$"
+}
+
+have_this_srpm () {
+	d 1 "have_this_srpm $1"
+	for src_arch in $SRC_ARCHS; do
+		d 1 "srpm_to_branch = $(srpm_to_branch $1)"
+		if ! have_this_branch $(srpm_to_branch $1); then
+			d 1 "do NOT have"
+			return 1
+		fi
+	done
+	d 1 "do have"
+	return 0
+}
+
+scan_url_for_srpms () {
+	local url="$1"
+	echo "Scanning $url..."
+	set +e
+	pkgs=$(ftpls "$url" -m | grep '^N' | cut -dN -f2 | grep '^kernel')
+	if [ $? -ne 0 ]; then
+		echo "ftpls failed, skip"
+		set -e
+		return
+	fi
+	set -e
+	
+
+	for pkg in $pkgs; do
+		if have_this_srpm $pkg; then
+			continue
+		fi
+
+		add_srpm_wget "$url/$pkg"
+	done
+}
+
+scan_urls_for_srpms () {
+	for url in "$@"; do
+		scan_url_for_srpms "$url"
+	done
+}
+
+usage () {
+	echo "usage: $(basename $0) <action>"
+	echo " actions:"
+	echo "  srpm <path-to-srpm>"
+	echo "  scan-one <ftp-url-with-pkgs>"
+	echo "  scan"
+	echo "  help"
+	exit 1
+}
+
+if [ $# -lt 1 ]; then
+	usage
+fi
+
+
+while getopts p arg; do
+	case "$arg" in
+	p) PRETEND=true;;
+	esac
+done
+
+action=$1
+shift
+case "$action" in
+srpm)
+	if [ $# -ne 1 ]; then
+	       echo "E: $action requires 1 argument"
+	       usage
+	fi
+	add_srpm "$@"
+	;;
+scan-one)
+	if [ $# -lt 1]; then
+		echo "E: $action requires 1 or more arguments"
+		usage
+	fi
+	scan_urls_for_srpms "$@"
+	;;
+scan)   scan_urls_for_srpms "${URLS[@]}";;
+help)	usage ;;
+*)	echo "E: unrecognized action \"$action\""; usage ;;
+esac

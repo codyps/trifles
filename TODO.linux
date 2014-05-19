@@ -53,6 +53,11 @@
  - kill the stop_machine() and/or mutex around zonelist updates
 
 
+* Fix per-device setxkbmap so that one can swap super and alt on an usb
+  connected mac keyboard, but not on the builtin windows keyboard.
+  The setxkbmap command thinks it supports this, but it doesn't appear to work
+  (Potentially an X11 protocol/server issue).
+
 5
  - fanofity on file modification / file moves (essentially: tree based notifications with inotify level information)
  - allow arithmetic in Kconfig (look for #error )
@@ -67,6 +72,10 @@ Docs:
  - pageflag access rules, and struct page (also called "memmap") access rules.
 
 Big Projects:
+ - multimonitor support improvements
+   - dpi
+   - subpixel ordering
+ - Intel QuickSync support (programming manual exists)
 
 Uncategorized:
  - smt_snooze_delay cleanup
@@ -77,3 +86,9 @@ Uncategorized:
    - a way to forbid userspace writes to a memory range (for some duration)
    - Rather than use memory ranges, these will probably have to deal with
      pages, which may make the userspace interface less than ideal.
+
+ - kmemcheck for non-x86 cpus (powerpc)
+
+ - better file-based encryption
+   - https://defuse.ca/audits/encfs.htm
+   - https://defuse.ca/audits/ecryptfs.htm

@@ -24,13 +24,15 @@
 /pipe
 /unix-test
 /dripper
-set-qf-union
-set-qu-union
-set-to-dot
-test-netlink
-usbreset
-hub-ctrl
-test-type-info
+/set-qf-union
+/set-qu-union
+/set-to-dot
+/test-netlink
+/usbreset
+/hub-ctrl
+/test-type-info
+/oops2line
+/interp-kmesg
 
 /parse-datetime.c
 p32
