@@ -137,6 +137,8 @@ endif
 
 CC_TYPE ?= gcc
 
+CC_TYPE=
+
 ifndef NO_LTO
 # TODO: use -flto=jobserver
 ifeq ($(CC_TYPE),gcc)
