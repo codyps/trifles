@@ -22,7 +22,7 @@
 
 /* assign next index (head/tail) location to index */
 #define CIRC_NEXT_EQ(index,size) CIRC_NEXT_I_EQ(index,1,size)
-#define CIRC_NEXT_I_EQ(index,isz,size) ((index) = (((index) + (isz)) & ((size - 1))))
+#define CIRC_NEXT_I_EQ(index,isz,size) ((index) = CIRC_NEXT_I(index,isz,size))
 
 #define CIRC_CNT_TO_END(head,tail,size) \
 	({typeof(head) end = (size) - (tail); \
