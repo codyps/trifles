@@ -19,13 +19,43 @@
 //#define BUILD_ASSERT(cond)
 //	DEFINE_COMPILETIME_ERROR(CAT2(build_assert,__LINE__), #cond)
 //	if (cond)
-//		CAT2(build_assert,__LINE__-2)(); // yes, wouldn't that be nice.
+//		CAT2(build_assert,__LINE__)(); // yes, wouldn't that be nice.
 #endif
 #endif
 
 //#define BUILD_ASSERT_OR_ZERO(cond) (sizeof(struct { int:-!(cond); }))
 #define BUILD_ASSERT_OR_ZERO(cond) (sizeof(char[1 - 2*!(cond)]))
-#define BUILD_ASSERT_OR_NULL(cond) ((void *)BUILD_ASSERT_OR_ZERO(cond)
+#define BUILD_ASSERT_OR_NULL(cond) ((void *)BUILD_ASSERT_OR_ZERO(cond))
+
+
+
+#if 0
+/* https://lkml.org/lkml/2012/9/28/1251 */
+#define BUILD_BUG_ON_MSG_INTERNAL2(cond, msg, line) \
+    do { \
+        extern void __build_bug_on_failed_ ## line (void) __attribute__((error(msg))); \
+        if (cond) \
+            __build_bug_on_failed_ ## line(); \
+    } while (0)
+#define BUILD_BUG_ON_MSG_INTERNAL(cond, msg, line) BUILD_BUG_ON_MSG_INTERNAL2(cond, msg, line)
+#define BUILD_BUG_ON_MSG(cond, msg) BUILD_BUG_ON_MSG_INTERNAL(cond, msg, __LINE__)
+#endif
+
+
+#if 0
+/* https://lkml.org/lkml/2012/10/1/548 */
+1) if (condition) { __asm__(".error \"Some error message\""); }
+2) switch (0) {
+    case 0: break;
+    case !condition: break;
+    }
+    (fails to compile if !condition evaluates to 0)
+#endif
+
+/*
+ * https://lkml.org/lkml/2009/8/18/248
+ * Claims gcc doesn't work with the sizeof(char[1 - 2*!(cond)]) variant.
+ */
 
 #if 0
 BUILD_ASSERT(sizeof(int) > 3);
