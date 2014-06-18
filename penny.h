@@ -48,7 +48,6 @@ typedef unsigned long long ull;
  *        if the warning is emitted (not a concern for the error, as code won't
  *        be emitted in that case).
  */
-
 #ifndef CONFIG_COMPILETIME_LONG_MSG
 #define DEFINE_COMPILETIME_WARNING(name, msg) __attribute__((warning(msg),noinline)) static void name(void) { barrier(); }
 #define DEFINE_COMPILETIME_ERROR(name, msg) __attribute__((error(msg),noinline)) static void name(void) { barrier(); }
@@ -83,5 +82,9 @@ typedef unsigned long long ull;
 #define CAT2(a, b) _CAT2(a,b)
 #define _CAT3(a, b, c) a##b##c
 #define CAT3(a, b, c) _CAT3(a,b,c)
+
+typedef unsigned long long llu;
+#define UNIT(x) x
+#define EQ(a, b) ((a) == (b))
 
 #endif

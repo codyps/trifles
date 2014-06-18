@@ -63,4 +63,9 @@ BUILD_ASSERT(sizeof(char) != 1);
 BUILD_ASSERT(1 < 3);
 #endif
 
+#define BUILD_BUG_ON_INVALID(e) ((void)(sizeof((long)(e))))
+__attribute__((format(printf,1,2)))
+static inline void printf_check_fmt(const char *fmt __attribute__((unused)), ...)
+{}
+
 #endif /* PENNY_CHECK_H_ */

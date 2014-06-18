@@ -8,6 +8,27 @@
 #include <string.h>
 #include <penny/math.h>
 
+
+static inline void print_byte_bits(unsigned char byte, FILE *f)
+{
+	int8_t bit = CHAR_BIT;
+	char buf[9];
+	while (bit--)
+		buf[CHAR_BIT - bit - 1] = (byte & (1 << bit)) ? '1' : '0';
+
+	buf[sizeof(buf) - 1] = '\0';
+	fputs(buf, f);
+}
+
+static inline void print_bits(const void *data, size_t data_len, FILE *f)
+{
+	const unsigned char *d = data;
+	while (data_len--) {
+		print_byte_bits(*d, f);
+		d++;
+	}
+}
+
 static inline void print_hex_byte(char byte, FILE *f)
 {
 	static const char hex_lookup[] = "0123456789abcdef";

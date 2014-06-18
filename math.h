@@ -102,6 +102,48 @@ static inline uint16_t linear_interp_u16(uint16_t x1, uint16_t y1, uint16_t x2, 
 #define MIN6(a,b,c,d,e,f) MIN(MIN4(a,b,c,d),MIN(e,f))
 #define MIN8(a,b,c,d,e,f,g,h) MIN(MIN4(a,b,c,d),MIN4(e,f,g,h))
 
+#define BITS_IN(type) (CHAR_BIT * sizeof(type))
+
+/**
+ * fls_next(num, bit_idx) - find the next set bit, searching from the left
+ * "find last set next"
+ *
+ * num: number to search for bits
+ * bit_idx: The highest 1-indexed bit to examine (or the highest 0-indexed bit
+ *          + 1)
+ */
+static inline uint8_t next_set_bit(llu num, uint8_t bit_idx)
+{
+	for (;;) {
+		if (bit_idx == 0)
+			return 0;
+		if (num & (1llu << (bit_idx - 1llu)))
+			return bit_idx;
+		bit_idx --;
+	}
+}
+
+static inline uint8_t next_set_bit_nz(llu num, uint8_t bit_idx)
+{
+	for (;;) {
+		if (num & (1llu << (bit_idx - 1llu)))
+			return bit_idx;
+		bit_idx --;
+	}
+}
+
+/**
+ * fls(num) - find the last (most significant) set bit
+ *
+ * Returns (the left shift of the found set bit) + 1
+ *     If no set bit is found, returns 0.
+ */
+static inline uint8_t fls(llu num)
+{
+	return next_set_bit(num, BITS_IN(num));
+}
+
+#if 0
 static inline unsigned fls(unsigned x)
 {
 	unsigned i;
@@ -111,5 +153,15 @@ static inline unsigned fls(unsigned x)
 	}
 	return i;
 }
+#endif
 
+static uint8_t fls_nz(llu num)
+{
+	return next_set_bit_nz(num, BITS_IN(num));
+}
+
+static llu align_left(llu num, uint8_t bit_space)
+{
+	return num << (bit_space - next_set_bit(num, bit_space));
+}
 #endif
