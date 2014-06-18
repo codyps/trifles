@@ -155,13 +155,9 @@ static inline unsigned fls(unsigned x)
 }
 #endif
 
-static uint8_t fls_nz(llu num)
+static inline uint8_t fls_nz(llu num)
 {
 	return next_set_bit_nz(num, BITS_IN(num));
 }
 
-static llu align_left(llu num, uint8_t bit_space)
-{
-	return num << (bit_space - next_set_bit(num, bit_space));
-}
 #endif
