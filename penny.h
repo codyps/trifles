@@ -1,6 +1,8 @@
 #ifndef PENNY_PENNY_H_
 #define PENNY_PENNY_H_
 
+#include <arpa/inet.h> /* htonl */
+
 typedef unsigned long long ull;
 
 #define FIELD_SIZE(s,f) (sizeof((s *)0->f))

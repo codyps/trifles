@@ -7,7 +7,7 @@
 #include <limits.h>
 #include <string.h>
 #include <penny/math.h>
-
+#include <penny/penny.h>
 
 static inline void print_byte_bits(unsigned char byte, FILE *f)
 {
@@ -27,6 +27,12 @@ static inline void print_bits(const void *data, size_t data_len, FILE *f)
 		print_byte_bits(*d, f);
 		d++;
 	}
+}
+
+static inline void print_bits_llu(llu d, FILE *f)
+{
+	d = htonll(d);
+	print_bits(&d, sizeof(d), f);
 }
 
 static inline void print_hex_byte(char byte, FILE *f)
