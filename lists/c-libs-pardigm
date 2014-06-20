@@ -1,0 +1,15 @@
+P99
+
+chaos-pp
+
+https://github.com/mcinglis/macrofun
+https://github.com/mcinglis/libpp
+
+
+--
+
+Default arguments in C:
+	http://blog.refu.co/?p=593
+
+P99 author's blog (_Generic as a __builtin_constant_p replacement):
+	https://gustedt.wordpress.com/2013/08/22/testing-compile-time-constness-and-null-pointers-with-c11s-_generic/#more-1973
