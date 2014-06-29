@@ -1,3 +1,4 @@
+* gperf work-alike, but code-only (table less) to reduce code size
 * git
  - given a commit id, identify the containing branches/tags (git b
    --contains?)
