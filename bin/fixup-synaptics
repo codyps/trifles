@@ -14,5 +14,5 @@ synclient TapButton2=3
 synclient HorizTwoFingerScroll=1
 synclient VertTwoFingerScroll=1
 
-synclient HorizScrollDelta=-25
-synclient VertScrollDelta=-25
+synclient HorizScrollDelta=-1
+synclient VertScrollDelta=-1
