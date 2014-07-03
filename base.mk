@@ -52,6 +52,8 @@
 #
 # $(ALL_CPPFLAGS)
 #
+# $(O_)		    use this as the output directory if you're writing new rules
+#
 # $(ldflags-some-target)
 #
 # $(cflags-some-object-without-suffix)
@@ -94,7 +96,8 @@
 .SUFFIXES:
 
 O = .
-BIN_TARGETS=$(addprefix $(O)/,$(addsuffix $(BIN_EXT),$(TARGETS)))
+O_ = $(O_)
+BIN_TARGETS=$(addprefix $(O_)/,$(addsuffix $(BIN_EXT),$(TARGETS)))
 
 .PHONY: all FORCE
 all:: $(BIN_TARGETS)
@@ -235,8 +238,8 @@ endef
 .SECONDARY:
 
 obj-to-dep = $(foreach obj,$(1),$(dir $(obj)).$(notdir $(obj)).d)
-target-dep = $(addprefix $(O)/,$(call obj-to-dep,$(obj-$(1))))
-target-obj = $(addprefix $(O)/,$(obj-$(1)))
+target-dep = $(addprefix $(O_)/,$(call obj-to-dep,$(obj-$(1))))
+target-obj = $(addprefix $(O_)/,$(obj-$(1)))
 
 # flags-template flag-prefix vars message
 # Defines a target '.TRACK-$(flag-prefix)FLAGS'.
@@ -244,13 +247,13 @@ target-obj = $(addprefix $(O)/,$(obj-$(1)))
 # target are rebuilt.
 define flags-template
 TRACK_$(1)FLAGS = $(foreach var,$(2),$$($(var))):$$(subst ','\'',$$(ALL_$(1)FLAGS))
-$(O)/.TRACK-$(1)FLAGS: FORCE
+$(O_)/.TRACK-$(1)FLAGS: FORCE
 	@FLAGS='$$(TRACK_$(1)FLAGS)'; \
-	if test x"$$$$FLAGS" != x"`cat $(O)/.TRACK-$(1)FLAGS 2>/dev/null`" ; then \
+	if test x"$$$$FLAGS" != x"`cat $(O_)/.TRACK-$(1)FLAGS 2>/dev/null`" ; then \
 		echo 1>&2 "    * new $(3)"; \
-		echo "$$$$FLAGS" >$(O)/.TRACK-$(1)FLAGS; \
+		echo "$$$$FLAGS" >$(O_)/.TRACK-$(1)FLAGS; \
 	fi
-TRASH += $(O)/.TRACK-$(1)FLAGS
+TRASH += $(O_)/.TRACK-$(1)FLAGS
 endef
 
 $(eval $(call flags-template,AS,AS,assembler build flags))
@@ -270,14 +273,14 @@ endef
 define BIN-LINK
 $(eval $(call build-link-flags,$(1)))
 
-$(O)/$(1)$(BIN_EXT) : $(O)/.TRACK-LDFLAGS $(call target-obj,$(1))
+$(O_)/$(1)$(BIN_EXT) : $(O_)/.TRACK-LDFLAGS $(call target-obj,$(1))
 	$$(QUIET_LINK)$$(CCLD) -o $$@ $$(call target-obj,$(1)) $$(ALL_LDFLAGS) $$(ldflags-$(1))
 endef
 
 define SLIB-LINK
 $(eval $(call build-link-flags,$(1)))
 
-$(O)/$(1) : $(O)/.TRACK-ARFLAGS $(call target-obj,$(1))
+$(O_)/$(1) : $(O_)/.TRACK-ARFLAGS $(call target-obj,$(1))
 	$$(QUIET_AR)$$(AR) -o $$@ $$(call target-obj,$(1)) $$(ALL_ARFLAGS) $$(arflags-$(1))
 
 endef
@@ -286,20 +289,20 @@ endef
 $(foreach target,$(TARGETS),$(eval $(call BIN-LINK,$(target))))
 $(foreach slib,$(TARGET_STATIC_LIBS),$(eval $(call SLIB-LINK,$(slib))))
 
-$(O)/%.tab.h $(O)/%.tab.c : %.y
+$(O_)/%.tab.h $(O_)/%.tab.c : %.y
 	$(QUIET_BISON)$(BISON) --locations -d \
 		-p '$(parser-prefix)' -k -b $* $<
 
-$(O)/%.ll.c : %.l
+$(O_)/%.ll.c : %.l
 	$(QUIET_FLEX)$(FLEX) -P '$(parser-prefix)' --bison-locations --bison-bridge -o $@ $<
 
-$(O)/%.o: %.c $(O)/.TRACK-CFLAGS
+$(O_)/%.o: %.c $(O_)/.TRACK-CFLAGS
 	$(QUIET_CC)$(CC) $(dep-gen) -c -o $@ $< $(ALL_CFLAGS) $(cflags-$*)
 
-$(O)/%.o: %.cc $(O)/.TRACK-CXXFLAGS
+$(O_)/%.o: %.cc $(O_)/.TRACK-CXXFLAGS
 	$(QUIET_CXX)$(CXX) $(dep-gen) -c -o $@ $< $(ALL_CXXFLAGS) $(cxxflags-$*)
 
-$(O)/%.o : %.S $(O)/.TRACK-ASFLAGS
+$(O_)/%.o : %.S $(O_)/.TRACK-ASFLAGS
 	$(QUIET_AS)$(AS) -c $(ALL_ASFLAGS) $< -o $@
 
 ifndef NO_INSTALL
@@ -321,7 +324,7 @@ obj-trash = $(foreach obj,$(obj-all),$(call OBJ_TRASH,$(obj)))
 
 .PHONY: clean %.clean
 %.clean :
-	$(RM) $(call target-obj,$*) $(O)/$* $(TARGET_TRASH) $(call target-dep,$*)
+	$(RM) $(call target-obj,$*) $(O_)/$* $(TARGET_TRASH) $(call target-dep,$*)
 
 clean:	$(addsuffix .clean,$(TARGETS))
 	$(RM) $(TRASH) $(obj-trash)
