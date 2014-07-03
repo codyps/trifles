@@ -19,6 +19,13 @@ static unsigned long test__error_ct = 0;
 		test__error_ct ++;						\
 	}									\
 } while(0)
+#  define ok1(a) do {						\
+	if (!(a)) {						\
+		fprintf(TEST_FILE, "TEST FAILURE: %s\n", #a);	\
+		test__error_ct++;				\
+	}							\
+} while(0)
+
 #  define test_done() do {							\
 	if (test__error_ct > 0)	{						\
 		fprintf(TEST_FILE, "TESTS FAILED: %lu, exiting\n", test__error_ct);	\
@@ -31,7 +38,7 @@ static unsigned long test__error_ct = 0;
 	BUILD_BUG_ON_INVALID((a) == (b));	\
 	printf_check_fmt(a_fmt b_fmt, a, b);	\
 } while(0)
-#  define test(x) BUILD_BUG_ON_INVALID(e)
+#  define ok1(x) BUILD_BUG_ON_INVALID(e)
 #  define test_done() do {} while(0)
 # endif /* !TEST */
 
