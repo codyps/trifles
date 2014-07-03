@@ -1,6 +1,7 @@
 #ifndef PENNY_TEST_H_
 #define PENNY_TEST_H_
 
+#include <stdlib.h>
 
 # if TEST
 #  ifndef TEST_FILE
