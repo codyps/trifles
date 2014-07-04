@@ -72,13 +72,19 @@ static inline bool memstarts(void const *data, size_t data_len,
 	return !memcmp(data, prefix, prefix_len);
 }
 
+/**
+ * memchr_len - search @s for @c, and return the offset of the first location
+ *              of @c in @s
+ * @s: an array of bytes with size @n
+ * @c: character to search for
+ * @n: length in bytes of @s
+ *
+ * Returns an offset into @s where a byte matching @c was found. If no matching
+ * byte was found, returns @n.
+ */
 static inline size_t memchr_len(const void *s, int c, size_t n)
 {
-	if (n == 0)
-		return 0;
-
-	const void *r = memchr(s, c, n);
-	return r - s;
+	return memchr(s, c, n) - s;
 }
 
 #define memeq(a, al, b, bl) (al == bl && !memcmp(a, b, bl))

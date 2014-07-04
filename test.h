@@ -8,6 +8,10 @@
 #   define TEST_FILE stderr
 #  endif
 static unsigned long test__error_ct = 0;
+#  define NUM_FMT "%#jx"
+#  define NUM_EXP(a) ((uintmax_t)(a))
+#  define NUM_EQ(a, b) ((uintmax_t)(a) == (uintmax_t)(b))
+#  define ok_eq(a, b) test_eq_fmt_exp((a), (b), NUM_FMT, NUM_EXP, NUM_EQ)
 #  define test_eq_xp(a, b) test_eq_fmt_exp((a), (b), LLU_FMT, LLU_PAIR_EXP, LLU_EQ)
 #  define test_eq_x(a, b) test_eq_fmt_exp((a), (b), "0x%llx", LLU, EQ)
 #  define test_eq_fmt(a, b, fmt) test_eq_fmt_exp(a, b, fmt, UNIT, EQ)
@@ -34,6 +38,10 @@ static unsigned long test__error_ct = 0;
 	}									\
 } while(0)
 # else /* if !TEST */
+#  define ok_eq(a, b) do {		\
+	BUILD_BUG_ON_INVALID(a);	\
+	BUILD_BUG_ON_INVALID(b);	\
+} while (0)
 #  define test_eq_x(a, b) BUILD_BUG_ON_INVALID((a) == (b))
 #  define test_eq_fmt(a, a_fmt, b, b_fmt) do {	\
 	BUILD_BUG_ON_INVALID((a) == (b));	\
