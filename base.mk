@@ -96,7 +96,7 @@
 .SUFFIXES:
 
 O = .
-O_ = $(O_)
+O_ = $(O)
 BIN_TARGETS=$(addprefix $(O_)/,$(addsuffix $(BIN_EXT),$(TARGETS)))
 
 .PHONY: all FORCE

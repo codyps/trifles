@@ -1,0 +1,2 @@
+PATH=${PATH##:}
+export PATH=${PATH%%:}

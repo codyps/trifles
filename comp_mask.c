@@ -3,6 +3,11 @@
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <strings.h>
+#include <limits.h>
+
+#define TEST 1
+#include <penny/test.h>
 
 #define bit_width_max(bits) \
 		((1ull << ((bits) - 1) << 1) - 1)
@@ -13,7 +18,7 @@
 
 /* from https://graphics.stanford.edu/~seander/bithacks.html */
 __attribute__((__unused__))
-static inline uint32_t ctz_32(uint32_t v)
+static inline unsigned ctz_32(uint32_t v)
 {
 	unsigned c;     // c will be the number of zero bits on the right,
 	// so if v is 1101000 (base 2), then c will be 3
@@ -44,22 +49,48 @@ static inline uint32_t ctz_32(uint32_t v)
 	return c;
 }
 
-#define ALIGN_OF(x) ctz_32(x)
-
-void match_range(unsigned edge, unsigned max, unsigned fudge)
+static unsigned fls_32(uint32_t v)
 {
-	if (edge < max) {
-		/* Find fence such that: */
-		/* edge < fence < MIN(edge + fudge, max)
-		 * edge < fence_right < max
-		 */
-		ALIGN_OF(start)
+	if (!v)
+	       return 0;
+	return (CHAR_BIT * sizeof(unsigned) - __builtin_clz(v));
+}
 
+#define ALIGN_OF(x) ctz_32(x)
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
 
-	} else {
+struct base_mask {
+	uint32_t base, mask;
+};
 
+static struct base_mask match_range_fix_low(uint32_t edge, uint32_t max)
+{
+	uint32_t diff = max - edge;
+	uint32_t diff_ls = fls_32(diff);
+	uint32_t diff_tz = ctz_32(diff);
+	uint32_t edge_tz = ctz_32(edge);
+	uint32_t mask_shift = MIN(diff_ls, edge_tz);
+	if (diff_tz)
+		mask_shift --;
+	uint32_t comp = edge;
 
-	}
+	printf("%" PRIx32 " to %" PRIx32 " = %" PRIx32 " & %" PRIx32 "\n",
+			edge, max, comp, (uint32_t)bit_width_max(mask_shift));
+
+	return (struct base_mask){ comp, (uint32_t) bit_width_max(mask_shift) };
+}
+
+#define test_bm(a, b) test_eq_fmt_exp(a, b, BM_FMT, BM_EXP, BM_EQ)
+#define BM(_b, _m) ((struct base_mask){ (_b), (_m) })
+#define BM_FMT "%04" PRIx32 " & %04" PRIx32 ""
+#define BM_EXP(a) (a).base, (a).mask
+#define BM_EQ(a, b) (((a).base == (b).base) && ((a).mask == (b).mask))
+
+#define test_match(_v, _mr) test(matches(_mr, _v))
+
+static inline bool matches(struct base_mask bm, uint32_t v)
+{
+	return (v & bm.mask) == bm.base;
 }
 
 
@@ -75,6 +106,12 @@ int main(void)
 		}
 		putchar('\n');
 	} while (i--);
+
+	ok1(matches(match_range_fix_low(0xffe0, 0xfff1), 0xfff1));
+	test_bm(BM(0xffe0, 0xf),  match_range_fix_low(0xffe0, 0xfff0));
+	test_bm(BM(0xffe0, 0x1f), match_range_fix_low(0xffe0, 0xffff));
+	test_bm(BM(0xffe0, 0x1),  match_range_fix_low(0xffe0, 0xffe1));
+	test_done();
 
 	return 0;
 }
