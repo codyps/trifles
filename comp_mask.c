@@ -90,12 +90,19 @@ static struct base_mask match_range_fix_low(uint32_t edge, uint32_t max)
 
 static inline bool matches(struct base_mask bm, uint32_t v)
 {
-	return (v & bm.mask) == bm.base;
+	return (v & ~bm.mask) == bm.base;
 }
 
+static inline uint32_t matcher_max(struct base_mask bm)
+{
+	printf("%" PRIx32" | %" PRIx32" = %" PRIx32"\n",
+			bm.base, bm.mask, bm.base | bm.mask);
+	return bm.base | bm.mask;
+}
 
 int main(void)
 {
+#if 0
 	uint32_t i = UINT32_MAX >> 16;
 	int mask_shift;
 	uint32_t mask;
@@ -106,9 +113,16 @@ int main(void)
 		}
 		putchar('\n');
 	} while (i--);
+#endif
 
-	ok1(matches(match_range_fix_low(0xffe0, 0xfff1), 0xfff1));
+	test_bm(BM(0xfff1, 0x0),  match_range_fix_low(0xfff1, 0xfff1));
+	ok_eq(matcher_max(match_range_fix_low(0xfff1, 0xfff1)), 0xfff1);
+	ok1(matches(match_range_fix_low(0xfff0, 0xfff1), 0xfff1));
+	ok1(!matches(match_range_fix_low(0xfff0, 0xfff1), 0xfff2));
+	ok1(!matches(match_range_fix_low(0xfff1, 0xfff1), 0xfff2));
+	ok1(!matches(match_range_fix_low(0xfff1, 0xfff1), 0xfff0));
 	test_bm(BM(0xffe0, 0xf),  match_range_fix_low(0xffe0, 0xfff0));
+	ok_eq(matcher_max(match_range_fix_low(0xffe0, 0xfff1)), (uint32_t)0xfff1);
 	test_bm(BM(0xffe0, 0x1f), match_range_fix_low(0xffe0, 0xffff));
 	test_bm(BM(0xffe0, 0x1),  match_range_fix_low(0xffe0, 0xffe1));
 	test_done();
