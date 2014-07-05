@@ -40,6 +40,11 @@ static inline void print_num_bits(uintmax_t num, FILE *f)
 	}
 }
 
+#define PV(n) do {			\
+	print_num_bits_t(n, stdout);	\
+	printf(" /* %s */", #n);	\
+	putchar('\n');			\
+} while (0)
 #define print_num_bits_t(v, f) do {				\
 	unsigned __pnb_i;					\
 	__typeof__(v) __pnb_num = (v);				\
