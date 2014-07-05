@@ -5,11 +5,13 @@
 #include <stdbool.h>
 #include <strings.h>
 #include <limits.h>
+#include <penny/print.h>
 
 #define TEST 1
 #include <penny/test.h>
 
-/* assert(bits < (sizeof(1ull) * CHAR_BIT)) */
+/* assert(bits < (sizeof(1ull) * CHAR_BIT))
+ * nf = "not full" */
 #define bit_mask_nf(bits) ((1ull << (bits)) - 1)
 /* assert(bits > 0) */
 #define bit_mask_nz(bits) ((1ull << ((bits) - 1) << 1) - 1)
@@ -65,50 +67,37 @@ static unsigned fls_32(uint32_t v)
 
 static unsigned ilog_32(uint32_t v)
 {
-	if (!v)
-		return 0;
 	return fls_32(v) - 1;
 }
 
 #define ALIGN_OF(x) ctz_32(x)
-#define MIN(x, y) ((x) < (y) ? (x) : (y))
 
 struct base_mask {
 	uint32_t base, mask;
 };
 
-#if 0
-static struct base_mask match_range_fix_low(uint32_t edge, uint32_t max)
-{
-	uint32_t diff = max - edge;
-	uint32_t diff_ls = fls_32(diff);
-	uint32_t diff_tz = ctz_32(diff);
-	uint32_t edge_tz = ctz_32(edge);
-	uint32_t mask_shift = MIN(diff_ls, edge_tz);
-	if (diff_tz)
-		mask_shift --;
-	uint32_t comp = edge;
-
-	printf("%" PRIx32 " to %" PRIx32 " = %" PRIx32 " & %" PRIx32 "\n",
-			edge, max, comp, (uint32_t)bit_width_max(mask_shift));
-
-	return (struct base_mask){ comp, (uint32_t) bit_width_max(mask_shift) };
-}
-#else
 static struct base_mask match_range_fix_low(uint32_t base, uint32_t max)
 {
 	unsigned base_tz = ctz_32(base);
 	uint32_t mask_1 = bit_mask(base_tz);
 	uint32_t masked_max = max & mask_1;
-	unsigned log_of_max_masked = ilog_32(masked_max);
+	unsigned log_of_max_masked = ilog_32(masked_max + 1);
 	uint32_t final_mask = bit_mask(log_of_max_masked);
-
-	printf("base %04jx max %04jx base_tz %04x mask_1 %04jx masked_max %04jx %04x %04jx\n",
-			(uintmax_t)base, (uintmax_t)max, base_tz, (uintmax_t)mask_1, (uintmax_t)masked_max, log_of_max_masked, (uintmax_t)final_mask);
 
 	return (struct base_mask){ base, final_mask };
 }
-#endif
+
+static struct base_mask match_range_fix_high(uint32_t base, uint32_t min)
+{
+	/* "count trailing ones" */
+	unsigned dont_care_bits = ctz_32(base + 1);
+	uint32_t mask_1 = bit_mask(dont_care_bits);
+
+	PV(dont_care_bits);
+	PV(mask_1);
+
+	return (struct base_mask){ 0, 0};
+}
 
 #define test_bm(a, b) test_eq_fmt_exp(a, b, BM_FMT, BM_EXP, BM_EQ)
 #define BM(_b, _m) ((struct base_mask){ (_b), (_m) })
@@ -125,26 +114,11 @@ static inline bool matches(struct base_mask bm, uint32_t v)
 
 static inline uint32_t matcher_max(struct base_mask bm)
 {
-	printf("%" PRIx32" | %" PRIx32" = %" PRIx32"\n",
-			bm.base, bm.mask, bm.base | bm.mask);
 	return bm.base | bm.mask;
 }
 
 int main(void)
 {
-#if 0
-	uint32_t i = UINT32_MAX >> 16;
-	int mask_shift;
-	uint32_t mask;
-	do {
-		for (mask_shift = 0; mask_shift <= 0xf; mask_shift++) {
-			mask = (~0) << mask_shift;
-			printf ("%04" PRIx32 "-%04" PRIx32 " ", i & mask, i | ((1 << mask_shift) - 1) );
-		}
-		putchar('\n');
-	} while (i--);
-#endif
-
 	test_bm(BM(0xfff1, 0x0),  match_range_fix_low(0xfff1, 0xfff1));
 	ok_eq(matcher_max(match_range_fix_low(0xfff1, 0xfff1)), 0xfff1);
 	ok1(matches(match_range_fix_low(0xfff0, 0xfff1), 0xfff1));
@@ -153,10 +127,14 @@ int main(void)
 	ok1(!matches(match_range_fix_low(0xfff1, 0xfff1), 0xfff0));
 
 	test_bm(BM(0xffe0, 0x0f),  match_range_fix_low(0xffe0, 0xfff0));
-	ok_eq(matcher_max(match_range_fix_low(0xffe0, 0xfff1)), (uint32_t)0xfff1);
+	ok_eq(matcher_max(match_range_fix_low(0xffe0, 0xfff1)), (uint32_t)0xffef);
 
 	test_bm(BM(0xffe0, 0x1f), match_range_fix_low(0xffe0, 0xffff));
 	test_bm(BM(0xffe0, 0x1),  match_range_fix_low(0xffe0, 0xffe1));
+
+	test_bm(BM(0, 0xffff),	  match_range_fix_high(0xffff, 0));
+
+
 	test_done();
 
 	return 0;
