@@ -11,8 +11,8 @@
 
 static inline void print_byte_bits(unsigned char byte, FILE *f)
 {
-	int8_t bit = CHAR_BIT;
-	char buf[9];
+	unsigned bit = CHAR_BIT;
+	char buf[CHAR_BIT + 1];
 	while (bit--)
 		buf[CHAR_BIT - bit - 1] = (byte & (1 << bit)) ? '1' : '0';
 
@@ -28,6 +28,30 @@ static inline void print_bits(const void *data, size_t data_len, FILE *f)
 		d++;
 	}
 }
+
+static inline void print_num_bits(uintmax_t num, FILE *f)
+{
+	unsigned i;
+	unsigned shift = (sizeof(num) - 1) * CHAR_BIT;
+	__typeof__(num) mask = (~0) << shift;
+	for (i = 0; i < sizeof(num); i++) {
+		print_byte_bits((num & mask) >> shift, f);
+		num = num << CHAR_BIT;
+	}
+}
+
+#define print_num_bits_t(v, f) do {				\
+	unsigned __pnb_i;					\
+	__typeof__(v) __pnb_num = (v);				\
+	unsigned __pnb_shift = (sizeof(v) - 1) * CHAR_BIT;	\
+	__typeof__(v) __pnb_mask = (~0) << __pnb_shift;		\
+	for (__pnb_i = 0; __pnb_i < sizeof(v); __pnb_i++) {	\
+		print_byte_bits((__pnb_num & __pnb_mask) >> __pnb_shift, f);	\
+		__pnb_num = __pnb_num << CHAR_BIT;				\
+	}							\
+} while (0)
+
+#define print_bits_t(v, f) print_bits(&(v), sizeof(v), f)
 
 static inline void print_bits_llu(llu d, FILE *f)
 {

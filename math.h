@@ -5,6 +5,8 @@
 #include <limits.h>
 #include <stdint.h>
 
+#include <penny/penny.h> /* llu */
+
 /* potential for overflow when doing (n + d - 1) */
 #define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
 #if 0
