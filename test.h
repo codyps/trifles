@@ -19,14 +19,14 @@ static unsigned long test__error_ct = 0;
 	typeof(a) __test_eq_a = (a);						\
 	typeof(b) __test_eq_b = (b);						\
 	if (!eq((__test_eq_a), (__test_eq_b))) {				\
-		fprintf(TEST_FILE, "TEST FAILURE: %s ("fmt") != %s ("fmt")\n",	\
-				#a, exp(__test_eq_a), #b, exp(__test_eq_b));	\
+		fprintf(TEST_FILE, "%s:%d - TEST FAILURE: %s ("fmt") != %s ("fmt")\n",	\
+				__FILE__, __LINE__, #a, exp(__test_eq_a), #b, exp(__test_eq_b));	\
 		test__error_ct ++;						\
 	}									\
 } while(0)
 #  define ok1(a) do {						\
 	if (!(a)) {						\
-		fprintf(TEST_FILE, "TEST FAILURE: %s\n", #a);	\
+		fprintf(TEST_FILE, "%s:%d - TEST FAILURE: %s\n", __FILE__, __LINE__, #a);	\
 		test__error_ct++;				\
 	}							\
 } while(0)
