@@ -18,3 +18,7 @@ cgit - webif
 git-daemon - webif
 
 repo.or.cz (they run their own opensource IF, right?)
+
+http://kallithea-scm.org/
+
+https://news.ycombinator.com/item?id=7989766

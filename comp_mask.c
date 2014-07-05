@@ -53,7 +53,12 @@ static unsigned fls_32(uint32_t v)
 {
 	if (!v)
 	       return 0;
-	return (CHAR_BIT * sizeof(unsigned) - __builtin_clz(v));
+	return (CHAR_BIT * sizeof(v) - __builtin_clz(v));
+}
+
+static unsigned ilog_32(uint32_t v)
+{
+	return fls_32(v);
 }
 
 #define ALIGN_OF(x) ctz_32(x)
@@ -63,6 +68,7 @@ struct base_mask {
 	uint32_t base, mask;
 };
 
+#if 0
 static struct base_mask match_range_fix_low(uint32_t edge, uint32_t max)
 {
 	uint32_t diff = max - edge;
@@ -79,6 +85,13 @@ static struct base_mask match_range_fix_low(uint32_t edge, uint32_t max)
 
 	return (struct base_mask){ comp, (uint32_t) bit_width_max(mask_shift) };
 }
+#else
+static struct base_mask match_range_fix_low(uint32_t base, uint32_t max)
+{
+	printf(">> %jx %jx\n", (uintmax_t)ctz_32(base), (uintmax_t)((1 << ctz_32(base)) - 1));
+	return (struct base_mask){ base, (1 << ilog_32(((1 << ctz_32(base)) - 1) & max)) - 1 };
+}
+#endif
 
 #define test_bm(a, b) test_eq_fmt_exp(a, b, BM_FMT, BM_EXP, BM_EQ)
 #define BM(_b, _m) ((struct base_mask){ (_b), (_m) })
