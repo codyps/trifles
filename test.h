@@ -24,12 +24,24 @@ static unsigned long test__error_ct = 0;
 		test__error_ct ++;						\
 	}									\
 } while(0)
+#  define ok_cmp_(a, cmp, b, fmt, exp) do {					\
+	typeof(a) __test_eq_a = (a);							\
+	typeof(b) __test_eq_b = (b);							\
+	if (!((__test_eq_a) cmp (__test_eq_b))) {							\
+		fprintf(TEST_FILE, __FILE__ ":%d - TEST FAILURE: " #a " ("fmt") !" #cmp " " #b " ("fmt")\n",	\
+				__LINE__, exp(__test_eq_a), exp(__test_eq_b));	\
+		test__error_ct ++;						\
+	}									\
+} while (0)
+#  define ok_cmp(a, cmp, b) ok_cmp_(a, cmp, b, NUM_FMT, NUM_EXP)
 #  define ok1(a) do {						\
 	if (!(a)) {						\
 		fprintf(TEST_FILE, "%s:%d - TEST FAILURE: %s\n", __FILE__, __LINE__, #a);	\
 		test__error_ct++;				\
 	}							\
 } while(0)
+
+
 
 #  define test_done() do {							\
 	if (test__error_ct > 0)	{						\
