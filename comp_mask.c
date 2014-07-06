@@ -89,14 +89,14 @@ static struct base_mask match_range_fix_low(uint32_t base, uint32_t max)
 
 static struct base_mask match_range_fix_high(uint32_t base, uint32_t min)
 {
-	/* "count trailing ones" */
-	unsigned dont_care_bits = ctz_32(base + 1);
-	uint32_t mask_1 = bit_mask(dont_care_bits);
+	unsigned base_ones = ctz_32(~base);
+	uint32_t diff = base - min;
+	uint32_t masked_diff = diff & bit_mask(base_ones);
+	unsigned mask_bits = ilog_32(masked_diff + 1);
+	uint32_t mask = bit_mask(mask_bits);
+	uint32_t final_base = base & ~mask;
 
-	PV(dont_care_bits);
-	PV(mask_1);
-
-	return (struct base_mask){ 0, 0};
+	return (struct base_mask){ final_base, mask};
 }
 
 #define test_bm(a, b) test_eq_fmt_exp(a, b, BM_FMT, BM_EXP, BM_EQ)
@@ -132,8 +132,10 @@ int main(void)
 	test_bm(BM(0xffe0, 0x1f), match_range_fix_low(0xffe0, 0xffff));
 	test_bm(BM(0xffe0, 0x1),  match_range_fix_low(0xffe0, 0xffe1));
 
-	test_bm(BM(0, 0xffff),	  match_range_fix_high(0xffff, 0));
-
+	test_bm(BM(0, 0xffff),		match_range_fix_high(0xffff, 0));
+	test_bm(BM(0x8000, 0x7fff),	match_range_fix_high(0xffff, 1));
+	test_bm(BM(0xfffe, 0),	match_range_fix_high(0xfffe, 1));
+	ok_cmp(matcher_max(match_range_fix_high(0xfffe, 1)), <=,  0xfffe);
 
 	test_done();
 
