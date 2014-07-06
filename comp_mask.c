@@ -16,10 +16,17 @@
 /* assert(bits > 0) */
 #define bit_mask_nz(bits) ((1ull << ((bits) - 1) << 1) - 1)
 
+static inline unsigned long long bit_mask(unsigned bits)
+{
+	return bits ? bit_mask_nz(bits) : 0;
+}
+
+#if 0
 #define bit_mask(bits) ({			\
 	__typeof__(bits) __bm_bits = (bits);	\
 	__bm_bits ? bit_mask_nz(__bm_bits) : 0;	\
 })
+#endif
 
 #define ROUND_UP_POW_OF_2X_M1(_val, _x)   ((_val) | bit_width_max(_x))
 #define ROUND_DOWN_POW_OF_2X(_val, _x) (((_val) >> (_x)) << (_x))
@@ -105,8 +112,6 @@ static struct base_mask match_range_fix_high(uint32_t base, uint32_t min)
 #define BM_EXP(a) (a).base, (a).mask
 #define BM_EQ(a, b) (((a).base == (b).base) && ((a).mask == (b).mask))
 
-#define test_match(_v, _mr) test(matches(_mr, _v))
-
 static inline bool matches(struct base_mask bm, uint32_t v)
 {
 	return (v & ~bm.mask) == bm.base;
@@ -135,7 +140,7 @@ int main(void)
 	test_bm(BM(0, 0xffff),		match_range_fix_high(0xffff, 0));
 	test_bm(BM(0x8000, 0x7fff),	match_range_fix_high(0xffff, 1));
 	test_bm(BM(0xfffe, 0),	match_range_fix_high(0xfffe, 1));
-	ok_cmp(matcher_max(match_range_fix_high(0xfffe, 1)), <=,  0xfffe);
+	ok_cmp(matcher_max(match_range_fix_high(0xfffe, 1)), <=,  0xfffeu);
 
 	test_done();
 
