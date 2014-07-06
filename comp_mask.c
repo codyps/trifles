@@ -12,9 +12,9 @@
 
 /* assert(bits < (sizeof(1ull) * CHAR_BIT))
  * nf = "not full" */
-#define bit_mask_nf(bits) ((INTMAX_C(1) << (bits)) - 1)
+#define bit_mask_nf(bits) ((UINTMAX_C(1) << (bits)) - 1)
 /* assert(bits > 0) */
-#define bit_mask_nz(bits) ((INTMAX_C(1) << ((bits) - 1) << 1) - 1)
+#define bit_mask_nz(bits) ((UINTMAX_C(1) << ((bits) - 1) << 1) - 1)
 
 static inline uintmax_t bit_mask(unsigned bits)
 {
