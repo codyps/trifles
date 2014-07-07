@@ -31,45 +31,73 @@ static inline uintmax_t bit_mask(unsigned bits)
 #define ROUND_UP_POW_OF_2X_M1(_val, _x)   ((_val) | bit_width_max(_x))
 #define ROUND_DOWN_POW_OF_2X(_val, _x) (((_val) >> (_x)) << (_x))
 
-
 /* from https://graphics.stanford.edu/~seander/bithacks.html */
-__attribute__((__unused__))
-static inline unsigned ctz_32(uint32_t v)
+unsigned ctz_32(uint32_t v)
 {
-	unsigned c;     // c will be the number of zero bits on the right,
-	// so if v is 1101000 (base 2), then c will be 3
-	// NOTE: if 0 == v, then c = 31.
+#ifdef builtin_ctz
+	return builtin_ctz(v);
+#else
+	unsigned c;
+	if (!v)
+		return 32;
 	if (v & 0x1)
-		c = 0;
-	else {
-		c = 1;
-		if ((v & 0xffff) == 0) {
-			v >>= 16;
-			c += 16;
-		}
-		if ((v & 0xff) == 0) {
-			v >>= 8;
-			c += 8;
-		}
-		if ((v & 0xf) == 0) {
-			v >>= 4;
-			c += 4;
-		}
-		if ((v & 0x3) == 0) {
-			v >>= 2;
-			c += 2;
-		}
-		c -= v & 0x1;
+		return 0;
+	c = 1;
+	if ((v & 0xffff) == 0) {
+		v >>= 16;
+		c += 16;
 	}
-
+	if ((v & 0xff) == 0) {
+		v >>= 8;
+		c += 8;
+	}
+	if ((v & 0xf) == 0) {
+		v >>= 4;
+		c += 4;
+	}
+	if ((v & 0x3) == 0) {
+		v >>= 2;
+		c += 2;
+	}
+	c -= v & 0x1;
 	return c;
+#endif
 }
 
-static unsigned fls_32(uint32_t v)
+unsigned clz_32(uint32_t v)
 {
+#ifdef builtin_clz
+	return builtin_clz(v);
+#else
+	unsigned c = 0;
 	if (!v)
-	       return 0;
-	return (CHAR_BIT * sizeof(v) - __builtin_clz(v));
+		return 32;
+	if ((v & 0xffff0000) == 0) {
+		c += 16;
+		v <<= 16;
+	}
+	if ((v & 0xff000000) == 0) {
+		c += 8;
+		v <<= 8;
+	}
+	if ((v & 0xf0000000) == 0) {
+		c += 4;
+		v <<= 4;
+	}
+	if ((v & 0xc0000000) == 0) {
+		c += 2;
+		v <<= 2;
+	}
+	if ((v & 0x80000000) == 0) {
+		c += 1;
+	}
+	return c;
+#endif
+}
+
+unsigned fls_32(uint32_t v)
+{
+	return ((CHAR_BIT * sizeof(v)) - clz_32(v));
 }
 
 static unsigned ilog_32(uint32_t v)
