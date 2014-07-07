@@ -10,6 +10,19 @@
 #define TEST 1
 #include <penny/test.h>
 
+#if defined(__GNUC__)
+/* gcc's __builtin_{clz,ctz}() are undefined if v == 0 */
+# define builtin_clz(v) (v ? __builtin_clz(v) : (sizeof(v) * CHAR_BIT))
+# define builtin_ctz(v) (v ? __builtin_ctz(v) : (sizeof(v) * CHAR_BIT))
+#elif defined(__ICCARM__)
+# include <intrinsics.h>
+/* emits the ARM instruction, which returns 32 if no bits are set */
+# define builtin_clz(v) __CLZ(v)
+# define builtin_ctz(v) __CLZ(__RBIT(v))
+#else
+# warning "Unrecognized compiler"
+#endif
+
 /* assert(bits < (sizeof(1ull) * CHAR_BIT))
  * nf = "not full" */
 #define bit_mask_nf(bits) ((UINTMAX_C(1) << (bits)) - 1)
