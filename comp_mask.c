@@ -6,10 +6,12 @@
 #include <strings.h>
 #include <limits.h>
 #include <penny/print.h>
+#include <assert.h>
 
 #define TEST 1
 #include <penny/test.h>
 
+#if 0
 #if defined(__GNUC__)
 /* gcc's __builtin_{clz,ctz}() are undefined if v == 0 */
 # define builtin_clz(v) (v ? __builtin_clz(v) : (sizeof(v) * CHAR_BIT))
@@ -21,6 +23,7 @@
 # define builtin_ctz(v) __CLZ(__RBIT(v))
 #else
 # warning "Unrecognized compiler"
+#endif
 #endif
 
 /* assert(bits < (sizeof(1ull) * CHAR_BIT))
@@ -108,82 +111,95 @@ unsigned clz_32(uint32_t v)
 #endif
 }
 
-unsigned fls_32(uint32_t v)
+unsigned fls_m1_32(uint32_t v)
 {
-	return ((CHAR_BIT * sizeof(v)) - clz_32(v));
+	if (!v)
+		return 32;
+	return ((CHAR_BIT * sizeof(v)) - clz_32(v)) - 1;
 }
 
-static unsigned ilog_32(uint32_t v)
-{
-	return fls_32(v) - 1;
-}
-
+static bool do_print = false;
 #define ALIGN_OF(x) ctz_32(x)
+#define CPV(x) do {		\
+	if (do_print)		\
+		PV(x);		\
+} while (0)
 
-struct base_mask {
-	uint32_t base, mask;
-};
-
-static struct base_mask match_range_fix_low(uint32_t base, uint32_t max)
+static unsigned maskn_from_range_low(uint32_t base, uint32_t max)
 {
+	assert(base <= max);
 	unsigned base_tz = ctz_32(base);
 	uint32_t mask_1 = bit_mask(base_tz);
 	uint32_t masked_max = max & mask_1;
-	unsigned log_of_max_masked = ilog_32(masked_max + 1);
-	uint32_t final_mask = bit_mask(log_of_max_masked);
+	unsigned log_of_max_masked = fls_m1_32(masked_max + 1);
 
-	return (struct base_mask){ base, final_mask };
+	return log_of_max_masked;
 }
 
-static struct base_mask match_range_fix_high(uint32_t base, uint32_t min)
+static unsigned maskn_from_range_high(uint32_t base, uint32_t min)
 {
+	assert(base >= min);
 	unsigned base_ones = ctz_32(~base);
 	uint32_t diff = base - min;
 	uint32_t masked_diff = diff & bit_mask(base_ones);
-	unsigned mask_bits = ilog_32(masked_diff + 1);
-	uint32_t mask = bit_mask(mask_bits);
-	uint32_t final_base = base & ~mask;
-
-	return (struct base_mask){ final_base, mask};
+	unsigned mask_bits = fls_m1_32(masked_diff + 1);
+	return mask_bits;
 }
 
-#define test_bm(a, b) test_eq_fmt_exp(a, b, BM_FMT, BM_EXP, BM_EQ)
-#define BM(_b, _m) ((struct base_mask){ (_b), (_m) })
-#define BM_FMT "%04" PRIx32 " & %04" PRIx32 ""
-#define BM_EXP(a) (a).base, (a).mask
-#define BM_EQ(a, b) (((a).base == (b).base) && ((a).mask == (b).mask))
-
-static inline bool matches(struct base_mask bm, uint32_t v)
+static unsigned maskn_from_range(uint32_t base, uint32_t limit)
 {
-	return (v & ~bm.mask) == bm.base;
+	if (base < limit)
+		return maskn_from_range_low(base, limit);
+	else
+		return maskn_from_range_high(base, limit);
 }
 
-static inline uint32_t matcher_max(struct base_mask bm)
+static inline bool maskn_matches(uint32_t base, unsigned mask_bits, uint32_t v)
 {
-	return bm.base | bm.mask;
+	uint32_t m = ~bit_mask(mask_bits);
+	return (v & m) == (base & m);
+}
+
+static inline uint32_t maskn_max(uint32_t base, unsigned mask_bits)
+{
+	return base | bit_mask(mask_bits);
+}
+
+static inline uint32_t maskn_base(uint32_t base, unsigned mask_bits)
+{
+	return base & ~bit_mask(mask_bits);
 }
 
 int main(void)
 {
-	test_bm(BM(0xfff1, 0x0),  match_range_fix_low(0xfff1, 0xfff1));
-	ok_eq(matcher_max(match_range_fix_low(0xfff1, 0xfff1)), 0xfff1);
-	ok1(matches(match_range_fix_low(0xfff0, 0xfff1), 0xfff1));
-	ok1(!matches(match_range_fix_low(0xfff0, 0xfff1), 0xfff2));
-	ok1(!matches(match_range_fix_low(0xfff1, 0xfff1), 0xfff2));
-	ok1(!matches(match_range_fix_low(0xfff1, 0xfff1), 0xfff0));
+	ok_eq(0, maskn_from_range_low(0xfff1, 0xfff1));
 
-	test_bm(BM(0xffe0, 0x0f),  match_range_fix_low(0xffe0, 0xfff0));
-	ok_eq(matcher_max(match_range_fix_low(0xffe0, 0xfff1)), (uint32_t)0xffef);
+#define MFRL(base, max) maskn_base(base, maskn_from_range_low(base, max)), maskn_from_range_low(base, max)
+	ok1( maskn_matches(MFRL(0xfff0, 0xfff1), 0xfff1));
+	ok1(!maskn_matches(MFRL(0xfff0, 0xfff1), 0xfff2));
+	ok1(!maskn_matches(MFRL(0xfff1, 0xfff1), 0xfff2));
+	ok1(!maskn_matches(MFRL(0xfff1, 0xfff1), 0xfff0));
 
-	test_bm(BM(0xffe0, 0x1f), match_range_fix_low(0xffe0, 0xffff));
-	test_bm(BM(0xffe0, 0x1),  match_range_fix_low(0xffe0, 0xffe1));
+	ok_eq(4,	maskn_from_range_low(0xffe0, 0xfff0));
 
-	test_bm(BM(0, 0xffff),		match_range_fix_high(0xffff, 0));
-	test_bm(BM(0x8000, 0x7fff),	match_range_fix_high(0xffff, 1));
-	test_bm(BM(0xfffe, 0),	match_range_fix_high(0xfffe, 1));
-	ok_cmp(matcher_max(match_range_fix_high(0xfffe, 1)), <=,  0xfffeu);
+	ok_eq(5,	maskn_from_range_low(0xffe0, 0xffff));
+	ok_eq(1,	maskn_from_range_low(0xffe0, 0xffe1));
+
+	ok_eq(16,	maskn_from_range_high(0xffff, 0));
+	ok_eq(15,	maskn_from_range_high(0xffff, 1));
+	ok_eq(0,	maskn_from_range_high(0xfffe, 1));
+
+	do_print = true;
+	ok_eq(32,	maskn_from_range_low(0, UINT32_MAX));
+	do_print = false;
+
+	ok_eq(0,	maskn_from_range(0, 0));
+	ok_eq(32,	maskn_from_range(0, UINT32_MAX));
+	ok_eq(32,	maskn_from_range(UINT32_MAX, 0));
+
+	ok_eq(0,	maskn_from_range(UINT32_MAX & ~INT32_C(1), 0));
+	ok_eq(31,	maskn_from_range(UINT32_MAX >> 1, 0));
 
 	test_done();
-
 	return 0;
 }
