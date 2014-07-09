@@ -209,6 +209,28 @@ int main(void)
 	ok_eq(0,	maskn_from_range(UINT32_MAX & ~INT32_C(1), 0));
 	ok_eq(31,	maskn_from_range(UINT32_MAX >> 1, 0));
 
+
+	ok_eq(ctz_32(0), 32);
+	ok_eq(ctz_32(1), 0);
+	ok_eq(ctz_32(2), 1);
+	ok_eq(ctz_32(UINT32_MAX - 1), 1);
+	ok_eq(ctz_32(UINT32_MAX >> 1), 0);
+
+	ok_eq(clz_32(0), 32);
+	ok_eq(clz_32(1), 31);
+	ok_eq(clz_32(2), 30);
+	ok_eq(clz_32(UINT32_MAX - 1), 0);
+	ok_eq(clz_32(UINT32_MAX >> 1), 1);
+
+	ok_eq(bit_mask(0), 0);
+	ok_eq(bit_mask(1), 1);
+	ok_eq(bit_mask(32), UINT32_MAX);
+
+	ok_eq(ffs_r1_32(0), 32);
+	ok_eq(ffs_r1_32(1), 0);
+	ok_eq(ffs_r1_32(UINT32_MAX), 31);
+	ok_eq(ffs_r1_32(UINT32_MAX >> 1), 30);
+
 	test_done();
 	return 0;
 }
