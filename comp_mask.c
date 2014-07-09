@@ -30,7 +30,11 @@
  * nf = "not full" */
 #define bit_mask_nf(bits) ((UINTMAX_C(1) << (bits)) - 1)
 /* assert(bits > 0) */
-#define bit_mask_nz(bits) ((UINTMAX_C(1) << ((bits) - 1) << 1) - 1)
+//#define bit_mask_nz(bits) ((UINTMAX_C(1) << ((bits) - 1) << 1) - 1)
+static inline uintmax_t bit_mask_nz(unsigned bits)
+{
+	return (UINTMAX_C(1) << ((bits) - 1) << 1) - 1;
+}
 
 static inline uintmax_t bit_mask(unsigned bits)
 {
@@ -111,11 +115,16 @@ unsigned clz_32(uint32_t v)
 #endif
 }
 
-unsigned fls_m1_32(uint32_t v)
+unsigned ffs_32(uint32_t v)
+{
+	return (CHAR_BIT * sizeof(v)) - clz_32(v);
+}
+
+unsigned ffs_r1_32(uint32_t v)
 {
 	if (!v)
 		return 32;
-	return ((CHAR_BIT * sizeof(v)) - clz_32(v)) - 1;
+	return ffs_32(v) - 1;
 }
 
 static bool do_print = false;
@@ -131,7 +140,7 @@ static unsigned maskn_from_range_low(uint32_t base, uint32_t max)
 	unsigned base_tz = ctz_32(base);
 	uint32_t mask_1 = bit_mask(base_tz);
 	uint32_t masked_max = max & mask_1;
-	unsigned log_of_max_masked = fls_m1_32(masked_max + 1);
+	unsigned log_of_max_masked = ffs_r1_32(masked_max + 1);
 
 	return log_of_max_masked;
 }
@@ -142,7 +151,7 @@ static unsigned maskn_from_range_high(uint32_t base, uint32_t min)
 	unsigned base_ones = ctz_32(~base);
 	uint32_t diff = base - min;
 	uint32_t masked_diff = diff & bit_mask(base_ones);
-	unsigned mask_bits = fls_m1_32(masked_diff + 1);
+	unsigned mask_bits = ffs_r1_32(masked_diff + 1);
 	return mask_bits;
 }
 
@@ -165,7 +174,7 @@ static inline uint32_t maskn_max(uint32_t base, unsigned mask_bits)
 	return base | bit_mask(mask_bits);
 }
 
-static inline uint32_t maskn_base(uint32_t base, unsigned mask_bits)
+static inline uint32_t maskn_min(uint32_t base, unsigned mask_bits)
 {
 	return base & ~bit_mask(mask_bits);
 }
@@ -174,7 +183,7 @@ int main(void)
 {
 	ok_eq(0, maskn_from_range_low(0xfff1, 0xfff1));
 
-#define MFRL(base, max) maskn_base(base, maskn_from_range_low(base, max)), maskn_from_range_low(base, max)
+#define MFRL(base, max) maskn_min(base, maskn_from_range_low(base, max)), maskn_from_range_low(base, max)
 	ok1( maskn_matches(MFRL(0xfff0, 0xfff1), 0xfff1));
 	ok1(!maskn_matches(MFRL(0xfff0, 0xfff1), 0xfff2));
 	ok1(!maskn_matches(MFRL(0xfff1, 0xfff1), 0xfff2));
