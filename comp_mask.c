@@ -26,6 +26,16 @@
 #endif
 #endif
 
+static unsigned bclz_32(uint32_t v)
+{
+	return v ? __builtin_clz(v) : 32;
+}
+
+static unsigned bctz_32(uint32_t v)
+{
+	return v ? __builtin_ctz(v) : 32;
+}
+
 /* assert(bits < (sizeof(1ull) * CHAR_BIT))
  * nf = "not full" */
 #define bit_mask_nf(bits) ((UINTMAX_C(1) << (bits)) - 1)
@@ -118,6 +128,11 @@ unsigned clz_32(uint32_t v)
 unsigned ffs_32(uint32_t v)
 {
 	return (CHAR_BIT * sizeof(v)) - clz_32(v);
+}
+
+unsigned bffs_32(uint32_t v)
+{
+	return __builtin_ffs(v);
 }
 
 unsigned ffs_r1_32(uint32_t v)
@@ -230,6 +245,19 @@ int main(void)
 	ok_eq(ffs_r1_32(1), 0);
 	ok_eq(ffs_r1_32(UINT32_MAX), 31);
 	ok_eq(ffs_r1_32(UINT32_MAX >> 1), 30);
+
+#define e(opa, opb, v) ok_eq(opa(v), opb(v))
+#define c_ffs(x) e(ffs_32, bffs_32, x)
+
+	c_ffs(4);
+	c_ffs(0xe);
+
+	uint32_t i;
+	for (i = 0; i < UINT32_MAX; i++)
+		e(bctz_32, ctz_32, i);
+	for (i = 0; i < UINT32_MAX; i++)
+		e(bclz_32, clz_32, i);
+
 
 	test_done();
 	return 0;
