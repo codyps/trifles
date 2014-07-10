@@ -125,21 +125,21 @@ unsigned clz_32(uint32_t v)
 #endif
 }
 
-unsigned ffs_32(uint32_t v)
+unsigned fls_32(uint32_t v)
 {
 	return (CHAR_BIT * sizeof(v)) - clz_32(v);
 }
 
-unsigned bffs_32(uint32_t v)
+unsigned bfls_32(uint32_t v)
 {
-	return __builtin_ffs(v);
+	return fls(v);
 }
 
-unsigned ffs_r1_32(uint32_t v)
+unsigned fls_r1_32(uint32_t v)
 {
 	if (!v)
 		return 32;
-	return ffs_32(v) - 1;
+	return fls_32(v) - 1;
 }
 
 static bool do_print = false;
@@ -155,7 +155,7 @@ static unsigned maskn_from_range_low(uint32_t base, uint32_t max)
 	unsigned base_tz = ctz_32(base);
 	uint32_t mask_1 = bit_mask(base_tz);
 	uint32_t masked_max = max & mask_1;
-	unsigned log_of_max_masked = ffs_r1_32(masked_max + 1);
+	unsigned log_of_max_masked = fls_r1_32(masked_max + 1);
 
 	return log_of_max_masked;
 }
@@ -166,7 +166,7 @@ static unsigned maskn_from_range_high(uint32_t base, uint32_t min)
 	unsigned base_ones = ctz_32(~base);
 	uint32_t diff = base - min;
 	uint32_t masked_diff = diff & bit_mask(base_ones);
-	unsigned mask_bits = ffs_r1_32(masked_diff + 1);
+	unsigned mask_bits = fls_r1_32(masked_diff + 1);
 	return mask_bits;
 }
 
@@ -241,23 +241,27 @@ int main(void)
 	ok_eq(bit_mask(1), 1);
 	ok_eq(bit_mask(32), UINT32_MAX);
 
-	ok_eq(ffs_r1_32(0), 32);
-	ok_eq(ffs_r1_32(1), 0);
-	ok_eq(ffs_r1_32(UINT32_MAX), 31);
-	ok_eq(ffs_r1_32(UINT32_MAX >> 1), 30);
+	ok_eq(fls_r1_32(0), 32);
+	ok_eq(fls_r1_32(1), 0);
+	ok_eq(fls_r1_32(UINT32_MAX), 31);
+	ok_eq(fls_r1_32(UINT32_MAX >> 1), 30);
 
 #define e(opa, opb, v) ok_eq(opa(v), opb(v))
-#define c_ffs(x) e(ffs_32, bffs_32, x)
+#define c_ffs(x) e(fls_32, bfls_32, x)
 
 	c_ffs(4);
 	c_ffs(0xe);
 
-	uint32_t i;
-	for (i = 0; i < UINT32_MAX; i++)
-		e(bctz_32, ctz_32, i);
-	for (i = 0; i < UINT32_MAX; i++)
-		e(bclz_32, clz_32, i);
+#define A32(A, B) do {				\
+	uint32_t i;				\
+	for (i = 0; i < UINT32_MAX; i++)	\
+		e(A, B, i);			\
+	e(A, B, UINT32_MAX);			\
+} while (0)
 
+	A32(bclz_32, clz_32);
+	A32(bctz_32, ctz_32);
+	A32(bfls_32, fls_32);
 
 	test_done();
 	return 0;
