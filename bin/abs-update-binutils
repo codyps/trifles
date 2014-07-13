@@ -1,0 +1,17 @@
+#! /bin/sh
+
+set -euf -o pipefail
+
+D="$(dirname $0)"
+T="/tmp/$(basename $0)-$$"
+PKG=arm-none-eabi-binutils
+mkdir -p "$T"
+cp -r /var/abs/community/"$PKG" "$T"
+
+cd "$T/$PKG"
+patch < "$D/../patches/abs/$PKG-enable-plugins.patch"
+
+makepkg -i
+cd
+
+rm -rf "$T"
