@@ -3,7 +3,7 @@
 set -euf -o pipefail
 
 D="$(dirname $0)"
-T="/tmp/$(basename $0)-$$"
+T="/var/tmp/$(basename $0)-$$"
 mkdir -p "$T"
 
 build_pkg () {
@@ -13,7 +13,7 @@ build_pkg () {
 
         pushd "$T/$PKG" >/dev/null
         patch < "$D/../patches/abs/$PKG-enable-plugins.patch"
-        makepkg -i
+        makepkg -i --noconfirm
         popd
 }
 
