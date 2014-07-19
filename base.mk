@@ -214,13 +214,13 @@ ifndef V
 	QUIET_FLEX  = @ echo '  FLEX ' $@;
 	QUIET_BISON = @ echo '  BISON' $*.tab.c $*.tab.h;
 	QUIET_AS    = @ echo '  AS   ' $@;
-	QUIET_SUBMAKE  = @ echo '  MAKE ' $@;
+	QUIET_MAKE  = @ echo '  MAKE ' $@;
 	QUIET_AR    = @ echo '  AR   ' $@;
 endif
 
 define sub-make-no-clean
 $1 : FORCE
-	$$(QUIET_SUBMAKE)$$(MAKE) $$(MAKE_ENV) $$(MFLAGS) --no-print-directory $3 -C $$(dir $$@) $$(notdir $$@)
+	+$$(QUIET_MAKE)$$(MAKE) $$(MAKE_ENV) $$(MFLAGS) --no-print-directory $3 -C $$(dir $$@) $$(notdir $$@)
 endef
 
 define sub-make-clean
@@ -231,7 +231,7 @@ endef
 
 define sub-make
 $(eval $(call sub-make-no-clean,$(1),$(2)))
-$(eval $(call sub-make-clean,$(dir $(1))/clean,$(2)))
+$(eval $(call sub-make-clean,$(dir $(1))clean,$(2)))
 endef
 
 # Avoid deleting .o files
