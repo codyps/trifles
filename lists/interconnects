@@ -1,0 +1,43 @@
+Message Buses, Interconnects, "Message Oriented Middleware" MOM, IPC
+
+
+ubus
+	http://www.unixbus.org/ubus/
+	simple, multiple unix sockets
+	socket per method
+
+ubus (openwrt)
+	http://wiki.openwrt.org/doc/techref/ubus
+
+ubus 
+
+dbus
+	widely used as a system and desktop interconnect
+
+	"signals"
+	"request-response"
+
+ivy bus
+
+
+apache camel
+	http://camel.apache.org/message-bus.html
+
+Boost.Interprocess (IPC)
+	http://www.boost.org/doc/libs/1_36_0/doc/html/interprocess.html
+
+YAMI4
+
+ROS RPC (Services)
+
+XML RPC
+
+"Use shared memory"
+
+"Use unix sockets"
+
+"Use named pipes"
+
+
+---
+http://stackoverflow.com/questions/60649/cross-platform-ipc

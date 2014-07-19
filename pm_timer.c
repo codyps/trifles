@@ -32,7 +32,9 @@ int main(int argc, char *argv[])
 	int i;
 
 	if (argc < 2) {
-		fprintf(stderr, "usage: %s <pm timer port>\n",
+		fprintf(stderr, "usage: %s <pm timer port>\n"
+				"to find the port:\n"
+				"  $ dmesg | grep 'PM-Timer IO Port:'\n",
 				argv[0]?argv[0]:"pm_timer_test");
 		return -2;
 	}

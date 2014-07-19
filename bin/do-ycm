@@ -1,0 +1,7 @@
+#! /bin/sh
+
+d=/tmp/ycm-$$-$RANDOM
+mkdir -p "$d"
+cd "$d"
+
+cmake -DUSE_SYSTEM_CLANG=ON -DPYTHON_INCLUDE_DIR=/usr/include/python2.7/ -DPYTHON_LIBRARY=/usr/lib64/libpython2.7.so -G "Unix Makefiles" ~/.vim/bundle/YouCompleteMe/cpp

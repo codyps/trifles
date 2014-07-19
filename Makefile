@@ -19,6 +19,7 @@ obj-dripper = Dripper.o
 obj-test-type-info = test_type.o
 obj-static-array = static_array.o
 obj-oops2line = oops2line.o
+obj-interp-kmesg = interp-kmesg.o
 
 obj-lsalsa = hw_params.o
 ldflags-lsalsa = -lasound
@@ -28,12 +29,14 @@ obj-debugfs-test = debugfs_test.o
 obj-modll = mod_ll.o
 
 obj-uinput = uinput.o
+obj-comp_mask = comp_mask.o
 
 parse-datetime.o: ALL_CFLAGS += -DTEST
 obj-parse-datetime = parse-datetime.o
 
 ALL_CFLAGS += -I.
 
-TARGETS = hd gkr-decrypt lsalsa test-pm-timer debugfs-test utime test-dep modll pipe unix-test set-qf-union set-qu-union set-to-dot dripper test-netlink usbreset hub-ctrl test-type-info uinput static-array oops2line
+TARGETS = hd gkr-decrypt lsalsa test-pm-timer debugfs-test utime test-dep modll pipe unix-test set-qf-union set-qu-union set-to-dot dripper test-netlink usbreset hub-ctrl test-type-info uinput static-array oops2line interp-kmesg comp_mask
 
 include base.mk
+include base-ccan.mk

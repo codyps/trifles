@@ -1,0 +1,51 @@
+#! /bin/sh
+
+usage () {
+	echo "usage: git format-each-patch <commit-id> [<commit-id>..] [-- [<format-patch-options>]]"
+	exit 1
+}
+
+revsel_list () {
+	while [ $# -gt 1 ]; do
+		if [ "$1" = "--" ]; then
+			break;
+		fi
+		echo "$1^..$1"
+		shift
+	done
+}
+
+if [ $# -lt 1 ]; then
+	usage
+fi
+
+rl=`revsel_list "$@"`
+
+while [ $# -gt 1 ]; do
+	if [ "$1" = "--" ]; then
+		shift
+		break
+	fi
+	shift
+done
+
+
+next_is_sn=false
+sn=
+for arg in "$@"; do
+	if $next_is_sn; then
+		sn=$arg
+		break
+	elif [ "$arg" = "--start-number" ]; then
+		next_is_sn=true;
+	fi
+done
+
+if [ -z "$sn" ]; then
+	sn=1
+fi
+
+for rs in $rl; do
+	git format-patch $@ --start-number $sn $rs
+	: $((sn += 1))
+done

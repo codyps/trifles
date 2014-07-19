@@ -1,0 +1,27 @@
+#! /bin/bash
+
+# Naming comes from the gentoo ebuild guide, with an extention for the
+# "Distro Version" (a concept foreign to gentoo).
+
+# package
+srpm_name_to_P () {
+	echo ${1%%.src.rpm}
+}
+
+# distro package version
+srpm_name_to_DPV () {
+	local P=`srpm_name_to_P $1`
+	echo ${P#*-}
+}
+
+# distro
+srpm_name_to_DIST () {
+	local P=`srpm_name_to_DPV $1`
+	echo ${P##*.}
+}
+
+# package version (assumes disto is "el?")
+srpm_name_to_PV () {
+	local P=`srpm_name_to_DPV $1`
+	echo ${P%.el?}
+}

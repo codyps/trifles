@@ -1,0 +1,12 @@
+#! /bin/bash
+
+set -euf -o pipefail
+
+. $(dirname $0)/../srpm_helpers
+
+P=kernel-3.10.0-121.el7.src.rpm
+
+srpm_name_to_P $P
+srpm_name_to_DPV $P
+srpm_name_to_DIST $P
+srpm_name_to_PV $P

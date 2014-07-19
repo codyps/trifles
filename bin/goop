@@ -54,7 +54,7 @@ if [ -r "$GOOP_CONF" ]; then
 fi
 
 if [ -z "$GOOP_DIR" ]; then
-	GOOP_DIR="$HOME/.goop/"
+	GOOP_DIR="$HOME/.goop"
 fi
 
 if [ $# -eq 0 ]; then

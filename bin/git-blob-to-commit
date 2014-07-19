@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# from http://stackoverflow.com/questions/223678/which-commit-has-this-blob
+
+obj_name="$1"
+shift
+
+git ls-files --stage \
+| if grep -q "$obj_name"; then
+    echo Found in staging area. Run git ls-files --stage to see.
+fi
+
+git log "$@" --pretty=format:'%T %h %s' \
+| while read tree commit subject ; do
+    if git ls-tree -r $tree | grep -q "$obj_name" ; then
+        echo $commit "$subject"
+    fi
+done

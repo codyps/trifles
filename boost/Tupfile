@@ -1,0 +1,2 @@
+: foreach *.cc | *.hh *.h |> g++ %f -Wall -g3 -ggdb -c -o %o |> %B.o
+: *.o |> g++ %f -o %o    |> test

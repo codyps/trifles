@@ -52,6 +52,8 @@
 #
 # $(ALL_CPPFLAGS)
 #
+# $(O_)		    use this as the output directory if you're writing new rules
+#
 # $(ldflags-some-target)
 #
 # $(cflags-some-object-without-suffix)
@@ -94,7 +96,11 @@
 .SUFFIXES:
 
 O = .
-BIN_TARGETS=$(addprefix $(O)/,$(addsuffix $(BIN_EXT),$(TARGETS)))
+O_ = $(O)
+BIN_TARGETS=$(addprefix $(O_)/,$(addsuffix $(BIN_EXT),$(TARGETS)))
+
+# link against things here
+PREFIX  ?= $(HOME)
 
 .PHONY: all FORCE
 all:: $(BIN_TARGETS)
@@ -121,6 +127,25 @@ $(call var-def,RM,rm -f)
 $(call var-def,FLEX,flex)
 $(call var-def,BISON,bison)
 
+
+IS_CLANG := $(shell echo | $(CC) -v 2>&1 | head -n1 | grep -q '^clang' && echo 1 || echo 0)
+IS_GCC   := $(shell echo | $(CC) -v 2>&1 | tail -n1 | grep -q '^gcc'   && echo 1 || echo 0)
+
+ifeq ($(IS_CLANG),1)
+CC_TYPE ?= clang
+endif
+ifeq ($(IS_GCC),1)
+CC_TYPE ?= gcc
+endif
+
+show-cc_type:
+	@echo $(CC_TYPE)
+
+CC_PREFIX = $(patsubst %gcc,%,$(CC))
+
+show-cc_prefix:
+	@echo $(CC_PREFIX)
+
 show-cc:
 	@echo $(CC)
 
@@ -130,18 +155,22 @@ else
 OPT=-Os
 endif
 
-DBG_FLAGS = -ggdb3 -gdwarf-4 -fvar-tracking-assignments -fsanitize=address
-
-CC_TYPE ?= gcc
+DBG_FLAGS = -ggdb3 -gdwarf-4 -fvar-tracking-assignments
+ifndef NO_SANITIZE
+DBG_FLAGS += -fsanitize=address
+endif
 
 ifndef NO_LTO
 # TODO: use -flto=jobserver
 ifeq ($(CC_TYPE),gcc)
+$(call var-def,AR,$(CC_PREFIX)gcc-ar)
+$(call var-def,RANLIB,$(CC_PREFIX)gcc-ranlib)
+$(call var-def,NM,$(CC_PREFIX)-gcc-nm)
 CFLAGS  ?= -flto $(DBG_FLAGS)
 LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fuse-linker-plugin
 else ifeq ($(CC_TYPE),clang)
-LDFLAGS ?= $(OPT)
 CFLAGS  ?= -emit-llvm $(DBG_FLAGS)
+LDFLAGS ?= $(OPT)
 endif
 else
 CFLAGS  ?= $(OPT) $(DBG_FLAGS)
@@ -167,7 +196,7 @@ C_CFLAGS += -Wbad-function-cast
 # -Wnormalized=id		not supported by clang
 # -Wunsafe-loop-optimizations	not supported by clang
 
-ALL_CFLAGS += -std=gnu99
+ALL_CFLAGS += -std=gnu11
 
 ALL_CPPFLAGS += $(CPPFLAGS)
 
@@ -191,7 +220,7 @@ ALL_ASFLAGS += $(ASFLAGS)
 
 # FIXME: need to exclude '-I', '-l', '-L' options
 # - potentially seperate those flags from ALL_*?
-MAKE_ENV = CC="$(CC)" CCLD="$(CCLD)" AS="$(AS)" CXX="$(CXX)"
+MAKE_ENV = CC="$(CC)" CCLD="$(CCLD)" AS="$(AS)" CXX="$(CXX)" AR="$(AR)" RANLIB="$(RANLIB)" NM="$(NM)"
          # CFLAGS="$(ALL_CFLAGS)" \
 	   LDFLAGS="$(ALL_LDFLAGS)" \
 	   CXXFLAGS="$(ALL_CXXFLAGS)" \
@@ -206,13 +235,13 @@ ifndef V
 	QUIET_FLEX  = @ echo '  FLEX ' $@;
 	QUIET_BISON = @ echo '  BISON' $*.tab.c $*.tab.h;
 	QUIET_AS    = @ echo '  AS   ' $@;
-	QUIET_SUBMAKE  = @ echo '  MAKE ' $@;
+	QUIET_MAKE  = @ echo '  MAKE ' $@;
 	QUIET_AR    = @ echo '  AR   ' $@;
 endif
 
 define sub-make-no-clean
 $1 : FORCE
-	$$(QUIET_SUBMAKE)$$(MAKE) $$(MAKE_ENV) $$(MFLAGS) --no-print-directory $3 -C $$(dir $$@) $$(notdir $$@)
+	+$$(QUIET_MAKE)$$(MAKE) $$(MAKE_ENV) $$(MFLAGS) --no-print-directory $3 -C $$(dir $$@) $$(notdir $$@)
 endef
 
 define sub-make-clean
@@ -223,15 +252,15 @@ endef
 
 define sub-make
 $(eval $(call sub-make-no-clean,$(1),$(2)))
-$(eval $(call sub-make-clean,$(dir $(1))/clean,$(2)))
+$(eval $(call sub-make-clean,$(dir $(1))clean,$(2)))
 endef
 
 # Avoid deleting .o files
 .SECONDARY:
 
 obj-to-dep = $(foreach obj,$(1),$(dir $(obj)).$(notdir $(obj)).d)
-target-dep = $(addprefix $(O)/,$(call obj-to-dep,$(obj-$(1))))
-target-obj = $(addprefix $(O)/,$(obj-$(1)))
+target-dep = $(addprefix $(O_)/,$(call obj-to-dep,$(obj-$(1))))
+target-obj = $(addprefix $(O_)/,$(obj-$(1)))
 
 # flags-template flag-prefix vars message
 # Defines a target '.TRACK-$(flag-prefix)FLAGS'.
@@ -239,13 +268,13 @@ target-obj = $(addprefix $(O)/,$(obj-$(1)))
 # target are rebuilt.
 define flags-template
 TRACK_$(1)FLAGS = $(foreach var,$(2),$$($(var))):$$(subst ','\'',$$(ALL_$(1)FLAGS))
-$(O)/.TRACK-$(1)FLAGS: FORCE
+$(O_)/.TRACK-$(1)FLAGS: FORCE
 	@FLAGS='$$(TRACK_$(1)FLAGS)'; \
-	if test x"$$$$FLAGS" != x"`cat $(O)/.TRACK-$(1)FLAGS 2>/dev/null`" ; then \
+	if test x"$$$$FLAGS" != x"`cat $(O_)/.TRACK-$(1)FLAGS 2>/dev/null`" ; then \
 		echo 1>&2 "    * new $(3)"; \
-		echo "$$$$FLAGS" >$(O)/.TRACK-$(1)FLAGS; \
+		echo "$$$$FLAGS" >$(O_)/.TRACK-$(1)FLAGS; \
 	fi
-TRASH += $(O)/.TRACK-$(1)FLAGS
+TRASH += $(O_)/.TRACK-$(1)FLAGS
 endef
 
 $(eval $(call flags-template,AS,AS,assembler build flags))
@@ -265,14 +294,14 @@ endef
 define BIN-LINK
 $(eval $(call build-link-flags,$(1)))
 
-$(O)/$(1)$(BIN_EXT) : $(O)/.TRACK-LDFLAGS $(call target-obj,$(1))
+$(O_)/$(1)$(BIN_EXT) : $(O_)/.TRACK-LDFLAGS $(call target-obj,$(1))
 	$$(QUIET_LINK)$$(CCLD) -o $$@ $$(call target-obj,$(1)) $$(ALL_LDFLAGS) $$(ldflags-$(1))
 endef
 
 define SLIB-LINK
 $(eval $(call build-link-flags,$(1)))
 
-$(O)/$(1) : $(O)/.TRACK-ARFLAGS $(call target-obj,$(1))
+$(O_)/$(1) : $(O_)/.TRACK-ARFLAGS $(call target-obj,$(1))
 	$$(QUIET_AR)$$(AR) -o $$@ $$(call target-obj,$(1)) $$(ALL_ARFLAGS) $$(arflags-$(1))
 
 endef
@@ -281,25 +310,23 @@ endef
 $(foreach target,$(TARGETS),$(eval $(call BIN-LINK,$(target))))
 $(foreach slib,$(TARGET_STATIC_LIBS),$(eval $(call SLIB-LINK,$(slib))))
 
-$(O)/%.tab.h $(O)/%.tab.c : %.y
+$(O_)/%.tab.h $(O_)/%.tab.c : %.y
 	$(QUIET_BISON)$(BISON) --locations -d \
 		-p '$(parser-prefix)' -k -b $* $<
 
-$(O)/%.ll.c : %.l
+$(O_)/%.ll.c : %.l
 	$(QUIET_FLEX)$(FLEX) -P '$(parser-prefix)' --bison-locations --bison-bridge -o $@ $<
 
-$(O)/%.o: %.c $(O)/.TRACK-CFLAGS
+$(O_)/%.o: %.c $(O_)/.TRACK-CFLAGS
 	$(QUIET_CC)$(CC) $(dep-gen) -c -o $@ $< $(ALL_CFLAGS) $(cflags-$*)
 
-$(O)/%.o: %.cc $(O)/.TRACK-CXXFLAGS
+$(O_)/%.o: %.cc $(O_)/.TRACK-CXXFLAGS
 	$(QUIET_CXX)$(CXX) $(dep-gen) -c -o $@ $< $(ALL_CXXFLAGS) $(cxxflags-$*)
 
-$(O)/%.o : %.S $(O)/.TRACK-ASFLAGS
+$(O_)/%.o : %.S $(O_)/.TRACK-ASFLAGS
 	$(QUIET_AS)$(AS) -c $(ALL_ASFLAGS) $< -o $@
 
 ifndef NO_INSTALL
-# link against things here
-PREFIX  ?= $(HOME)
 # install into here
 DESTDIR ?= $(PREFIX)
 # binarys go here
@@ -316,7 +343,7 @@ obj-trash = $(foreach obj,$(obj-all),$(call OBJ_TRASH,$(obj)))
 
 .PHONY: clean %.clean
 %.clean :
-	$(RM) $(call target-obj,$*) $(O)/$* $(TARGET_TRASH) $(call target-dep,$*)
+	$(RM) $(call target-obj,$*) $(O_)/$* $(TARGET_TRASH) $(call target-dep,$*)
 
 clean:	$(addsuffix .clean,$(TARGETS))
 	$(RM) $(TRASH) $(obj-trash)

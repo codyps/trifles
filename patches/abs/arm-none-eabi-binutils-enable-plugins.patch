@@ -1,0 +1,23 @@
+--- PKGBUILD.orig	2014-07-13 14:41:27.476763056 -0400
++++ PKGBUILD	2014-07-13 14:42:04.627405902 -0400
+@@ -25,7 +25,10 @@ build() {
+               --enable-interwork \
+               --with-gnu-as \
+               --with-gnu-ld \
+-              --disable-nls
++              --disable-nls \
++              --enable-lto \
++              --enable-plugins \
++              --disable-werror
+ 
+   make configure-host
+   make
+@@ -33,7 +35,7 @@ build() {
+ 
+ check() {
+   cd binutils-$pkgver
+-  
++
+   # unset LDFLAGS as testsuite makes assumptions about which ones are active
+   # do not abort on errors - manually check log files
+   make LDFLAGS="" -k check
