@@ -124,6 +124,19 @@ $(call var-def,RM,rm -f)
 $(call var-def,FLEX,flex)
 $(call var-def,BISON,bison)
 
+
+IS_CLANG := $(shell echo | $(CC) -v 2>&1 | head -n1 | grep '^clang' && echo 1 || echo 0)
+IS_GCC   := $(shell echo | $(CC) -v 2>&1 | tail -n1 | grep '^gcc'   && echo 1 || echo 0)
+
+ifeq ($(IS_CLANG),1)
+CC_TYPE ?= clang
+endif
+ifeq ($(IS_GCC),1)
+CC_TYPE ?= gcc
+endif
+
+CC_PREFIX = $(patsubst %-gcc,%,$(CC))
+
 show-cc:
 	@echo $(CC)
 
@@ -138,18 +151,17 @@ ifndef NO_SANITIZE
 DBG_FLAGS += -fsanitize=address
 endif
 
-CC_TYPE ?= gcc
-
-CC_TYPE=
-
 ifndef NO_LTO
 # TODO: use -flto=jobserver
 ifeq ($(CC_TYPE),gcc)
+$(call var-def,AR,$(CC_PREFIX)-gcc-ar)
+$(call var-def,RANLIB,$(CC_PREFIX)-gcc-ranlib)
+$(call var-def,NM,$(CC_PREFIX)-gcc-nm)
 CFLAGS  ?= -flto $(DBG_FLAGS)
 LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fuse-linker-plugin
 else ifeq ($(CC_TYPE),clang)
-LDFLAGS ?= $(OPT)
 CFLAGS  ?= -emit-llvm $(DBG_FLAGS)
+LDFLAGS ?= $(OPT)
 endif
 else
 CFLAGS  ?= $(OPT) $(DBG_FLAGS)
@@ -175,7 +187,7 @@ C_CFLAGS += -Wbad-function-cast
 # -Wnormalized=id		not supported by clang
 # -Wunsafe-loop-optimizations	not supported by clang
 
-ALL_CFLAGS += -std=gnu99
+ALL_CFLAGS += -std=gnu11
 
 ALL_CPPFLAGS += $(CPPFLAGS)
 
