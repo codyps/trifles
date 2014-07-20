@@ -36,6 +36,7 @@ static unsigned bctz_32(uint32_t v)
 	return v ? __builtin_ctz(v) : 32;
 }
 
+
 /* assert(bits < (sizeof(1ull) * CHAR_BIT))
  * nf = "not full" */
 #define bit_mask_nf(bits) ((UINTMAX_C(1) << (bits)) - 1)
