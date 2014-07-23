@@ -1,9 +1,22 @@
 #include <stdint.h>
 #include <limits.h>
 
-static uintmax_t bit_mask_nz(unsigned bits)
+#define uret unsigned
+
+
+uret bit_mask_nz(unsigned bits)
 {
 	return (UINTMAX_C(1) << ((bits) - 1) << 1) - 1;
+}
+
+uret bit_mask_nf(unsigned bits)
+{
+	return (1 << bits) - 1;
+}
+
+uret bit_mask_nf_2(unsigned bits)
+{
+	return ~(UINTMAX_MAX << bits);
 }
 
 /**
@@ -13,12 +26,12 @@ static uintmax_t bit_mask_nz(unsigned bits)
  * Note that the number of bits must be less than or equal to CHAR_BIT *
  * sizeof(uintmax_t), ie: the number of bits in a uintmax_t.
  */
-uintmax_t bit_mask(unsigned bits)
+uret bit_mask(unsigned bits)
 {
 	return bits ? bit_mask_nz(bits) : 0;
 }
 
-uintmax_t bit_mask2(unsigned bits)
+uret bit_mask2(unsigned bits)
 {
 	if (bits >= CHAR_BIT * sizeof(uintmax_t))
 		return UINTMAX_C(-1);
@@ -28,5 +41,5 @@ uintmax_t bit_mask2(unsigned bits)
 
 int main(void)
 {
-	return 0;
+	return bit_mask2(3);
 }
