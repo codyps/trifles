@@ -20,11 +20,31 @@ static inline void print_byte_bits(unsigned char byte, FILE *f)
 	fputs(buf, f);
 }
 
+static inline void print_byte_bits_lsb_first(unsigned char byte, FILE *f)
+{
+	unsigned bit = CHAR_BIT;
+	char buf[CHAR_BIT + 1];
+	while (bit--)
+		buf[bit] = (byte & (1 << bit)) ? '1' : '0';
+
+	buf[sizeof(buf) - 1] = '\0';
+	fputs(buf, f);
+}
+
 static inline void print_bits(const void *data, size_t data_len, FILE *f)
 {
 	const unsigned char *d = data;
 	while (data_len--) {
 		print_byte_bits(*d, f);
+		d++;
+	}
+}
+
+static inline void print_bits_lsb_first(const void *data, size_t data_len, FILE *f)
+{
+	const unsigned char *d = data;
+	while (data_len--) {
+		print_byte_bits_lsb_first(*d, f);
 		d++;
 	}
 }
