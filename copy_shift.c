@@ -20,6 +20,17 @@ static uint8_t backing[13] = {};
 
 #define P(x) printf("%s = %#jx;\n", #x, (uintmax_t)x)
 
+static uint8_t byte_modify(uint8_t orig, uint8_t start_bit, uint8_t end_bit, uint8_t val)
+{
+	assert(start_bit < 8);
+	assert(end_bit   < 8);
+	assert(start_bit < end_bit);
+
+	uint8_t bits_in_this_byte = end_bit - start_bit;
+	uint8_t mask = ((1 << bits_in_this_byte) - 1) << start_bit;
+	return (orig & ~mask) | ((val << start_bit) & mask);
+}
+
 static void bits_write(Ix start_bit, Ix end_bit, const uint8_t *in)
 {
 	BITS_PREP;
@@ -50,18 +61,31 @@ static void bits_write(Ix start_bit, Ix end_bit, const uint8_t *in)
 	tmp = (tmp & ~(mask << bit_shift)) | (c_in & mask) << bit_shift;
 	backing[start_byte] = tmp;
 
+	/* Did we consume all of our bits? */
+	bit_ct -= bits_in_this_byte;
+	if (!bit_ct)
+		return;
 
 	/* c_in has remaining bits from the previous read */
+	c_in &= ~mask;
+	c_in >>= bits_in_this_byte;
+
+	/* Have we consumed all of our bytes? */
+	if (!(bit_ct / 8)) {
+		/* XXX: c_in contains all relevent data, we end after it's
+		 * written out in the next byte */
+	}
+
+	/* read the next byte */
+	in++;
+	uint8_t c_next = *in;
+	c_in |= c_next << bits_in_this_byte;
+
+	/* c_in now has all the data to write next */
+
+	/* We might have 
 
 #if 0
-	/* RMW first byte IFF not a full byte */
-	if (bit_shift) {
-		uint8_t b = backing[start_byte];
-		/* clear @b with the appropriate mask, given the shift and
-		 * end_in_this_byte */
-
-		uint8_t mask = 1 << bit_shift;
-	}
 
 	/* W remaining bytes except the last */
 
@@ -72,16 +96,17 @@ static void bits_write(Ix start_bit, Ix end_bit, const uint8_t *in)
 }
 
 #define B do {						\
-	print_bits(backing, sizeof(backing), stdout);	\
+	print_bits_lsb_first(backing, sizeof(backing), stdout);	\
 	putchar('\n');					\
 } while (0)
 #define X(a, b) do {				\
-	B;					\
+	memset(backing, 0, sizeof(backing));	\
 	bits_write(a, b, (uint8_t *)&foo);	\
+	B;					\
 } while (0)
 int main(void)
 {
-	V foo;
+	uint8_t foo[] = { 0xff, 0xff };
 	B;
 
 	X(0, 7);
