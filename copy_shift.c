@@ -83,16 +83,16 @@ static void bits_write(Ix start_bit, Ix end_bit, const uint8_t *in)
 
 	/* c_in now has all the data to write next */
 
-	/* We might have 
+	/* check if this byte is partial */
+	if (
 
-#if 0
+	/* We might have */
 
 	/* W remaining bytes except the last */
 
 	/* RWM last byte IFF not a full byte */
 
 	/* W last byte otherwise */
-#endif
 }
 
 #define B do {						\
