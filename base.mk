@@ -113,6 +113,7 @@
 # - handle the mess that is linking for C++ vs C vs ld -r
 # - CCLD vs LD and LDFLAGS
 # - per target CCLD/LD
+# - C++ and CCLD choices (per-target?)
 # - check if certain code builds
 # - check if certain flags work
 # - check if certain headers/libs are installed
@@ -158,6 +159,9 @@ var-def = $(if $(findstring $(origin $(1)),default undefined),$(eval $(1) = $(2)
 # override them is tricky.
 $(call var-def,CC,$(CROSS_COMPILE)gcc)
 $(call var-def,CXX,$(CROSS_COMPILE)g++)
+$(call var-def,AR,$(CROSS_COMPILE)gcc-ar)
+$(call var-def,RANLIB,$(CROSS_COMPILE)gcc-ranlib)
+$(call var-def,NM,$(CROSS_COMPILE)gcc-nm)
 $(call var-def,CCLD,$(CC))
 $(call var-def,LD,ld)
 $(call var-def,AS,$(CC))
@@ -204,9 +208,6 @@ endif
 ifndef NO_LTO
 # TODO: use -flto=jobserver
 ifeq ($(CC_TYPE),gcc)
-$(call var-def,AR,$(CC_PREFIX)gcc-ar)
-$(call var-def,RANLIB,$(CC_PREFIX)gcc-ranlib)
-$(call var-def,NM,$(CC_PREFIX)gcc-nm)
 CFLAGS  ?= -flto $(DBG_FLAGS)
 LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fuse-linker-plugin
 else ifeq ($(CC_TYPE),clang)
@@ -357,6 +358,7 @@ $3: $2/$1$(BIN_EXT)
 $2/$1$(BIN_EXT).clean:
 	$$(RM) $$(call target-obj,$1,$2) $2/$1$(BIN_EXT) $$(TARGET_TRASH)
 $3.clean: $2/$1.clean
+
 endef
 
 # $1 = slib name ("libfoo.a")
