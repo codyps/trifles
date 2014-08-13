@@ -1,0 +1,19 @@
+#! /bin/bash
+
+find "$1" -print0 | while IFS= read -d $'\000' f ; do 
+  orig_f="$f"
+  # Below is pure bash. You can replace with tr if you like
+  # f="$( echo $f | tr -d ,\' | tr "$'&'@- " "ya__" )"
+  #f="${f// /_}"  # Replace spaces with _
+  #f="${f//\'}"   # Remove single quote
+  #f="${f//-/_}"  # Replace - with _
+  #f="${f//,}"    # Remove commas
+  #f="${f//&/y}"  # Replace ampersand with y
+  #f="${f//@/a}"  # Replace at sign with a
+  f="$(iconv -f UTF8 -t ASCII//TRANSLIT <<< "$f")"
+  new_dir="$(dirname "$f")"
+  new_f="$(basename "$f")"
+  mkdir -p "$new_dir"
+  mv -i -- "$orig_f" "$new_dir/$new_f"
+  echo "HI $orig_f"
+done 
