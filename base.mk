@@ -317,6 +317,8 @@ clean:
 obj-to-dep = $(foreach obj,$(1),$(dir $(obj)).$(notdir $(obj)).d)
 obj-all    = $(foreach target,$(TARGETS_ALL),$(obj-$(target)))
 
+$(foreach obj,$(obj-all),$(foreach act,$(ON_EACH_OBJ),$(eval $(call $(act),$(obj)))))
+
 # $1 - variant
 # Output - full path to dep files for every object for the given variant
 variant-deps = $(addprefix $(O_)/$1,$(call obj-to-dep,$(obj-all)))
