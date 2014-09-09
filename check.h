@@ -6,13 +6,20 @@
 /* Added in f80e77555daaf6c32840c28b9d94f61ba47aa173, r159459 */
 #define GCC_HAVE_STATIC_ASSERT GCC_VERSION_GREATER(4,6,0)
 
-#if __STDC_VERSION__ >= 201112L || defined(static_assert) || GCC_HAVE_STATIC_ASSERT
-#define BUILD_ASSERT(cond) _Static_assert(cond, #cond)
+#if defined(static_assert) || (defined(__cplusplus) && __cplusplus >= 201103L)
+# define BUILD_ASSERT(cond) static_assert(cond, #cond)
+#elif __STDC_VERSION__ >= 201112L || GCC_HAVE_STATIC_ASSERT
+# define BUILD_ASSERT(cond) _Static_assert(cond, #cond)
 #else
-#if 1
-#define BUILD_ASSERT(cond) \
+# define BUILD_ASSERT(cond) \
 	typedef char CAT2(build_assert_,__LINE__)[1 - 2*!(cond)]
-#else
+#endif
+
+//#define BUILD_ASSERT_OR_ZERO(cond) (sizeof(struct { int:-!(cond); }))
+#define BUILD_ASSERT_OR_ZERO(cond) (sizeof(char[1 - 2*!(cond)]))
+#define BUILD_ASSERT_OR_NULL(cond) ((void *)BUILD_ASSERT_OR_ZERO(cond))
+
+#if 0
 #define BUILD_ASSERT(cond) \
 	struct { int :-!(cond); } CAT2(build_assert,__LINE__) unused
 //#define BUILD_ASSERT(cond) do { ((void)BUILD_ASSERT_OR_ZERO(cond)); } while(0)
@@ -21,13 +28,6 @@
 //	if (cond)
 //		CAT2(build_assert,__LINE__)(); // yes, wouldn't that be nice.
 #endif
-#endif
-
-//#define BUILD_ASSERT_OR_ZERO(cond) (sizeof(struct { int:-!(cond); }))
-#define BUILD_ASSERT_OR_ZERO(cond) (sizeof(char[1 - 2*!(cond)]))
-#define BUILD_ASSERT_OR_NULL(cond) ((void *)BUILD_ASSERT_OR_ZERO(cond))
-
-
 
 #if 0
 /* https://lkml.org/lkml/2012/9/28/1251 */
@@ -67,5 +67,7 @@ BUILD_ASSERT(1 < 3);
 __attribute__((format(printf,1,2)))
 static inline void printf_check_fmt(const char *fmt __attribute__((unused)), ...)
 {}
+
+/* http://www.pixelbeat.org/programming/gcc/static_assert.html */
 
 #endif /* PENNY_CHECK_H_ */
