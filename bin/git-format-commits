@@ -1,0 +1,29 @@
+#! /bin/bash
+fmt_patch_opts=()
+
+usage () {
+	echo "usage: $(basename $0) [ [--git-format-patch-opts].. --] <commit-ish>.."
+	exit 1
+}
+
+
+if [[ $# -le 0 ]]; then
+	usage
+fi
+
+for arg in "$@"; do
+	if [[ "$arg" == -- ]]; then
+		shift
+		break;
+	fi
+	fmt_patch_opts+=( "$arg" )
+	shift
+done
+
+if [[ $# -le 0 ]]; then
+	usage
+fi
+
+for rev in "$@"; do
+	git format-patch "${fmt_patch_opts[@]}" "$rev^..$rev"
+done

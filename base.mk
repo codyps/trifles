@@ -91,6 +91,9 @@
 # BIN_EXT		Add an extention to each binary produced (.elf, .exe)
 #
 # ON_EACH_OBJ		a list of functions to $(call) for every object target
+# 			$1 = object
+# ON_EACH_VARIANT	a list of functions to be evaluated for every variant.
+#			$1 = variant, $2 = full output dir
 #
 # == How to use with FLEX + BISON support ==
 #
@@ -314,6 +317,8 @@ clean:
 obj-to-dep = $(foreach obj,$(1),$(dir $(obj)).$(notdir $(obj)).d)
 obj-all    = $(foreach target,$(TARGETS_ALL),$(obj-$(target)))
 
+$(foreach obj,$(obj-all),$(foreach act,$(ON_EACH_OBJ),$(eval $(call $(act),$(obj)))))
+
 # $1 - variant
 # Output - full path to dep files for every object for the given variant
 variant-deps = $(addprefix $(O_)/$1,$(call obj-to-dep,$(obj-all)))
@@ -430,6 +435,10 @@ $2/%.o: %.cc $2/.TRACK-CXXFLAGS
 $2/%.o: %.S $2/.TRACK-ASFLAGS
 	$$(QUIET_AS)$$(AS) -c $$(ALL_ASFLAGS) $$< -o $$@ $$(asflags-$$*) $$(asflags-$1) $$(asflags-$1/$$*)
 
+
+$(call debug,ON_EACH_VARIANT $(ON_EACH_VARIANT) +++)
+$(foreach each_var_func,$(ON_EACH_VARIANT),$(call $(each_var_func),$1,$2))
+$(call debug,ON_EACH_VARIANT ---)
 
 #-include $(call variant-deps,$1)
 endef

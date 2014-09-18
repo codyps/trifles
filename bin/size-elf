@@ -1,0 +1,6 @@
+#! /bin/sh
+
+for i in "$@"; do
+        size "$i" > "$i.size" || { rm "$i.size"; continue; }
+        readelf -S "$i" >> "$i.size"
+done
