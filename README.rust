@@ -1,0 +1,18 @@
+Wanted:
+
+ - a way to have type aliases inside trait impls when the higher trait doesn't provide them
+	ie:
+
+	struct Encoder<W, B, C> {
+		foo: W,
+		bar: B,
+		baz: C,
+	}
+
+	impl<W, B, C> serialize::Encoder for Encoder<W, B, C> {
+		type S = Encoder<W, B, C>; // WANTED: this is currently forbidden
+
+
+		// Primarily helps avoid lots of typing
+		// And lots of changes when a new <> arg is added.
+	}
