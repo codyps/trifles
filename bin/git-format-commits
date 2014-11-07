@@ -24,6 +24,8 @@ if [[ $# -le 0 ]]; then
 	usage
 fi
 
+sn=1
 for rev in "$@"; do
-	git format-patch "${fmt_patch_opts[@]}" "$rev^..$rev"
+	git format-patch "${fmt_patch_opts[@]}" --start-number "$sn" "$rev^..$rev"
+	: $((sn=sn+1))
 done

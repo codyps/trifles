@@ -16,3 +16,10 @@ Wanted:
 		// Primarily helps avoid lots of typing
 		// And lots of changes when a new <> arg is added.
 	}
+
+
+ - Generalization between things that can fail and things that cannot fail
+ - Statically determine partiality (ie: "will this panic")
+ - Generalization between different dereference levels of an object 
+	- ie: impl T on F also has T on &mut F, &F, etc.
+ - Allow specific impl on 'types' (not just structs).
