@@ -276,17 +276,24 @@ V=$(VERBOSE)
 endif
 
 ifndef V
-	QUIET_CC    = @ echo '  CC   ' $@;
-	QUIET_CXX   = @ echo '  CXX  ' $@;
-	QUIET_LINK  = @ echo '  LINK ' $@;
-	QUIET_LSS   = @ echo '  LSS  ' $@;
-	QUIET_SYM   = @ echo '  SYM  ' $@;
-	QUIET_FLEX  = @ echo '  FLEX ' $@;
-	QUIET_BISON = @ echo '  BISON' $*.tab.c $*.tab.h;
-	QUIET_AS    = @ echo '  AS   ' $@;
-	QUIET_MAKE  = @ echo '  MAKE ' $@;
-	QUIET_AR    = @ echo '  AR   ' $@;
+define q
+@printf "  %-7s %s\n" "$1" "$2" ;
+endef
+else
+define q
+endef
 endif
+
+QUIET_CC    = $(call q,CC,$@)
+QUIET_CXX   = $(call q,CXX,$@)
+QUIET_LINK  = $(call q,LINK,$@)
+QUIET_LSS   = $(call q,LSS,$@)
+QUIET_SYM   = $(call q,SYM,$@)
+QUIET_FLEX  = $(call q,FLEX,$@)
+QUIET_BISON = $(call q,BISON,$*.tab.c $*.tab.h)
+QUIET_AS    = $(call q,AS,$@)
+QUIET_MAKE  = $(call q,MAKE,$@)
+QUIET_AR    = $(call q,AR,$@)
 
 define sub-make-no-clean
 $1 : FORCE
