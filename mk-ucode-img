@@ -1,0 +1,34 @@
+#! /bin/sh
+set -euf -o pipefail
+
+if [ $# -eq 1 ]; then
+	OUT="$1"
+elif [ $# -eq 0 ]; then
+	OUT="ucode.cpio"
+else
+	echo "usage: $(basename $0) [initramfs]"
+	echo " default initramfs = 'ucode.cpio'"
+	exit 1
+fi
+
+: ${STEPPING:=$(grep 'stepping[[:space:]]*:' /proc/cpuinfo | tail -n 1 | cut -f2 -d: )}
+: ${FAMILY:=$(grep 'cpu family[[:space:]]*:' /proc/cpuinfo | tail -n 1 | cut -f2 -d: )}
+: ${MODEL:=$(grep 'model[[:space:]]*:' /proc/cpuinfo | tail -n 1 | cut -f2 -d: )}
+
+n=$(printf "%02x-%02x-%02x\n" "$FAMILY" "$MODEL" "$STEPPING")
+
+src="/lib/firmware/intel-ucode/$n"
+if ! [ -e "$src" ]; then
+	echo "No intel-ucode for your processor exists ($n)"
+	exit 0
+fi
+
+t=""
+trap 
+t=`mktemp -d`
+p="$t"/kernel/x86/microcode
+pf="$p"/GenuineIntel.bin
+mkdir -p "$p"
+cp "$src" "$pf"
+( cd "$t"
+find . -print0 | cpio -0 --quiet -o -H newc ) >"$OUT"
