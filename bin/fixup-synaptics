@@ -14,5 +14,6 @@ synclient TapButton2=3
 synclient HorizTwoFingerScroll=1
 synclient VertTwoFingerScroll=1
 
-synclient HorizScrollDelta=-1
-synclient VertScrollDelta=-1
+# NOTE: when negative, greater abs = slower speed
+synclient HorizScrollDelta=-10
+synclient VertScrollDelta=-10
