@@ -73,17 +73,17 @@
 # $(ldflags-some-variant)
 # $(ldflags-some-variant/some-target)
 #
-# $(cflags-some-object-without-suffix)
+# $(cflags-some-object)
 # $(cflags-some-variant)
-# $(cflags-some-variant/some-object-without-suffix)
+# $(cflags-some-variant/some-object)
 #
-# $(cxxflags-some-object-without-suffix)
+# $(cxxflags-some-object)
 # $(cxxflags-some-variant)
-# $(cxxflags-some-variant/some-object-without-suffix)
+# $(cxxflags-some-variant/some-object)
 #
-# $(asflags-some-object-without-suffix)
+# $(asflags-some-object)
 # $(asflags-some-variant)
-# $(asflags-some-variant/some-object-without-suffix)
+# $(asflags-some-variant/some-object)
 #
 # OBJ_TRASH		$(1) expands to the object. Expanded for every object.
 # TARGET_TRASH		$* expands to the target. Expanded for every target.
@@ -172,6 +172,8 @@ $(call var-def,RM,rm -f)
 $(call var-def,FLEX,flex)
 $(call var-def,BISON,bison)
 
+# FIXME: checking these is completely wrong, we sould be detecting if certain
+# flags are supported by the compiler by running it with them.
 IS_CLANG := $(shell echo | $(CC) -v 2>&1 | head -n1 | grep -q '^clang' && echo 1 || echo 0)
 IS_GCC   := $(shell echo | $(CC) -v 2>&1 | tail -n1 | grep -q '^gcc'   && echo 1 || echo 0)
 
@@ -206,25 +208,27 @@ endif
 DBG_FLAGS = -ggdb3 -gdwarf-4 -fvar-tracking-assignments
 ifndef NO_SANITIZE
 DBG_FLAGS += -fsanitize=address
+ifeq ($(IS_CLANG),1)
+DBG_FLAGS += -fsanitize=undefined
+endif
 endif
 
 ifndef NO_LTO
 # TODO: use -flto=jobserver
 ifeq ($(CC_TYPE),gcc)
-CFLAGS  ?= -flto $(DBG_FLAGS)
+CFLAGS  ?= -flto $(DBG_FLAGS) -pipe
 LDFLAGS ?= $(ALL_CFLAGS) $(OPT) -fuse-linker-plugin
 else ifeq ($(CC_TYPE),clang)
-CFLAGS  ?= -emit-llvm $(DBG_FLAGS)
+CFLAGS  ?= -emit-llvm $(DBG_FLAGS) -pipe
 LDFLAGS ?= $(OPT)
 endif
 else
-CFLAGS  ?= $(OPT) $(DBG_FLAGS)
+CFLAGS  ?= $(OPT) $(DBG_FLAGS) -pipe
 endif
 
 # c/c+++ shared flags
 COMMON_CFLAGS += -Wall
 COMMON_CFLAGS += -Wundef -Wshadow
-COMMON_CFLAGS += -pipe
 COMMON_CFLAGS += -Wcast-align
 COMMON_CFLAGS += -Wwrite-strings
 
@@ -434,13 +438,13 @@ $2/%.ll.c: %.l
 	$$(QUIET_FLEX)$$(FLEX) -P '$$(parser-prefix)' --bison-locations --bison-bridge -o $$@ $$<
 
 $2/%.o: %.c $2/.TRACK-CFLAGS
-	$$(QUIET_CC)$$(CC) $$(dep-gen) -c -o $$@ $$< $$(ALL_CFLAGS) $$(cflags-$$*) $$(cflags-$1) $$(cflags-$1/$$*)
+	$$(QUIET_CC)$$(CC) $$(dep-gen) -c -o $$@ $$< $$(ALL_CFLAGS) $$(cflags-$$@) $$(cflags-$1) $$(cflags-$1/$$@)
 
 $2/%.o: %.cc $2/.TRACK-CXXFLAGS
-	$$(QUIET_CXX)$$(CXX) $$(dep-gen) -c -o $$@ $$< $$(ALL_CXXFLAGS) $$(cxxflags-$$*) $$(cxxflags-$1) $$(cxxflags-$1/$$*)
+	$$(QUIET_CXX)$$(CXX) $$(dep-gen) -c -o $$@ $$< $$(ALL_CXXFLAGS) $$(cxxflags-$$@) $$(cxxflags-$1) $$(cxxflags-$1/$$@)
 
 $2/%.o: %.S $2/.TRACK-ASFLAGS
-	$$(QUIET_AS)$$(AS) -c $$(ALL_ASFLAGS) $$< -o $$@ $$(asflags-$$*) $$(asflags-$1) $$(asflags-$1/$$*)
+	$$(QUIET_AS)$$(AS) -c $$(ALL_ASFLAGS) $$< -o $$@ $$(asflags-$$@) $$(asflags-$1) $$(asflags-$1/$$@)
 
 
 $(call debug,ON_EACH_VARIANT $(ON_EACH_VARIANT) +++)
