@@ -1,0 +1,80 @@
+#! /bin/sh
+
+a="Michal Zalewski <lcamtuf@coredump.cx>"
+
+proc_file() {
+
+	b=$(basename "$1")
+
+	if ! [ -f "$1" ]; then
+		echo Bad file
+		return 1
+	fi
+
+	for f in `git ls-files`; do
+		rm "$f"
+	done
+
+	case "$b" in
+	*.tar.bz2|*.tar.gz)
+		echo "  tarball"
+		tar pxf "$1" || exit 1
+		v=${b%.tar.*}
+		echo "  looking for $v"
+		if ! [ -d "$v" ]; then
+			vo=$v
+			v=${v%-*}
+			echo "could not find dir $vo, trying base $v"
+			if ! [ -d "$v" ]; then
+				echo nope.
+				exit 1
+			fi
+		fi
+		d=`stat -c %Y "$v"`
+
+		for f in "$v/*"; do
+			mv $f . || exit 1
+		done
+		rmdir "$v" || exit 1
+		;;
+	*)
+		echo "$1" was a fail
+		return 1
+	esac
+
+
+	git add -A .
+	msg="`git diff --cached -- HISTORY | awk 'BEGIN { ignore=1; nl=1; } /@@/ { ignore=0; } /^\+/{ if (!ignore) { print substr($0,2); if(nl) { print ""; nl=0;};}; }'`"
+	git commit --author="$a" --date="$d" -m "$msg" -a -e || exit 1
+}
+
+proc_dir () {
+	for f in `ls -v "$1"`; do
+		echo "> $f"
+		proc_file "$1"/"$f"
+	done
+}
+
+RELEASE_URL='http://lcamtuf.coredump.cx/afl/releases/'
+RELEASE_DIR="$(echo $RELEASE_URL | sed 's%^http://%%')"
+RELEASE_PATTERN='afl-*.tar.gz'
+
+case "$1" in
+auto)
+	cd "$1"
+	echo "FULL AUTO"
+	wget --recursive "$RELEASE_URL"
+	mkdir g
+	( cd g; git init; )
+	( cd g; proc_dir "../$RELEASE_DIR"; )
+	exit 0
+	;;
+*)
+	if [ -d "$1" ]; then
+		echo "Processing directory $1"
+		proc_dir "$1"
+	else
+		echo "Processing file $1"
+		proc_file "$1"
+	fi
+esac
