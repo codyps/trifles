@@ -271,7 +271,7 @@ ALL_LDFLAGS += $(LDFLAGS)
 ALL_ASFLAGS += $(ASFLAGS)
 
 # FIXME: need to exclude '-I', '-l', '-L' options
-# - potentially seperate those flags from ALL_*?
+# - potentially separate those flags from ALL_*?
 MAKE_ENV = CC="$(CC)" CCLD="$(CCLD)" AS="$(AS)" CXX="$(CXX)" AR="$(AR)" RANLIB="$(RANLIB)" NM="$(NM)"
          # CFLAGS="$(ALL_CFLAGS)" \
 	   LDFLAGS="$(ALL_LDFLAGS)" \

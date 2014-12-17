@@ -8,7 +8,7 @@ struct share {
 
 int s_simple;
 
-struct share s_seperate;
+struct share s_separate;
 
 #endif
 	
