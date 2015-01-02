@@ -1,10 +1,9 @@
-## base.mk: 5b26dbb+, see https://github.com/jmesmon/base.mk.git
+## base.mk: deab8e5, see https://github.com/jmesmon/base.mk.git
 # Usage:
 #
 # == Targets ==
 # all
 #
-# $(BUILD_BIN)		binaries built for execution by the build process
 # $(TARGET_BIN)	        executable binaries (built in all VARIANTS)
 # $(TARGET_STATIC_LIB)	static libraries (built in all VARIANTS)
 # $(VARIANTS)		a collection of the global bins & slibs built with
@@ -158,10 +157,9 @@ endif
 # Prioritize environment specified variables over our defaults
 var-def = $(if $(findstring $(origin $(1)),default undefined),$(eval $(1) = $(2)))
 
-# These all override defaults supplied by Make, but _don't_ override defaults
-# provided by the environment at runtime.
+# overriding these in a Makefile while still allowing the user to
+# override them is tricky.
 $(call var-def,BUILD_CC,cc)
-$(call var-def,BUILD_CCLD,$(BUILD_CC))
 $(call var-def,CC,$(CROSS_COMPILE)gcc)
 $(call var-def,CXX,$(CROSS_COMPILE)g++)
 $(call var-def,AR,$(CROSS_COMPILE)gcc-ar)
@@ -271,7 +269,7 @@ ALL_LDFLAGS += $(LDFLAGS)
 ALL_ASFLAGS += $(ASFLAGS)
 
 # FIXME: need to exclude '-I', '-l', '-L' options
-# - potentially separate those flags from ALL_*?
+# - potentially seperate those flags from ALL_*?
 MAKE_ENV = CC="$(CC)" CCLD="$(CCLD)" AS="$(AS)" CXX="$(CXX)" AR="$(AR)" RANLIB="$(RANLIB)" NM="$(NM)"
          # CFLAGS="$(ALL_CFLAGS)" \
 	   LDFLAGS="$(ALL_LDFLAGS)" \
@@ -346,20 +344,6 @@ variant-deps = $(addprefix $(O)/$1,$(call obj-to-dep,$(obj-all)))
 # $2 = output dir
 target-obj = $(addprefix $(2)/,$(obj-$(1)))
 
-# prefixed-vars: given a variable and a list of prefixes, return a list of variables
-# $1 = variable base
-# $2 = list of prioritized variable prefixes
-prefixed-vars = $(foreach prefix,$2,$(prefix)_$1) $1
-
-# first-var: given a list of variable names, return the first one that has a value
-# $1 = list of variable names
-first-var = $(firstword $(foreach var,$1,$($(var))))
-
-# get-var: given a var-base & build type, find the actual var value we want to use
-# $1 = var-base (CC, CXX, etc)
-# $2 = build-kind ("TARGET", "BUILD")
-get-cmd = $(call first-var $2_$1 $1)
-
 # flags-template flag-prefix vars message
 # Defines a target '.TRACK-$(flag-prefix)FLAGS'.
 # if $(ALL_$(flag-prefix)FLAGS) or $(var) changes, any rules depending on this
@@ -383,31 +367,29 @@ parser-prefix = $(if $(PP_$*),$(PP_$*),$*_)
 dep-gen = -MMD -MF $(call obj-to-dep,$@)
 
 # $1 = bin name ("foo")
-# $2 = build type (TARGET or BUILD)
-# $3 = output dir
-# $4 = variant name
+# $2 = output dir
+# $3 = variant name
 define BIN-LINK
-$(call debug,BIN-LINK $1 $2 $3 $4)
-$3/$1$$(BIN_EXT): $2/.TRACK-LDFLAGS $$$$(@D)/.dir $$$$(call target-obj,$(1),$3)
-	$$(QUIET_LINK)$$(call get-var,CCLD,$2) -o $$@ $$(call target-obj,$(1),$3) $$(ALL_LDFLAGS) $$(ldflags-$2) $$(ldflags-$4) $$(ldflags-$1)
+$(call debug,BIN-LINK $1 $2 $3)
+$2/$1$$(BIN_EXT): $2/.TRACK-LDFLAGS $$$$(@D)/.dir $$$$(call target-obj,$(1),$2)
+	$$(QUIET_LINK)$$(CCLD) -o $$@ $$(call target-obj,$(1),$2) $$(ALL_LDFLAGS) $$(ldflags-$(1)) $$(ldflags-$3)
 
-$3: $3/$1$(BIN_EXT)
+$3: $2/$1$(BIN_EXT)
 
-.PHONY: $3/$1$(BIN_EXT).clean
-$3/$1$(BIN_EXT).clean:
-	$$(RM) $$(call target-obj,$1,$3) $3/$1$(BIN_EXT) $$(TARGET_TRASH)
-$4.clean: $3/$1.clean
+.PHONY: $2/$1$(BIN_EXT).clean
+$2/$1$(BIN_EXT).clean:
+	$$(RM) $$(call target-obj,$1,$2) $2/$1$(BIN_EXT) $$(TARGET_TRASH)
+$3.clean: $2/$1.clean
 
 endef
 
 # $1 = slib name ("libfoo.a")
-# $2 = build type (TARGET or BUILD)
 # $2 = output dir
 # $3 = variant name
 define SLIB-LINK
 $(call debug,SLIB-LINK $1 $2 $3)
 $(2)/$(1): $(2)/.TRACK-ARFLAGS $$$$(@D)/.dir $$$$(call target-obj,$(1),$2)
-	$$(QUIET_AR)$$(call get-var,AR,$2) -o $$@ $$(call target-obj,$(1),$3) $$(ALL_ARFLAGS) $$(arflags-$(1)) $$(arflags-$4)
+	$$(QUIET_AR)$$(AR) -o $$@ $$(call target-obj,$(1),$2) $$(ALL_ARFLAGS) $$(arflags-$(1)) $$(arflags-$3)
 
 $3: $2/$1
 
@@ -417,18 +399,6 @@ $2/$1.clean:
 $3.clean: $2/$1.clean
 
 endef
-
-# Provide $target.clean which maps to a clean across all variants
-# $1 = bin-name
-define DEF-CLEAN-TARGET
-$(call debug,DEF-CLEAN-TARGET $1)
-.PHONY: $1.clean
-$1.clean: $(foreach variant,$(VARIANTS),$(variant)/$1.clean)
-
-endef
-
-$(foreach target,$(TARGET_BIN),$(eval $(call DEF-CLEAN-TARGET,$(target))))
-$(foreach target,$(TARGET_STATIC_LIB),$(eval $(call DEF-CLEAN-TARGET,$(target))))
 
 .dir:
 	touch $@
@@ -458,8 +428,7 @@ $(call flags-template,C,CC,c build flags,$2)
 $(call flags-template,CXX,CXX,c++ build flags,$2)
 $(call flags-template,LD,LD,link flags,$2)
 
-$(foreach bin,$(HOST_BIN),$(call BIN-LINK,$(bin),HOST,$2,$1))
-$(foreach bin,$(TARGET_BIN),$(call BIN-LINK,$(bin),TARGET,$2,$1))
+$(foreach target,$(TARGET_BIN),$(call BIN-LINK,$(target),$2,$1))
 $(foreach slib,$(TARGET_STATIC_LIB),$(call SLIB-LINK,$(slib),$2,$1))
 
 $2/%.tab.h $2/%.tab.c : %.y $$$$(@D)/.dir
@@ -469,13 +438,13 @@ $2/%.tab.h $2/%.tab.c : %.y $$$$(@D)/.dir
 $2/%.ll.c: %.l $$$$(@D)/.dir
 	$$(QUIET_FLEX)$$(FLEX) -P '$$(parser-prefix)' --bison-locations --bison-bridge -o $$@ $$<
 
-$2/%.o: %.c $2/.TRACK-CFLAGS $$$$(@D)/.dir
+$2/%.c.o: %.c $2/.TRACK-CFLAGS $$$$(@D)/.dir
 	$$(QUIET_CC)$$(CC) $$(dep-gen) -c -o $$@ $$< $$(ALL_CFLAGS) $$(cflags-$$@) $$(cflags-$1) $$(cflags-$1/$$@)
 
-$2/%.o: %.cc $2/.TRACK-CXXFLAGS $$$$(@D)/.dir
+$2/%.cc.o: %.cc $2/.TRACK-CXXFLAGS $$$$(@D)/.dir
 	$$(QUIET_CXX)$$(CXX) $$(dep-gen) -c -o $$@ $$< $$(ALL_CXXFLAGS) $$(cxxflags-$$@) $$(cxxflags-$1) $$(cxxflags-$1/$$@)
 
-$2/%.o: %.S $2/.TRACK-ASFLAGS $$$$(@D)/.dir
+$2/%.S.o: %.S $2/.TRACK-ASFLAGS $$$$(@D)/.dir
 	$$(QUIET_AS)$$(AS) -c $$(ALL_ASFLAGS) $$< -o $$@ $$(asflags-$$@) $$(asflags-$1) $$(asflags-$1/$$@)
 
 
