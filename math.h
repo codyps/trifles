@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <limits.h>
 #include <stdint.h>
+#include <assert.h>
 
 #include <penny/penny.h> /* llu */
 
@@ -187,5 +188,13 @@ bool is_power_of_2(unsigned long n)
 {
 	return (n != 0 && ((n & (n -1)) == 0));
 }
+
+
+/* assert(bits < (sizeof(1ull) * CHAR_BIT))
+ * nf = "not full" */
+#define bit_mask_nf(bits) ((UINTMAX_C(1) << (bits)) - 1)
+
+#define ROUND_UP_POW_OF_2X_M1(_val, _x)   ((_val) | bit_width_max(_x))
+#define ROUND_DOWN_POW_OF_2X(_val, _x) (((_val) >> (_x)) << (_x))
 
 #endif
