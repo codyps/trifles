@@ -9,6 +9,9 @@
 
 /* based on the second algorithm given here:
  * https://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel
+ *
+ * Also see:
+ *  - http://corner.squareup.com/2013/07/reversing-bits-on-arm.html
  */
 static inline
 uintmax_t reverse_bits_v(uintmax_t v, int_least8_t s)
