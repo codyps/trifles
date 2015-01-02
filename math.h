@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <limits.h>
 #include <stdint.h>
+#include <assert.h>
 
 #include <penny/penny.h> /* llu */
 
