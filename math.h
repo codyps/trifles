@@ -34,7 +34,10 @@ static inline uint16_t linear_interp_u16(uint16_t x1, uint16_t y1, uint16_t x2, 
 
 #define DIV_OR_ZERO(n, d) ((n <= 0)?0:(n)/(d))
 
-#define SUB_SAT(a,b) ({					\
+/* Saturating unsigned subtraction
+ * Assumes that 'a' and 'b' are also unsigned.
+ */
+#define SAT_U_SUB(a,b) ({				\
 		typeof(a) __sub_sat_a = (a);		\
 		typeof(b) __sub_sat_b = (b);		\
 		(__sub_sat_a > __sub_sat_b)		\
@@ -45,13 +48,13 @@ static inline uint16_t linear_interp_u16(uint16_t x1, uint16_t y1, uint16_t x2, 
 //#define pow4(x) (2ull << (2*(x)-1))
 #define pow4(x) (2ULL << (2*(x)-1))
 
-#define SAT_CEIL(val, max) ({		\
+#define clamp(val, max) ({		\
 		typeof(val) __val = val;\
 		if (__val > max)	\
 			__val = max;	\
 		__val; })
 
-/* WARNING: widens to 'int' */
+/* WARNING: widens to 'int' if a smaller sized type is used */
 #define PROMOTE(v, expr_constraint) \
 	(1 ? (v) : (expr_constraint))
 
@@ -104,7 +107,12 @@ static inline uint16_t linear_interp_u16(uint16_t x1, uint16_t y1, uint16_t x2, 
 #define MIN6(a,b,c,d,e,f) MIN(MIN4(a,b,c,d),MIN(e,f))
 #define MIN8(a,b,c,d,e,f,g,h) MIN(MIN4(a,b,c,d),MIN4(e,f,g,h))
 
-#define BITS_IN(type) (CHAR_BIT * sizeof(type))
+/*
+ * @thing: something sizeof operates on (typically a type or a variable)
+ *
+ * Returns the number of bits represented by @thing
+ */
+#define BITS_IN(thing) (CHAR_BIT * sizeof(thing))
 
 /**
  * fls_next(num, bit_idx) - find the next set bit, searching from the left
@@ -159,7 +167,19 @@ static inline unsigned fls(unsigned x)
 
 static inline uint8_t fls_nz(llu num)
 {
+	assert(num);
 	return next_set_bit_nz(num, BITS_IN(num));
+}
+
+/*
+ * @bits: number of bits to have set, starting from the lsb.
+ */
+/* assert(bits > 0) */
+#define bit_mask_nz(bits) ((UINTMAX_C(1) << ((bits) - 1) << 1) - 1)
+
+static inline uintmax_t bit_mask(unsigned bits)
+{
+	return bits ? bit_mask_nz(bits) : 0;
 }
 
 #endif
