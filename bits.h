@@ -26,4 +26,6 @@ uintmax_t reverse_bits_v(uintmax_t v, int_least8_t s)
 
 #define reverse_bits(v) reverse_bits_v(v, sizeof(v) * CHAR_BIT)
 
+
+
 #endif

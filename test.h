@@ -33,4 +33,6 @@ static unsigned long test__error_ct = 0;
 	}								\
 } while (0)
 
+#define ok_eq(a, b) ok1((a) == (b))
+
 #endif
