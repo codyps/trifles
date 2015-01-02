@@ -182,4 +182,10 @@ static inline uintmax_t bit_mask(unsigned bits)
 	return bits ? bit_mask_nz(bits) : 0;
 }
 
+static inline
+bool is_power_of_2(unsigned long n)
+{
+	return (n != 0 && ((n & (n -1)) == 0));
+}
+
 #endif
