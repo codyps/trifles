@@ -70,7 +70,7 @@ int eval_line(struct l_track *lt)
 				abs_diff(oth->goal_pos, lt->pos[oth->blue]) + 1;
 
 			/* XXX: the edge case is hard due to button presses being a
-			 * seperate move from moving */
+			 * separate move from moving */
 			if (oth_tt <= cur_tt) {
 				lt->pos[oth->blue] = oth->goal_pos;
 			} else {

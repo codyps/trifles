@@ -23,7 +23,7 @@ tpl
 	Message layout defined all at once via format strings.
 	Uses format strings to specify structuring.
 	Doesn't handle non-blocking FD writing properly (would need to place
-		encoders into seperate threads to avoid uneeded copying).
+		encoders into separate threads to avoid uneeded copying).
 	Wireformat does not encode types.
 
 Avro-c

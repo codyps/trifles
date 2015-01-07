@@ -13,7 +13,7 @@
     - too slow
   - should be possible to create a reverse-mapping to make this faster if we
     can hook everytime a commit is created and add that data to the blob (or a
-    seperate metadata file, git note?)
+    separate metadata file, git note?)
  - given a file, give the blob-id
  - given a file, convert to a blob
 
@@ -180,7 +180,7 @@ each pool) + some ruleset to decide which pool applications take from
   - keep minimal, where minimal = appropriate for cortex-m sized machines
 
 * efficient bitcoin/namecoin daemon.
-  - maintaining 2 seperate daemons based on the same proto & sharing many
+  - maintaining 2 separate daemons based on the same proto & sharing many
     common parts is bad.
   - Make some type of pluggable system for supporting a variety of *coin type
     P2P protocols.
@@ -250,7 +250,7 @@ some special files to track permisions in a normal folder structure.
 * a system for building single system images (ie: something like openwrt or
   buildroot)
 
-  - Seperate enabling packages from configuring said packages from configuring
+  - separate enabling packages from configuring said packages from configuring
     the system
   - Use simple text files which are easilly editiable.
   - Provide command line tools to build these files incimentally. This allows
@@ -280,7 +280,7 @@ some special files to track permisions in a normal folder structure.
 push to) to specify the sources [they could either have a special prefix
 marking them as sources, or we could assume all the directories are sources].
 Have a particular name for the build script. Have a file containing newline
-seperated build variants.
+separated build variants.
 
 * keyboard profiler -
   a program which can determine the limitations (wrt key rollover) of the
