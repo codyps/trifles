@@ -1,0 +1,6 @@
+#! /bin/sh
+E=$(scan-build env)
+eval $(printf "%s" "$E" | grep '^CC=' | head)
+eval $(printf "%s" "$E" | grep '^CXX=' | head)
+
+cmake -DCMAKE_C_COMPILER="$CC" -DCMAKE_CXX_COMPILER="$CXX" "$@"

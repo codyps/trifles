@@ -24,8 +24,6 @@
 
 * LED Heart using WS led controllers
 
-* flash new version of openwrt on router
-
 * git sync
  - gcc _All_ branches (notably, the embedded ones)
  - gentoo portage tree (in cvs with a very finiky cvs server)
@@ -33,10 +31,10 @@
 * x201 bios
   - Well, update the proprietary ones, then:
   - enable on-system flashrom (and figure out how to recover)
-  - fix S3 in coreboot
   - reverse engineer Mangment Engine
 
 * Sane,minimal SNMP library
   - depends on a ASN.1 lib with the same attributes
 	- liblasn
 
+* bitcoin addr gen + auto transfer on suitable balance

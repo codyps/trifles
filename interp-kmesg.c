@@ -50,7 +50,7 @@ spit_it_out:
 		if (split)
 			putchar('\n');
 
-		fwrite(line + skips, SUB_SAT(line_len, (ssize_t)(skips + strip_end)), 1, stdout);
+		fwrite(line + skips, SAT_U_SUB(line_len, (ssize_t)(skips + strip_end)), 1, stdout);
 	}
 
 	putchar('\n');

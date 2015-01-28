@@ -12,6 +12,7 @@
 *.[od]
 *.py[co]
 .TRACK-*FLAGS
+.dir
 
 /lsalsa
 /hd

@@ -1,3 +1,4 @@
+## base-ccan.mk: deab8e5, see https://github.com/jmesmon/base.mk.git
 CCAN_CFLAGS ?= $(ALL_CFLAGS)
 # Blah, fix LDFLAGS
 # TODO: rebuild should occur when CFLAGS, CC, LD, or LDFLAGS change.

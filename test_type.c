@@ -3,6 +3,6 @@
 
 int main(void)
 {
-	printf("llu: %llx\n", umaxof(unsigned long long));
+	printf("llu: %llx\n", max_of_u(unsigned long long));
 	return 0;
 }
