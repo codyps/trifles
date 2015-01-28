@@ -184,6 +184,19 @@ ifeq ($(IS_GCC),1)
 CC_TYPE ?= gcc
 endif
 
+TRY_RUN_OUT = "$(O)/try-run"
+
+try-run = $(shell set -e;		\
+	$(MKDIR) -p '$(TRY_RUN_OUT)'	\
+	TMP='$(TRY_RUN_OUT)/'$$$$'.$(subst ','\'',$(1)).tmp';	\
+	TMPO='$(TRY_RUN_OUT)/'$$$$'.$(subst ','\'',$(1)).o';	\
+	if ($(1)) >"$$TMP" 2>&1;	\
+	then echo "$(2)";		\
+	else echo "$(3)";		\
+	fi)
+
+cc-opt = $(call try-run,$(CC) $(ALL_CFLAGS) -c -x c /dev/null -o "$$TMPO" $(1),$(1),$(2))
+
 show-cc_type:
 	@echo $(CC_TYPE)
 
