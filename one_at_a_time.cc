@@ -1,15 +1,15 @@
 #include <future>
 #include <chrono>
 
-template<typename Fn>
+template<typename Fn, typename... Args>
 struct one_at_a_time {
 	typedef typename std::chrono::steady_clock clock;
 	typedef typename std::chrono::duration<clock> timeout_t;
 	typedef typename Fn&& async_process_t;
 
 	struct input_track {
-		A a;
 		std::chrono::time_point<clock> request_stamp;
+		std::tuple<Args...> args;
 	};
 
 	std::forward_list<struct input_track> outstanding;
@@ -19,15 +19,15 @@ struct one_at_a_time {
 
 	void process_next(void)
 	{
-		A& front = this->outstanding.front();
-		this->begin_processing(front);
+		input_track &front = this->outstanding.front();
+		this->begin_processing(front.args);
 		std::async(std::launch::async, [this]() {
 			std::this_thread::sleep_until(front.request_stamp);
 			/* expire all the old ones, then sleep again */
 		})
 	}
 
-	void push(A a)
+	void push(Args...)
 	{
 		this->outstanding.emplace_back(a, clock::now());
 
