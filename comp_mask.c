@@ -37,31 +37,6 @@ static unsigned bctz_32(uint32_t v)
 }
 
 
-/* assert(bits < (sizeof(1ull) * CHAR_BIT))
- * nf = "not full" */
-#define bit_mask_nf(bits) ((UINTMAX_C(1) << (bits)) - 1)
-/* assert(bits > 0) */
-//#define bit_mask_nz(bits) ((UINTMAX_C(1) << ((bits) - 1) << 1) - 1)
-static inline uintmax_t bit_mask_nz(unsigned bits)
-{
-	return (UINTMAX_C(1) << ((bits) - 1) << 1) - 1;
-}
-
-static inline uintmax_t bit_mask(unsigned bits)
-{
-	return bits ? bit_mask_nz(bits) : 0;
-}
-
-#if 0
-#define bit_mask(bits) ({			\
-	__typeof__(bits) __bm_bits = (bits);	\
-	__bm_bits ? bit_mask_nz(__bm_bits) : 0;	\
-})
-#endif
-
-#define ROUND_UP_POW_OF_2X_M1(_val, _x)   ((_val) | bit_width_max(_x))
-#define ROUND_DOWN_POW_OF_2X(_val, _x) (((_val) >> (_x)) << (_x))
-
 /* from https://graphics.stanford.edu/~seander/bithacks.html */
 unsigned ctz_32(uint32_t v)
 {

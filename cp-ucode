@@ -4,7 +4,7 @@ set -euf -o pipefail
 if [ $# -eq 1 ]; then
 	OUT="$1"
 else
-	echo "usage: $(basename $0) [base-dir]"
+	echo "usage: $(basename $0) [base-dir-of-initramfs]"
 	exit 1
 fi
 
@@ -13,6 +13,9 @@ fi
 : ${MODEL:=$(grep 'model[[:space:]]*:' /proc/cpuinfo | tail -n 1 | cut -f2 -d: )}
 
 n=$(printf "%02x-%02x-%02x\n" "$FAMILY" "$MODEL" "$STEPPING")
+if [ -n "$DEBUG" ]; then
+	echo "Detected: fam-mod-step = $n"
+fi
 
 src="/lib/firmware/intel-ucode/$n"
 if ! [ -e "$src" ]; then
@@ -22,5 +25,5 @@ fi
 
 p="$OUT"/kernel/x86/microcode
 pf="$p"/GenuineIntel.bin
-mkdir -p "$p"
+mkdir -p -- "$p"
 cp "$src" "$pf"
