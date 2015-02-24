@@ -1,0 +1,7 @@
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/home/cody/trifles/journal-test
+
+[Install]
+WantedBy=multi-user.target
