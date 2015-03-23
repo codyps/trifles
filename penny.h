@@ -1,6 +1,8 @@
 #ifndef PENNY_PENNY_H_
 #define PENNY_PENNY_H_
 
+#include <arpa/inet.h> /* htonl */
+
 typedef unsigned long long ull;
 
 #define FIELD_SIZE(s,f) (sizeof((s *)0->f))
@@ -8,6 +10,14 @@ typedef unsigned long long ull;
 
 #define ACCESS_ONCE(x)  (*(volatile typeof(x) *) &(x))
 #define barrier() __asm__ __volatile__ ("":::"memory")
+
+#define IS_ALIGNED(x, a) (((x) & ((typeof(x))(a) - 1)) == 0)
+
+#define __ALIGN_KERNEL(x, a)		__ALIGN_KERNEL_MASK(x, (typeof(x))(a) - 1)
+#define __ALIGN_KERNEL_MASK(x, mask)	(((x) + (mask)) & ~(mask))
+#define ALIGN(x, a)		__ALIGN_KERNEL((x), (a))
+#define __ALIGN_MASK(x, mask)	__ALIGN_KERNEL_MASK((x), (mask))
+#define PTR_ALIGN(p, a)		((typeof(p))ALIGN((uintptr_t)(p), (a)))
 
 /* prefetch for reading */
 #define prefetch(x)  __builtin_prefetch(x)
@@ -40,7 +50,6 @@ typedef unsigned long long ull;
  *        if the warning is emitted (not a concern for the error, as code won't
  *        be emitted in that case).
  */
-
 #ifndef CONFIG_COMPILETIME_LONG_MSG
 #define DEFINE_COMPILETIME_WARNING(name, msg) __attribute__((warning(msg),noinline)) static void name(void) { barrier(); }
 #define DEFINE_COMPILETIME_ERROR(name, msg) __attribute__((error(msg),noinline)) static void name(void) { barrier(); }
@@ -75,5 +84,51 @@ typedef unsigned long long ull;
 #define CAT2(a, b) _CAT2(a,b)
 #define _CAT3(a, b, c) a##b##c
 #define CAT3(a, b, c) _CAT3(a,b,c)
+
+typedef unsigned long long llu;
+#define UNIT(x) x
+#define EQ(a, b) ((a) == (b))
+
+/*
+ * min()/max()/clamp() macros that also do
+ * strict type-checking.. See the
+ * "unnecessary" pointer comparison.
+ */
+#define min(x, y) ({				\
+	typeof(x) _min1 = (x);			\
+	typeof(y) _min2 = (y);			\
+	(void) (&_min1 == &_min2);		\
+	_min1 < _min2 ? _min1 : _min2; })
+
+#define max(x, y) ({				\
+	typeof(x) _max1 = (x);			\
+	typeof(y) _max2 = (y);			\
+	(void) (&_max1 == &_max2);		\
+	_max1 > _max2 ? _max1 : _max2; })
+
+#define min3(x, y, z) min((typeof(x))min(x, y), z)
+#define max3(x, y, z) max((typeof(x))max(x, y), z)
+
+/**
+ * min_not_zero - return the minimum that is _not_ zero, unless both are zero
+ * @x: value1
+ * @y: value2
+ */
+#define min_not_zero(x, y) ({			\
+	typeof(x) __x = (x);			\
+	typeof(y) __y = (y);			\
+	__x == 0 ? __y : ((__y == 0) ? __x : min(__x, __y)); })
+
+/**
+ * clamp - return a value clamped to a given range with strict typechecking
+ * @val: current value
+ * @lo: lowest allowable value
+ * @hi: highest allowable value
+ *
+ * This macro does strict typechecking of lo/hi to make sure they are of the
+ * same type as val.  See the unnecessary pointer comparisons.
+ */
+#define clamp(val, lo, hi) min((typeof(val))max(val, lo), hi)
+
 
 #endif

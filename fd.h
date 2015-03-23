@@ -4,6 +4,32 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+
+static inline int fd_is_nonblock(int fd)
+{
+	int flags = fcntl(fd, F_GETFL, 0);
+	if (flags == -1) {
+		return -1;
+	}
+
+	return !!(flags & O_NONBLOCK);
+}
+
+static inline int fd_clear_nonblock(int fd)
+{
+	int r;
+	int flags = fcntl(fd, F_GETFL, 0);
+	if (flags == -1) {
+		return -1;
+	}
+
+	r = fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
+	if (r == -1) {
+		return -2;
+	}
+	return 0;
+}
+
 static inline int fd_set_nonblock(int fd)
 {
 	int r;

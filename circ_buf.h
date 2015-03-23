@@ -11,7 +11,7 @@
 #define CIRC_SPACE(head,tail,size) CIRC_CNT((tail),((head)+1),(size))
 
 /* is circ_buf full */
-#define CIRC_FULL(head,tail,size) (CIRC_NEXT(tail,size) == (head))
+#define CIRC_FULL(head,tail,size) (CIRC_NEXT(head,size) == (tail))
 
 /* empty? */
 #define CIRC_EMPTY(head,tail,size) ((head) == (tail))
@@ -22,7 +22,7 @@
 
 /* assign next index (head/tail) location to index */
 #define CIRC_NEXT_EQ(index,size) CIRC_NEXT_I_EQ(index,1,size)
-#define CIRC_NEXT_I_EQ(index,isz,size) ((index) = (((index) + (isz)) & ((size - 1))))
+#define CIRC_NEXT_I_EQ(index,isz,size) ((index) = CIRC_NEXT_I(index,isz,size))
 
 #define CIRC_CNT_TO_END(head,tail,size) \
 	({typeof(head) end = (size) - (tail); \
