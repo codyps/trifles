@@ -1,0 +1,15 @@
+cson-rust:
+	limited json
+	decodes strings to repr
+	repr compatable with serialize::json, converters provided
+	no writer included
+
+json:
+	decodes string to repr
+	decodes repr to Decodable
+	encodes Decodable to string
+	DOES NOT encode Decodable to repr
+
+bincode:
+
+

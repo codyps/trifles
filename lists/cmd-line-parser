@@ -1,0 +1,12 @@
+rust-getopts
+	no defaults
+	no autogeneration of usage
+
+rust-argparse
+	defaults via initial variable values
+	autogenerates usage, but doesn't show default values
+
+
+docopt
+	write the usage, and it autogenerates the code
+	defaults supported (and included in usage)
