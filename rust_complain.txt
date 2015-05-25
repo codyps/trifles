@@ -1,0 +1,18 @@
+
+    /* RUST PAIN POINT: inside a module, 'use coattail = super;' doesn't work */
+            /* RUST PAIN POINT: (MACRO SOLVABLE?): can't refer to structure members as
+             * I'm initializing things
+             */
+            /* RUST PAIN POINT: can't return from outer function via closure (ie: try!() doesn't
+             * work in closures) */
+            /* RUST PAIN POINT: no sorting on iterators (may not make allocation sense, but having
+             * the functionality makes it convienient).
+             */
+            /* RUST PAIN POINT: no Sequence trait? (ie: something like what list is in haskell: a
+             * general thing that can be iterated over, but doesn't represent a position in that
+             * iteration.
+             */
+            /* RUST PAIN POINT: Option shares some but not all methods with Iterator (missing
+             * filter, filter_map is named and_then)
+             */
+            /* RUST PAIN POINT: iterators have the concept of "position" */
