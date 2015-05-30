@@ -1,0 +1,3 @@
+#! /bin/sh
+gcc -c -fPIC foo.c -o libfoo.a &&
+rustc test.rs -L.
