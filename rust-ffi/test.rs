@@ -1,3 +1,4 @@
+#![feature(libc)]
 extern crate libc;
 
 #[link(name = "foo")]
