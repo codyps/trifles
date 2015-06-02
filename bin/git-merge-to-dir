@@ -23,10 +23,12 @@ git fetch "$P"
 git branch "$SB" FETCH_HEAD
 git merge -s ours --no-commit "$SB"
 git read-tree --prefix "$DD" -u "$SB"
-sed -i 's;\[submodule "\(.*\)"\];\[submodule "'"$DD"'/\1"\];' "$DD"/.gitmodules
-sed -i 's;path = \(.*\);path = '"$DD"'/\1;' "$DD"/.gitmodules
-cat .gitmodules "$DD"/.gitmodules > new_gitmodules
-git rm -f "$DD"/.gitmodules
-mv new_gitmodules .gitmodules
-git add .gitmodules
+if [ -e "$DD"/.gitmodules ]; then
+	sed -i 's;\[submodule "\(.*\)"\];\[submodule "'"$DD"'/\1"\];' "$DD"/.gitmodules
+	sed -i 's;path = \(.*\);path = '"$DD"'/\1;' "$DD"/.gitmodules
+	cat .gitmodules "$DD"/.gitmodules > new_gitmodules
+	git rm -f "$DD"/.gitmodules
+	mv new_gitmodules .gitmodules
+	git add .gitmodules
+fi
 git commit -m "Include $SB into the $DD/ subdirectory of $DR"
