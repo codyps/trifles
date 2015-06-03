@@ -18,11 +18,12 @@ git fetch "$REMOTE" "$REMOTE_REF"
 git merge -s ours --no-commit FETCH_HEAD
 git read-tree --prefix "$DEST_DIR" -u FETCH_HEAD
 if [ -e "$DEST_DIR"/.gitmodules ]; then
+	T=$(git rev-parse --show-toplevel)
 	sed -i 's;\[submodule "\(.*\)"\];\[submodule "'"$DEST_DIR"'/\1"\];' "$DEST_DIR"/.gitmodules
 	sed -i 's;path = \(.*\);path = '"$DEST_DIR"'/\1;' "$DEST_DIR"/.gitmodules
-	cat .gitmodules "$DEST_DIR"/.gitmodules > .gitmodules-new
+	cat "$T"/.gitmodules "$DEST_DIR"/.gitmodules > "$T"/.gitmodules-new
 	git rm -f "$DEST_DIR"/.gitmodules
-	mv .gitmodules-new .gitmodules
-	git add .gitmodules
+	mv "$T"/.gitmodules-new "$T"/.gitmodules
+	git add "$T"/.gitmodules
 fi
 git commit -m "Merge $REMOTE $REMOTE_REF into subdir $DD/"
