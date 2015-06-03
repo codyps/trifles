@@ -2,33 +2,27 @@
 
 set -euf -o pipefail
 
-if [ $# -ne 4 ]; then
-	echo "usage: $(basename $0) <local dest repo> <src repo> <source branch> <dest dir>"
+if [ $# -ne 3 ]; then
+	echo "usage: $(basename $0) <src-remote> <src-remote-refspec> <dest dir>"
 	exit 1
 fi
 
 set -x
 
-# dest and source repo
-DR=$(cd "$1"; echo "$PWD")
-SR=$(cd "$2"; echo "$PWD")
-# source branch (created in $DR)
-SB=$3
-# dest dir
-DD=$4
 
+REMOTE=$1
+REMOTE_REF=$2
+DEST_DIR=$3
 
-cd "$I"
-git fetch "$P"
-git branch "$SB" FETCH_HEAD
-git merge -s ours --no-commit "$SB"
-git read-tree --prefix "$DD" -u "$SB"
-if [ -e "$DD"/.gitmodules ]; then
-	sed -i 's;\[submodule "\(.*\)"\];\[submodule "'"$DD"'/\1"\];' "$DD"/.gitmodules
-	sed -i 's;path = \(.*\);path = '"$DD"'/\1;' "$DD"/.gitmodules
-	cat .gitmodules "$DD"/.gitmodules > new_gitmodules
-	git rm -f "$DD"/.gitmodules
-	mv new_gitmodules .gitmodules
+git fetch "$REMOTE" "$REMOTE_REF"
+git merge -s ours --no-commit FETCH_HEAD
+git read-tree --prefix "$DEST_DIR" -u FETCH_HEAD
+if [ -e "$DEST_DIR"/.gitmodules ]; then
+	sed -i 's;\[submodule "\(.*\)"\];\[submodule "'"$DEST_DIR"'/\1"\];' "$DEST_DIR"/.gitmodules
+	sed -i 's;path = \(.*\);path = '"$DEST_DIR"'/\1;' "$DEST_DIR"/.gitmodules
+	cat .gitmodules "$DEST_DIR"/.gitmodules > .gitmodules-new
+	git rm -f "$DEST_DIR"/.gitmodules
+	mv .gitmodules-new .gitmodules
 	git add .gitmodules
 fi
-git commit -m "Include $SB into the $DD/ subdirectory of $DR"
+git commit -m "Merge $REMOTE $REMOTE_REF into subdir $DD/"

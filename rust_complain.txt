@@ -1,4 +1,8 @@
 
+
+    /* RUST PAIN POINT: initializer functions can't be used for statics, resulting in hacks like
+     * lazy_static!() */
+/* RUST PAIN POINT: 'use a::{b::c, d};' not allowed */
     /* RUST PAIN POINT: inside a module, 'use coattail = super;' doesn't work */
             /* RUST PAIN POINT: (MACRO SOLVABLE?): can't refer to structure members as
              * I'm initializing things
