@@ -1,15 +1,20 @@
 Message Buses, Interconnects, "Message Oriented Middleware" MOM, IPC
 
 
-ubus
+ubus [dead link]
 	http://www.unixbus.org/ubus/
 	simple, multiple unix sockets
 	socket per method
 
 ubus (openwrt)
 	http://wiki.openwrt.org/doc/techref/ubus
+	http://wiki.openwrt.org/doc/techref/rpcd
+	
+	http://nbd.name/gitweb.cgi?p=luci2/rpcd.git;a=summary
 
-ubus 
+	Appears to make use of JSON as its encoding format (at least for command line tools).
+	Very small code size, heavy use of libubox (a utility library for openwrt).
+	
 
 dbus
 	widely used as a system and desktop interconnect
