@@ -16,11 +16,13 @@ int main(void)
     GVariant *actual = g_variant_dict_end(&actual_b);
     GVariant *target = g_variant_dict_end(&target_b);
 
-    GVariant *v = g_variant_new("({sv}{sv})", "actual", actual, "target", target);
+    GVariant *v = g_variant_new("({s@a{sv}}{s@a{sv}})", "actual", actual, "target", target);
 
     gchar *out = g_variant_print(v, TRUE);
+    const gchar *type = g_variant_get_type_string(v);
 
     printf("v: %s\n", out);
+    printf("t: %s\n", type);
 
     g_free(out);
     g_variant_unref(v);
