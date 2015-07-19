@@ -1,0 +1,24 @@
+http://wiki.osdev.org/Microkernel
+
+
+MINIX3 -
+	bsd
+	also has the rest of the kernel
+
+QNX
+	Proprietary
+	api
+		http://www.qnx.com/developers/docs/am11/index.jsp
+
+AmigaOS
+
+Mach
+
+L4 (and variants)
+	seL4
+		GPL/BSD
+		https://sel4.systems/Docs/seL4-manual.pdf
+    
+QNX
+
+Xen
