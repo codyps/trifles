@@ -126,6 +126,8 @@ invalid:
 static void *memdup(const void *d, size_t len)
 {
     void *p = malloc(len);
+    if (!p)
+	return p;
     memcpy(p, d, len);
     return p;
 }
@@ -141,7 +143,8 @@ int main(void)
     for (;;) {
         const char *next = strchrnul(pos, '/');
         struct device *n = malloc(sizeof(struct device));
-        n->name = memdup(pos, next - pos);
+        n->name = memdup(pos, next - pos + 1);
+	((char *)n->name)[next - pos] = '\0';
 	printf("append '%s'\n", n->name);
         n->parent = d;
         d = n;
@@ -158,6 +161,13 @@ int main(void)
     int r = match_dev_by_syspath(d, &p);
 
     printf("match: %d\n", r);
+
+    while (d) {
+	struct device *u = d->parent;
+	free((void *)d->name);
+	free(d);
+	d = u;
+    }
 
     return 0;
 }
