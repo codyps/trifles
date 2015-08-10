@@ -34,6 +34,16 @@
  * Paper is basically impossible to find without paying someone.
  */
 
+/* Danielson-Lanczos Algorithm
+ *  http://beige.ucs.indiana.edu/B673/node14.html
+ */
+void dl_ft(complex double f[], size_t n, int is)
+{
+	(void)f;
+	(void)n;
+	(void)is;
+}
+
 static complex double sin_cos(complex double x)
 {
 	return sin(creal(x)) + cos(cimag(x)) * I;
@@ -71,5 +81,10 @@ void sine_wave(double sample_rate_hz, double freq_hz, unsigned char *out, size_t
 
 int main(void)
 {
+	unsigned sample_rate_hz = 8000;
+	unsigned char data[sample_rate_hz * 5];
 
+	sine_wave(sample_rate_hz, 60, data, sizeof(data), 127);
+
+	ft(
 }
