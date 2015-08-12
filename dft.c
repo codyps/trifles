@@ -44,32 +44,25 @@ void dl_ft(complex double f[], size_t n, int is)
 	(void)is;
 }
 
-static complex double sin_cos(complex double x)
-{
-	return sin(creal(x)) + cos(cimag(x)) * I;
-}
-
 /*
  * slow impl from http://caxapa.ru/thumbs/455725/algorithms.pdf
  * O(n**2) operations, extra N storage.
  */
-void ft(complex double f[], size_t n, int is)
+void ft(const unsigned char f[], size_t n, signed is, double step_size, complex double h[static n])
 {
-	complex double h[n];
 	const double ph0 = is * 2.0 * M_PI / n;
-	size_t w;
-	for (w = 0; w < n; w++) {
+	size_t i;
+	double w = 0;
+	for (i = 0; i < n; i++) {
 		complex double t = 0.0;
 		size_t k;
 		for (k = 0; k < n; k++) {
-			t += f[k] * sin_cos(ph0 * k * w);
+			t += f[k] * cexp(I * ph0 * k * w);
 		}
-		h[w] = t;
+		h[i] = t;
+		w += step_size;
 	}
-	memcpy(f, h, n);
 }
-
-
 
 void sine_wave(double sample_rate_hz, double freq_hz, unsigned char *out, size_t out_len, unsigned half_peak_to_peak)
 {
@@ -86,5 +79,6 @@ int main(void)
 
 	sine_wave(sample_rate_hz, 60, data, sizeof(data), 127);
 
-	ft(
+	complex double h[sizeof(data)
+	ft(data, sizeof(data), 1, 1,
 }
