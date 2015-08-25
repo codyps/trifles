@@ -1,0 +1,7 @@
+#! /bin/sh
+
+: ${CC:=cc}
+
+${CC} -c main.c -o main.o
+${CC} -c 1.c -o 1.o
+${CC} 1.o main.o -o if-builds-c99-inline-works-well-enough
