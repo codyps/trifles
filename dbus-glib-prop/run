@@ -9,3 +9,5 @@ gdbus-codegen --c-namespace=login1 --generate-c-code=login1 --interface-prefix=o
 
 $CC $CFLAGS $(pkg-config --libs --cflags glib-2.0 gio-2.0 gio-unix-2.0) \
 	-o test-prop test-prop-glib.c login1.c
+
+./test-prop
