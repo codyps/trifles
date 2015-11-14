@@ -1,0 +1,32 @@
+# /etc/systemd/system/suspend-sedation.service
+[Unit]
+Description=Hibernate after suspend
+Documentation=https://bbs.archlinux.org/viewtopic.php?pid=1420279#p1420279
+Documentation=https://wiki.archlinux.org/index.php/Power_management
+Documentation=https://wiki.debian.org/SystemdSuspendSedation
+Conflicts=hibernate.target hybrid-suspend.target
+Before=suspend.target
+StopWhenUnneeded=true
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+Environment="ALARM_SEC=300"
+Environment="WAKEALARM=/sys/class/rtc/rtc0/wakealarm"
+
+ExecStart=/usr/bin/rtcwake --seconds $ALARM_SEC --auto --mode no
+ExecStop=/bin/sh -c '\
+ALARM=$(cat $WAKEALARM); \
+NOW=$(date +%s); \
+echo "now=$NOW alarm=$ALARM"; \
+if [ "$NOW" -ge "$ALARM" ]; then \
+  echo "suspend-sedation: Woke up - no alarm set. Hibernating..."; \
+  systemctl hibernate; \
+else \
+  echo "suspend-sedation: Woke up before alarm - normal wakeup."; \
+  /usr/bin/rtcwake --auto --mode disable; \
+fi \
+'
+
+[Install]
+WantedBy=sleep.target
