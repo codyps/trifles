@@ -119,5 +119,9 @@ http://ubjson.org/
 
 BERT
 	.
+cbor http://cbor.io/
+	http://libcbor.org/
 
-
+	C api
+	self-describing (wireformat encodes types)
+	Supports definite & indefinite lengths for arrays, maps, byte strings, and text strings

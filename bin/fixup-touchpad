@@ -1,0 +1,5 @@
+#! /bin/sh
+
+i='ETPS/2 Elantech Touchpad'
+
+xinput set-prop "$i" "libinput Tapping Enabled" 1

@@ -26,4 +26,12 @@ fi
 p="$OUT"/kernel/x86/microcode
 pf="$p"/GenuineIntel.bin
 mkdir -p -- "$p"
-cp "$src" "$pf"
+if [ -e "$pf" ]; then
+	if cmp "$src" "$pf"; then
+		echo "ucode is already up-to-date"
+		exit
+	else
+		echo "ucode is out-of-date, updating"
+	fi
+fi
+cp "$src" "$pf"`

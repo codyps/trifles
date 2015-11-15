@@ -1,0 +1,35 @@
+cargo did a number of things right for a while, but then started breaking things:
+
+Bad things:
+
+ - Includes a way to build non-rust packages
+   - provides no way to disable it and only allow use of system libs
+ - Allows dependencies to be added based on target
+   - which are a mismatch with how linking occurs in rustc (cfg(unix))
+   - And breaks non-blessed triplets
+ - Allows packages to specify the native libs they link with
+   - and barfs if more than 1 package claims to link a lib with the same name
+ - Allows specification of versioned dependencies
+   - In both libs & bins
+   - Provides no way to ignore conflicts
+   - Or force versions
+   - Or specify a minimum version
+   - Or a maximum/wildcard/range/etc.
+ - Downloads & caches packages
+   - _Always_ to $HOME/.cargo/<some dirs>
+ - Can only build in the source dir itself
+ - Can't pass arbitrary rustc flags down the stack unless one goes through the trouble of creating a wrapper script
+ - Can't specify a different rustc binary to use, have to modify PATH
+
+Good things:
+
+ - (prior to crates.io)
+   - cargo update would pull the latest revisions from git repositories
+ - Cargo.lock for /binaries only/ allowed waiting until things worked before
+   updating all the dependencies
+
+
+What to do:
+
+ - Use XDG .cache directory
+   - allow overriding with a command line flag

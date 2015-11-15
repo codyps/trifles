@@ -41,15 +41,6 @@ struct one_at_a_time {
 		/* map to outstanding... */
 	}
 
-	void on_complete(A a, B b)
-	{
-		
-	}
 
-	one_at_a_time(async_process_t _begin_processing, timeout_t _timeout)
-		: outstanding(),
-		, timeout_future()
-		, timeout(_timeout)
-		, begin_processing(_begin_processing)
-	{}
+	void on_complete(complete_type)
 };
