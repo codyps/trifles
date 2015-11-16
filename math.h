@@ -5,6 +5,15 @@
 #include <limits.h>
 #include <stdint.h>
 #include <assert.h>
+#include <stdbool.h>
+
+/*
+ * per https://en.wikipedia.org/wiki/Find_first_set
+ */
+#define ctz_via_lg(x, lg)  (lg((x) & -(x)))
+#define ctz_via_ffs(x, ffs) (ffs(x) - 1)
+#define lg_via_clz(x, clz)  (sizeof(x) * CHAR_BIT - 1 - clz(x))
+#define ffs_via_clz(x, clz) (sizeof(x) * CHAR_BIT - clz((x) & -(x)))
 
 #include <penny/penny.h> /* llu */
 
@@ -65,7 +74,7 @@ static inline uint16_t linear_interp_u16(uint16_t x1, uint16_t y1, uint16_t x2, 
 //#define pow4(x) (2ull << (2*(x)-1))
 #define pow4(x) (2ULL << (2*(x)-1))
 
-#define clamp(val, max) ({		\
+#define clamp_below(val, max) ({		\
 		typeof(val) __val = val;\
 		if (__val > max)	\
 			__val = max;	\
@@ -165,7 +174,7 @@ static inline uint8_t next_set_bit_nz(llu num, uint8_t bit_idx)
  * Returns (the left shift of the found set bit) + 1
  *     If no set bit is found, returns 0.
  */
-static inline uint8_t fls(llu num)
+static inline uint8_t p_fls(llu num)
 {
 	return next_set_bit(num, BITS_IN(num));
 }
