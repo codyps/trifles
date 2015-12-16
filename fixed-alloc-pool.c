@@ -12,31 +12,20 @@
  *
  */
 #include <assert.h>
+#include "fixed-alloc-pool.h"
 
 struct unused_block {
 	size_t next;
 };
 
-struct pool {
-	/* */
-	void *base;
-	size_t block_sz;
-	size_t block_count;
-
-	/* accounting */
-	size_t head,
-	       num_free,
-	       num_init;
-};
-
-void pool_init(struct pool *p, void *base, size_t block_sz, size_t block_count)
+void pool_init(struct pool *p, void *base, size_t block_size, size_t block_count)
 {
 	/* confirm that a block is minimally large enough to contain our book-keeping
 	 * In the future, it might be possible to use a group of free blocks to store the free list
 	 */
 
 	assert(block_count > 0);
-	assert(block_sz > sizeof(struct unused_block));
+	assert(block_size >= sizeof(struct unused_block));
 
 	*p = (struct pool) {
 		.base = base,
@@ -51,7 +40,16 @@ void pool_init(struct pool *p, void *base, size_t block_sz, size_t block_count)
 
 size_t pool_index(struct pool *p, void *addr)
 {
-	return addr - p->base;
+	assert(p->base <= addr);
+
+	size_t i = addr - p->base;
+	if (i) {
+		assert(!(i % p->block_size));
+		i /= p->block_size;
+	}
+
+	assert(i < p->block_count);
+	return i;
 }
 
 void *pool_alloc(struct pool *p)
@@ -82,14 +80,7 @@ void *pool_alloc(struct pool *p)
 
 void pool_free(struct pool *p, void *addr)
 {
-	assert(p->base <= addr);
-	size_t i = (addr - p->base) 
-	if (r) {
-		assert(!(i % p->block_size));
-		i =/ p->block_size;
-	}
-
-	assert(i < p->block_count);
+	size_t i = pool_index(p, addr);
 
 	/* if we give out a block, it is considered "initialized" */
 	assert(i < p->num_init);
