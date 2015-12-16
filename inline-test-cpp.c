@@ -4,8 +4,8 @@
 # define HAVE_GNU_INLINE 1
 # define HAVE_STD_INLINE 0
 #elif defined(__GNUC_STD_INLINE__)
-# define HAVE_STD_INLINE 1
 # define HAVE_GNU_INLINE 0
+# define HAVE_STD_INLINE 1
 #else
 /* If we don't have a direct indication, we'll need to guess based on some standard defines */
 # ifndef __STDC_VERSION__
@@ -40,20 +40,25 @@
 #   define HAVE_STD_INLINE 0
 #  endif
 # else /* if defined(__STDC_VERSION__) */
- /* I'd like to just say "yay, we have c99, everything works".
-  * Unfortunately, tcc exists, which just ignores the 'inline' keyword,
-  * leading to multiple definition errors if we try to use 'extern inline'.
+ /* 
+  * I'd like to just say "yay, we have c99, everything works".
+  * Unfortunately, some compilers claim to be c99, but aren't.
   */
 #  ifdef __TINYC__
-#   define HAVE_STD_INLINE 0
+   /* tcc recognizes and ignores the 'inline' keyword, leading to multiple definition errors' */
 #   define HAVE_GNU_INLINE 0
+#   define HAVE_STD_INLINE 0
+#  elif defined(__SDCC__) && SDCC < 310
+   /* sdcc versions before 3.1.0 claim to be c99 but don't support inline. */
+#   define HAVE_GNU_INLINE 0
+#   define HAVE_STD_INLINE 0
 #  else
   /*
    * With __STDC_VERSION__ defined we know we're c99 or later, so we must have standard inline.
    * This is the path taken by conforming compilers without magic defines.
    */
-#   define HAVE_STD_INLINE 1
 #   define HAVE_GNU_INLINE 0
+#   define HAVE_STD_INLINE 1
 #  endif /* defined(__TINYC__) */
 # endif
 #endif
