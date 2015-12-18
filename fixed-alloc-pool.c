@@ -43,11 +43,8 @@ size_t pool_index(struct pool *p, void *addr)
 	assert(p->base <= addr);
 
 	size_t i = addr - p->base;
-	if (i) {
-		assert(!(i % p->block_size));
-		i /= p->block_size;
-	}
-
+	assert(!(i % p->block_size));
+	i /= p->block_size;
 	assert(i < p->block_count);
 	return i;
 }

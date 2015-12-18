@@ -20,5 +20,13 @@ int main(void)
 	void *x = pool_alloc(&p);
 	assert(!x);
 
+	for (i = 0; i < ARRAY_SZ(a); i ++)
+		pool_free(&p, a[i]);
+
+	for (i = 0; i < ARRAY_SZ(a); i ++) {
+		a[i] = pool_alloc(&p);
+		assert(a[i]);
+	}
+
 	return 0;
 }
