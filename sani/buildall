@@ -1,0 +1,4 @@
+#! /bin/sh
+
+CROSS_COMPILE=arm-none-eabi- NEED_SYS=true ./build
+./build
