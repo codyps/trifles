@@ -228,22 +228,26 @@ struct ubsan_overflow_data
 	const struct ubsan_type_descriptor *type;
 };
 
-EXTERN_C
-void __ubsan_handle_add_overflow(void* data_raw,
-                                 void* lhs_raw,
-                                 void* rhs_raw)
+static void
+ubsan_report_overflow(struct ubsan_overflow_data *data,
+		struct ubsan_value_handle *lhs, struct ubsan_value_handle *rhs,
+		const char *kind)
 {
-	struct ubsan_overflow_data *data = data_raw;
-	struct ubsan_value_handle  *lhs = lhs_raw;
-	struct ubsan_value_handle  *rhs = rhs_raw;
-
 	char lb[value_render(data->type, lhs, NULL, 0) + 1];
 	char rb[value_render(data->type, rhs, NULL, 0) + 1];
 
 	value_render(data->type, lhs, lb, sizeof(lb));
 	value_render(data->type, rhs, rb, sizeof(rb));
 
-	ubsan_abort(&data->location, "addition overflow: lhs = (%s), rhs = (%s)", lb, rb);
+	ubsan_abort(&data->location, "%s overflow: lhs = (%s), rhs = (%s)", kind, lb, rb);
+}
+
+EXTERN_C
+void __ubsan_handle_add_overflow(void* data_raw,
+                                 void* lhs_raw,
+                                 void* rhs_raw)
+{
+	ubsan_report_overflow(data_raw, lhs_raw, rhs_raw, "add");
 }
 
 EXTERN_C
@@ -251,12 +255,7 @@ void __ubsan_handle_sub_overflow(void* data_raw,
                                  void* lhs_raw,
                                  void* rhs_raw)
 {
-	struct ubsan_overflow_data* data = data_raw;
-	struct ubsan_value_handle *lhs = lhs_raw;
-	struct ubsan_value_handle *rhs = rhs_raw;
-	(void) lhs;
-	(void) rhs;
-	ubsan_abort(&data->location, "subtraction overflow");
+	ubsan_report_overflow(data_raw, lhs_raw, rhs_raw, "sub");
 }
 
 EXTERN_C
@@ -264,12 +263,7 @@ void __ubsan_handle_mul_overflow(void* data_raw,
                                  void* lhs_raw,
                                  void* rhs_raw)
 {
-	struct ubsan_overflow_data *data = data_raw;
-	struct ubsan_value_handle *lhs = lhs_raw;
-	struct ubsan_value_handle *rhs = rhs_raw;
-	(void) lhs;
-	(void) rhs;
-	ubsan_abort(&data->location, "multiplication overflow");
+	ubsan_report_overflow(data_raw, lhs_raw, rhs_raw, "mul");
 }
 
 EXTERN_C
@@ -287,12 +281,7 @@ void __ubsan_handle_divrem_overflow(void* data_raw,
                                     void* lhs_raw,
                                     void* rhs_raw)
 {
-	struct ubsan_overflow_data *data = data_raw;
-	struct ubsan_value_handle *lhs = lhs_raw;
-	struct ubsan_value_handle *rhs = rhs_raw;
-	(void) lhs;
-	(void) rhs;
-	ubsan_abort(&data->location, "division remainder overflow");
+	ubsan_report_overflow(data_raw, lhs_raw, rhs_raw, "divrem");
 }
 
 struct ubsan_shift_out_of_bounds_data
@@ -310,9 +299,14 @@ void __ubsan_handle_shift_out_of_bounds(void* data_raw,
 	struct ubsan_shift_out_of_bounds_data *data = data_raw;
 	struct ubsan_value_handle *lhs = lhs_raw;
 	struct ubsan_value_handle *rhs = rhs_raw;
-	(void) lhs;
-	(void) rhs;
-	ubsan_abort(&data->location, "shift out of bounds");
+
+	char lb[value_render(data->lhs_type, lhs, NULL, 0) + 1];
+	char rb[value_render(data->rhs_type, rhs, NULL, 0) + 1];
+
+	value_render(data->lhs_type, lhs, lb, sizeof(lb));
+	value_render(data->rhs_type, rhs, rb, sizeof(rb));
+
+	ubsan_abort(&data->location, "shift out of bounds: lhs = (%s), rhs = (%s)", lb, rb);
 }
 
 struct ubsan_out_of_bounds_data
