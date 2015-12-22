@@ -189,6 +189,7 @@ value_render(const struct ubsan_type_descriptor *desc, const struct ubsan_value_
 	}
 }
 
+__attribute__((__format__(__printf__, 2, 3)))
 static void ubsan_abort(const struct ubsan_source_location* location,
                         const char *fmt, ...)
 {
@@ -236,8 +237,8 @@ void __ubsan_handle_add_overflow(void* data_raw,
 	struct ubsan_value_handle  *lhs = lhs_raw;
 	struct ubsan_value_handle  *rhs = rhs_raw;
 
-	char lb[value_render(data->type, lhs, NULL, 0)];
-	char rb[value_render(data->type, rhs, NULL, 0)];
+	char lb[value_render(data->type, lhs, NULL, 0) + 1];
+	char rb[value_render(data->type, rhs, NULL, 0) + 1];
 
 	value_render(data->type, lhs, lb, sizeof(lb));
 	value_render(data->type, rhs, rb, sizeof(rb));
