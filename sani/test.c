@@ -1,5 +1,8 @@
+#include <limits.h>
+
 int main(int argc, char **argv)
 {
 	(void)argv;
-	return argc + 1;
+	int x = argc + 1 + INT_MAX;
+	return x;
 }
