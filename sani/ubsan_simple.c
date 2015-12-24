@@ -150,13 +150,12 @@ load_int(const struct ubsan_type_descriptor *desc, const struct ubsan_value_hand
 static intmax_t
 value_int(const struct ubsan_type_descriptor *desc, const struct ubsan_value_handle *vh)
 {
-	(void)vh;
 	assert(value_is_signed(desc));
 	if (value_is_inline(desc)) {
 		/* FIXME: this breaks sign extention? */
 		return (intmax_t)(uintptr_t)vh;
 	} else {
-		debug("loading non-inline\n");
+		debug("loading non-inline int: %p\n", desc);
 		return load_int(desc, vh);
 	}
 }
@@ -164,12 +163,11 @@ value_int(const struct ubsan_type_descriptor *desc, const struct ubsan_value_han
 static uintmax_t
 value_uint(const struct ubsan_type_descriptor *desc, const struct ubsan_value_handle *vh)
 {
-	(void)vh;
 	assert(!value_is_signed(desc));
 	if (value_is_inline(desc)) {
 		return (uintmax_t)(uintptr_t)vh;
 	} else {
-		debug("loading non-inline\n");
+		debug("loading non-inline uint: %p\n", desc);
 		return load_int(desc, vh);
 	}
 }
@@ -177,7 +175,6 @@ value_uint(const struct ubsan_type_descriptor *desc, const struct ubsan_value_ha
 static long double
 value_float(const struct ubsan_type_descriptor *desc, const struct ubsan_value_handle *vh)
 {
-	(void)vh;
 	assert(desc->type_kind == utk_float);
 	if (value_is_inline(desc)) {
 		return (uintmax_t)(uintptr_t)vh;
@@ -187,19 +184,46 @@ value_float(const struct ubsan_type_descriptor *desc, const struct ubsan_value_h
 }
 
 static int
+type_render(const struct ubsan_type_descriptor *desc, char *out, size_t out_len)
+{
+	switch (desc->type_kind) {
+	case utk_int:
+		return snprintf(out, out_len, "%s (aka int%" PRIuFAST16 "_t)",
+				desc->type_name,
+				value_int_size(desc));
+	case utk_float:
+		return snprintf(out, out_len, "%s (aka float%" PRIuFAST16 "_t)",
+				desc->type_name,
+				value_float_size(desc));
+	case utk_unknown:
+		return snprintf(out, out_len, "unk{name=%s,info=%04" PRIx16 "}",
+				desc->type_name,
+				desc->type_info);
+	default:
+		return snprintf(out, out_len, "<%#04" PRIx16 ">{name=%s,info=%04" PRIx16 "}",
+				desc->type_kind,
+				desc->type_name,
+				desc->type_info);
+	}
+}
+
+#define VR(desc_, vh_, name) \
+	char name[value_render((desc_), (vh_), NULL, 0) + 1]; \
+	value_render((desc_), (vh_), name, sizeof(name));
+
+static int
 value_render(const struct ubsan_type_descriptor *desc, const struct ubsan_value_handle *vh,
 		char *out, size_t out_len)
 {
-	(void)vh;
 	switch (desc->type_kind) {
 	case utk_int:
 		if (value_is_signed(desc)) {
-			return snprintf(out, out_len, "%s (aka int%" PRIdFAST16 "_t) = %jd",
+			return snprintf(out, out_len, "%s (aka int%" PRIuFAST16 "_t) = %jd",
 					desc->type_name,
 					value_int_size(desc),
 					value_int(desc, vh));
 		} else {
-			return snprintf(out, out_len, "%s (aka uint%" PRIdFAST16 "_t) = %ju",
+			return snprintf(out, out_len, "%s (aka uint%" PRIuFAST16 "_t) = %ju",
 					desc->type_name,
 					value_int_size(desc),
 					value_uint(desc, vh));
@@ -209,15 +233,8 @@ value_render(const struct ubsan_type_descriptor *desc, const struct ubsan_value_
 				desc->type_name,
 				value_float_size(desc),
 				value_float(desc, vh));
-	case utk_unknown:
-		return snprintf(out, out_len, "unknown{name=%s,info=%04" PRIx16 "}",
-				desc->type_name,
-				desc->type_info);
 	default:
-		return snprintf(out, out_len, "<unknown=%04" PRIx16 ">{name=%s,info=%04" PRIx16 "}",
-				desc->type_kind,
-				desc->type_name,
-				desc->type_info);
+		return type_render(desc, out, out_len);
 	}
 }
 
@@ -250,8 +267,9 @@ void __ubsan_handle_type_mismatch(void *data_raw,
 {
 	struct ubsan_type_mismatch_data *data = data_raw;
 	struct ubsan_value_handle *pointer = pointer_raw;
-	(void) pointer;
-	ubsan_abort(&data->location, "type mismatch: " UTD_FMT, UTD_EXP(data->type));
+
+	ubsan_abort(&data->location, "type mismatch: alignment=%" PRIuPTR " type_check_kind=%d " UTD_FMT " pointer=%p",
+			data->alignment, data->type_check_kind, UTD_EXP(data->type), pointer);
 }
 
 struct ubsan_overflow_data
@@ -263,15 +281,12 @@ struct ubsan_overflow_data
 static void
 ubsan_report_overflow(struct ubsan_overflow_data *data,
 		struct ubsan_value_handle *lhs, struct ubsan_value_handle *rhs,
-		const char *kind)
+		const char *kind, const char *op)
 {
-	char lb[value_render(data->type, lhs, NULL, 0) + 1];
-	char rb[value_render(data->type, rhs, NULL, 0) + 1];
+	VR(data->type, lhs, lb);
+	VR(data->type, rhs, rb);
 
-	value_render(data->type, lhs, lb, sizeof(lb));
-	value_render(data->type, rhs, rb, sizeof(rb));
-
-	ubsan_abort(&data->location, "%s overflow: lhs = (%s), rhs = (%s)", kind, lb, rb);
+	ubsan_abort(&data->location, "%s overflow: %s %s %s", kind, lb, op, rb);
 }
 
 EXTERN_C
@@ -279,7 +294,7 @@ void __ubsan_handle_add_overflow(void* data_raw,
                                  void* lhs_raw,
                                  void* rhs_raw)
 {
-	ubsan_report_overflow(data_raw, lhs_raw, rhs_raw, "add");
+	ubsan_report_overflow(data_raw, lhs_raw, rhs_raw, "add", "+");
 }
 
 EXTERN_C
@@ -287,7 +302,7 @@ void __ubsan_handle_sub_overflow(void* data_raw,
                                  void* lhs_raw,
                                  void* rhs_raw)
 {
-	ubsan_report_overflow(data_raw, lhs_raw, rhs_raw, "sub");
+	ubsan_report_overflow(data_raw, lhs_raw, rhs_raw, "sub", "-");
 }
 
 EXTERN_C
@@ -295,7 +310,7 @@ void __ubsan_handle_mul_overflow(void* data_raw,
                                  void* lhs_raw,
                                  void* rhs_raw)
 {
-	ubsan_report_overflow(data_raw, lhs_raw, rhs_raw, "mul");
+	ubsan_report_overflow(data_raw, lhs_raw, rhs_raw, "mul", "*");
 }
 
 EXTERN_C
@@ -313,7 +328,7 @@ void __ubsan_handle_divrem_overflow(void* data_raw,
                                     void* lhs_raw,
                                     void* rhs_raw)
 {
-	ubsan_report_overflow(data_raw, lhs_raw, rhs_raw, "divrem");
+	ubsan_report_overflow(data_raw, lhs_raw, rhs_raw, "divrem", "/ or %");
 }
 
 struct ubsan_shift_out_of_bounds_data
@@ -332,13 +347,10 @@ void __ubsan_handle_shift_out_of_bounds(void* data_raw,
 	struct ubsan_value_handle *lhs = lhs_raw;
 	struct ubsan_value_handle *rhs = rhs_raw;
 
-	char lb[value_render(data->lhs_type, lhs, NULL, 0) + 1];
-	char rb[value_render(data->rhs_type, rhs, NULL, 0) + 1];
+	VR(data->lhs_type, lhs, lb);
+	VR(data->rhs_type, rhs, rb);
 
-	value_render(data->lhs_type, lhs, lb, sizeof(lb));
-	value_render(data->rhs_type, rhs, rb, sizeof(rb));
-
-	ubsan_abort(&data->location, "shift out of bounds: lhs = (%s), rhs = (%s)", lb, rb);
+	ubsan_abort(&data->location, "shift out of bounds: %s << %s", lb, rb);
 }
 
 struct ubsan_out_of_bounds_data
@@ -438,8 +450,10 @@ void __ubsan_handle_float_cast_overflow(void* data_raw,
 	}
 
 	struct ubsan_value_handle *from = from_raw;
-	(void) from;
-	ubsan_abort(&data.location, "float cast overflow");
+
+	VR(data.from_type, from, b);
+
+	ubsan_abort(&data.location, "float cast overflow from %s", b);
 }
 
 struct ubsan_invalid_value_data
@@ -454,8 +468,10 @@ void __ubsan_handle_load_invalid_value(void* data_raw,
 {
 	struct ubsan_invalid_value_data *data = data_raw;
 	struct ubsan_value_handle *value = value_raw;
-	(void) value;
-	ubsan_abort(&data->location, "invalid value load");
+
+	VR(data->type, value, b);
+
+	ubsan_abort(&data->location, "invalid value load: %s", b);
 }
 
 struct ubsan_function_type_mismatch_data
@@ -470,8 +486,10 @@ void __ubsan_handle_function_type_mismatch(void* data_raw,
 {
 	struct ubsan_function_type_mismatch_data *data = data_raw;
 	struct ubsan_value_handle *value = value_raw;
-	(void) value;
-	ubsan_abort(&data->location, "function type mismatch");
+
+	VR(data->type, value, b);
+
+	ubsan_abort(&data->location, "function type mismatch: %s", b);
 }
 
 struct ubsan_nonnull_return_data {
@@ -492,6 +510,6 @@ struct ubsan_cfi_bad_icall_data {
 
 void __ubsan_handle_cfi_bad_icall(struct ubsan_cfi_bad_icall_data *data, struct ubsan_value_handle *function)
 {
-	(void)function;
-	ubsan_abort(&data->loc, "cfi bad icall");
+	VR(data->type, function, b);
+	ubsan_abort(&data->loc, "cfi bad icall: %s", b);
 }

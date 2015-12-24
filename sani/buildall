@@ -2,3 +2,4 @@
 
 CROSS_COMPILE=arm-none-eabi- NEED_SYS=true ./build
 ./build
+CFLAGS_EXTRA=-m32 ./build
