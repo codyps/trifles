@@ -16,6 +16,19 @@
 #define NORETURN __attribute__((__noreturn__))
 #endif
 
+#define DEBUG
+#ifndef DEBUG
+#define debug(...) printf_check(__VA_ARGS__)
+static inline void
+__attribute__((__format__(printf, 1, 2)))
+printf_check(const char *fmt, ...)
+{
+	(void)fmt;
+}
+#else
+#define debug(...) fprintf(stderr, __VA_ARGS__)
+#endif
+
 #define USL_EXP(x) (x)->filename, (x)->line, (x)->column
 #define USL_FMT "%s:%" PRIu32 ":%" PRIu32
 struct ubsan_source_location {
@@ -118,15 +131,33 @@ value_is_signed(const struct ubsan_type_descriptor *desc)
 	return desc->type_info & 1;
 }
 
+static uintmax_t
+load_int(const struct ubsan_type_descriptor *desc, const struct ubsan_value_handle *vh)
+{
+	assert(desc->type_kind == utk_int);
+	uintmax_t v = 0;
+	uint_fast16_t bytes;
+	uint_fast16_t byte_count = value_size(desc);
+	unsigned char *h = (unsigned char *)vh;
+	for (bytes = 0; bytes < byte_count; bytes++) {
+		v <<= CHAR_BIT;
+		v |= h[bytes];
+	}
+
+	return v;
+}
+
 static intmax_t
 value_int(const struct ubsan_type_descriptor *desc, const struct ubsan_value_handle *vh)
 {
 	(void)vh;
 	assert(value_is_signed(desc));
 	if (value_is_inline(desc)) {
-		return (intmax_t)vh;
+		/* FIXME: this breaks sign extention? */
+		return (intmax_t)(uintptr_t)vh;
 	} else {
-		return 4;
+		debug("loading non-inline\n");
+		return load_int(desc, vh);
 	}
 }
 
@@ -136,9 +167,10 @@ value_uint(const struct ubsan_type_descriptor *desc, const struct ubsan_value_ha
 	(void)vh;
 	assert(!value_is_signed(desc));
 	if (value_is_inline(desc)) {
-		return (uintmax_t)vh;
+		return (uintmax_t)(uintptr_t)vh;
 	} else {
-		return 2;
+		debug("loading non-inline\n");
+		return load_int(desc, vh);
 	}
 }
 
@@ -148,9 +180,9 @@ value_float(const struct ubsan_type_descriptor *desc, const struct ubsan_value_h
 	(void)vh;
 	assert(desc->type_kind == utk_float);
 	if (value_is_inline(desc)) {
-		return 5;
+		return (uintmax_t)(uintptr_t)vh;
 	} else {
-		return 6;
+		return load_int(desc, vh);
 	}
 }
 
