@@ -124,7 +124,7 @@ value_int(const struct ubsan_type_descriptor *desc, const struct ubsan_value_han
 	(void)vh;
 	assert(value_is_signed(desc));
 	if (value_is_inline(desc)) {
-		return 3;
+		return (intmax_t)vh;
 	} else {
 		return 4;
 	}
@@ -136,7 +136,7 @@ value_uint(const struct ubsan_type_descriptor *desc, const struct ubsan_value_ha
 	(void)vh;
 	assert(!value_is_signed(desc));
 	if (value_is_inline(desc)) {
-		return 1;
+		return (uintmax_t)vh;
 	} else {
 		return 2;
 	}
