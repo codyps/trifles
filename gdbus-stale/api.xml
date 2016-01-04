@@ -1,0 +1,5 @@
+<node>
+  <interface name="api">
+    <property name="junk" type="s" access="readwrite"/>
+  </interface>
+</node>

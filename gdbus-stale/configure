@@ -1,0 +1,49 @@
+#! /bin/sh
+# ex: sts=8 sw=8 ts=8 noet
+set -eu -o pipefail
+
+PKGCONFIG_LIBS="glib-2.0 gio-unix-2.0"
+#LIB_CFLAGS=""
+#LIB_LDFLAGS=""
+
+gdbus_cc() {
+	local xml=$1
+	shift
+	local out_base="generated/${xml/.xml/}"
+	local extra_flags=""
+
+	for i in "$@"; do
+		eval local "$i"
+	done
+
+	if [ -n "${NAMESPACE:-}" ]; then
+		extra_flags="$extra_flags --c-namespace $NAMESPACE"
+	fi
+
+	if [ "${MANAGER:-}" = "y" ]; then
+		extra_flags="$extra_flags --c-generate-object-manager"
+	fi
+
+	if [ -n "${INTERFACE_PREFIX:-}" ]; then
+		extra_flags="$extra_flags --interface-prefix ${INTERFACE_PREFIX}"
+	fi
+
+	cat <<EOF
+build $out_base.c $out_base.h : gdbus_cc $xml
+  out_base=$out_base
+  extra_flags=$extra_flags
+EOF
+}
+
+. "$(dirname $0)"/config.sh
+
+: ${GDBUS_CODEGEN=gdbus-codegen}
+cat <<EOF
+gdbus_codegen = $GDBUS_CODEGEN
+rule gdbus_cc
+  command = \$gdbus_codegen --xml-files \$in --generate-c-code \$out_base \$extra_flags
+EOF
+
+gdbus_cc api.xml
+bin serv serv.c generated/api.c
+bin client client.c generated/api.c
