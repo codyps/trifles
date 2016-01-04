@@ -41,9 +41,9 @@ EOF
 cat <<EOF
 gdbus_codegen = $GDBUS_CODEGEN
 rule gdbus_cc
-  command = \$gdbus_codegen --xml-files \$in --generate-c-code \$out_base \$extra_flags
+  command = \$gdbus_codegen --generate-c-code \$out_base \$extra_flags \$in
 EOF
 
-gdbus_cc api.xml
+gdbus_cc api.xml INTERFACE_PREFIX="com.codyps."
 bin serv serv.c generated/api.c
 bin client client.c generated/api.c
