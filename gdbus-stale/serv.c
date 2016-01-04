@@ -14,11 +14,7 @@ on_bus_acquired(GDBusConnection *conn, const gchar *name, gpointer user_data)
 			conn,
 			"/com/codyps/api",
 			&error)) {
-		if (error) {
-			g_print("error: %s\n", error->message);
-		} else {
-			g_print("dbus export skel failed but no error\n");
-		}
+		g_print("error: %s\n", error->message);
 		exit(EXIT_FAILURE);
 	}
 }
@@ -43,9 +39,8 @@ on_name_lost(GDBusConnection *conn, const gchar *name, gpointer user_data)
 static void
 on_junk (GObject *gobject, GParamSpec *pspec, gpointer user_data)
 {
-	(void)gobject;
 	(void)user_data;
-	g_print("junk happened!: %s\n", pspec->name);
+	g_print("junk happened!: %s: %s\n", pspec->name, api_get_junk(API(gobject)));
 }
 
 int
