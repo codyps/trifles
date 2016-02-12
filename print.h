@@ -243,7 +243,7 @@ static inline void print_hex_dump(void *vbuf, size_t buf_len, FILE *f) {
 static inline void print_hex_dump_fmt(void *vbuf, size_t buf_len, FILE *f) {
 	size_t i;
 	uint8_t *buf = vbuf;
-	int off_width = DIV_ROUND_UP(fls(buf_len), 4);
+	int off_width = DIV_ROUND_UP(p_fls(buf_len), 4);
 
 	for (i = 0; (int)i < off_width + 1; i++)
 		putc(' ', f);
