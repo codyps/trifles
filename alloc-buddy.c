@@ -1,10 +1,20 @@
 /*
  * Papers:
+ *  http://www.cs.au.dk/~gerth/papers/actainformatica05.pdf 
  *  - Fast Allocation and Deallocation with an Improved Buddy System
  *     Erik D. Demaine and J.  Ian Munro
  *
  *  -
  */
+
+struct block_info {
+	uint8_t allocated:1;
+
+	/* we probably don't need this many bits
+	 * max block size = 2**128
+	 */
+	uint8_t order:7;
+};
 
 struct buddy {
 	void *base;
@@ -20,7 +30,7 @@ struct buddy {
 	
 	/* provides some of the same functionality as linux's page bits */
 	/* TODO: consider if we need/should store "order" here */
-	void *free_bitmap;
+	struct block_info *info;
 };
 
 struct buddy_free_block_data {
