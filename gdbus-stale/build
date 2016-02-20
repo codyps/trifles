@@ -1,0 +1,5 @@
+## build: 19c1df6, see https://github.com/jmesmon/cninja.git
+#! /bin/sh
+cd $(dirname $0)
+./configure
+ninja "$@"

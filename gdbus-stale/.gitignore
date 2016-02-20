@@ -1,0 +1,7 @@
+serv
+client
+build.ninja
+generated
+
+.ninja_*
+
