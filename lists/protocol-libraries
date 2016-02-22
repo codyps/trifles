@@ -93,6 +93,7 @@ Sexp:
 
 Bencoding
 	http://wiki.theory.org/BitTorrentSpecification#bencoding
+	self-describing
 
 TNetstrings
 	http://tnetstrings.org/
@@ -125,3 +126,8 @@ cbor http://cbor.io/
 	C api
 	self-describing (wireformat encodes types)
 	Supports definite & indefinite lengths for arrays, maps, byte strings, and text strings
+
+bincode
+	rust library
+	not self describing
+	Rust types describe format/layout

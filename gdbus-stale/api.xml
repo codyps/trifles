@@ -1,0 +1,5 @@
+<node>
+  <interface name="com.codyps.api">
+    <property name="junk" type="s" access="readwrite"/>
+  </interface>
+</node>
