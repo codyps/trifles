@@ -16,20 +16,33 @@ struct block_info {
 	uint8_t order:7;
 };
 
+/* these are stored in the empty space in non-allocated (free) pages */
+struct block_free_data {
+	struct block_free_data *next;
+};
+
 struct buddy {
 	void *base;
 	size_t block_sz;
 	size_t block_ct;
-
-	/* we need a quick way to determine if a given block is allocated (to
-	 * make free() fast)*/
+	size_t max_block_order;
 
 	/* we need a quick way to find the "best" free blocks to select when the
 	 * allocator asks for N blocks (to make alloc() fast)
 	 */
+	/* 
+	 * this points to an array with max_block_order entries
+	 * The index in the array is the order of page stored in that list
+	 *
+	 * ie: pages double in size each time you move forward.
+	 *
+	 * This gives us forward scanning on allocation.
+	 */
+	struct block_free_data *free_blocks;
 	
-	/* provides some of the same functionality as linux's page bits */
-	/* TODO: consider if we need/should store "order" here */
+	/* we need a quick way to determine if a given block is allocated (to
+	 * make free() fast)
+	 */
 	struct block_info *info;
 };
 
@@ -70,7 +83,7 @@ int buddy_init(struct buddy *b, void *free_bitmap, void *base, size_t block_sz, 
 		.block_sz = block_sz,
 		.block_ct = block_ct,
 		.free_bitmap = free_bitmap
-		.high_order = 
+		.max_block_order = 
 	};
 }
 
