@@ -163,14 +163,90 @@ static void
 mark_info_as_allocated(struct buddy *b, void *block, size_t order)
 {
 	/* TODO: figure out how much of info we need to mark for this allocation */
-	b->info[block_num(b, block)]
+	b->info[block_num(b, block)] = (struct block_info) {
+		.allocated = true,
+		.order = order,
+	};
 }
 
 static
 void *
 split_block_to(struct buddy *b, void *block, size_t block_order, size_t desired_order)
 {
+	assert(block_order > desired_order);
 
+	/* In a classical buddy allocator, we would split off the block in half
+	 * until it was as small as we wanted.
+	 *
+	 * In this impl, however, we just grab our block off the end (or
+	 * start), mark the block as having a special size, store the new
+	 * special size, re-hook it into the free lists in (block_order - 1),
+	 * and return our block.
+	 */
+
+	size_t fbs = block_free_size(b, block);
+	/* 1. see if desired_order can be extracted from the "extra" parts of the free block */
+	/* 2. if it can, shink "extra", return @block to free lists, and return "extra" */
+	/*	TODO: consider avoiding removing blocks from free lists until here */
+	/* 3. if "extra" isn't big enough, use part of the main block & return
+	 * "extra" and the remainder of the main block to the free lists.
+	 * return the split off part of the main block */
+
+	/*
+	 * In #3, we could split into 2 blocks instead of 3:
+	 *
+	 * Consider an 8 unit MainBlk (order=3) with 4 unit extra (order=2)
+	 *
+	 * |MainBlk|exr|  |
+	 * 012345678901234
+	 *
+	 * If we want to allocate order=2, we can take the extra.
+	 * If we want to allocate order=3, we take mainblk and return extra.
+	 * If we want to allocate order=1, we take part of the extra.
+	 *
+	 * Consider an 8 unit MainBlk (order=3) with 2 unit extra (order=1)
+	 *
+	 * |MainBlk|e|    |
+	 * 012345678901234
+	 *
+	 * order=3 -> alloc mainblk, free extra
+	 * order=2 -> ????
+	 * order=1 -> alloc extra, free mainblk
+	 *
+	 * In ????, we appear to have a few options:
+	 * 	A. return some the front of main-block
+	 * 	B. return the end of main-block
+	 * 	C. return the end of main-block + some of the extra
+	 *
+	 * A: |+++|-----|+++|
+	 * 	  |...|.|
+	 *    012345678901234
+	 * B: |---|+++|-|+++|
+	 * C: |-----|+++|+++|
+	 *     ...|.|
+	 *
+	 * C looks good, except for the issue with alignment.
+	 * A has the same issue with aligment, but for free blocks rather than
+	 * allocated ones. It isn't clear if we could handle missaligned free
+	 * blocks in the allocator (free blocks do need to turn into allocated
+	 * blocks to be useful, and misaligned freeblocks tend to generate
+	 * misaligned allocated blocks), so we should probably avoid this too.
+	 *
+	 * B, while looking ugliest, preserves alignment properly.
+	 */
+
+	/*
+	 * Note: what is the right way to handle alignment? The algorithm above
+	 * is designed to garuntee that the alignment of the returned block
+	 * matches the order of the block. However, doing this means we're
+	 * allocating the end of memory first & we end up splitting blocks into
+	 * pieces more that strictly necessary. Note that in #3 we generate 3
+	 * blocks (2 free) from a single split where if we could relax the
+	 * alignment we could generate 2 blocks (1 free) from the split
+	 *
+	 * That said, it might be that we'd have to relax the alignment for all
+	 * allocations, not just on a per-allocation basis.
+	 */
 }
 
 void *buddy_alloc(struct buddy *b, size_t order)
