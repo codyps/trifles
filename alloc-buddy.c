@@ -88,11 +88,11 @@ int buddy_init(struct buddy *b, void *base, size_t block_sz, size_t block_ct, si
 	 * x = log2(block_ct)
 	 *
 	 */
-	struct buddy_free_block *(*free_lists)[] = sizeof(*free_lists) * max_order;
+	struct buddy_free_block *(*free_lists)[] = calloc(sizeof(*free_lists), max_order);
 	if (!free_lists)
 		return -ENOMEM;
 
-	struct block_info (*info)[] = malloc(*info) * block_ct;
+	struct block_info (*info)[] = calloc(sizeof(*info), block_ct);
 	if (!info) {
 		free(free_lists);
 		return -ENOMEM;
