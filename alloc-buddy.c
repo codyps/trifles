@@ -13,7 +13,8 @@ typedef size_t block_num_t;
 struct block_info {
 	uint8_t allocated:1;
 
-	/* we probably don't need this many bits
+	/*
+	 * we probably don't need this many bits
 	 * max block size = 2**128
 	 */
 	uint8_t order:7;
@@ -55,11 +56,13 @@ struct buddy {
 	 */
 	struct buddy_free_block *(*free_lists)[];
 	
-	/* we need a quick way to determine if a given block is allocated (to
-	 * make free() fast)
+	/* 
+	 * We need a quick way to determine if a given block is allocated (to
+	 * make free() fast).
+	 *
+	 * Further, to allow the free-er to not need to know the order, it is
+	 * useful to be able to look up the order.
 	 */
-	/* provides some of the same functionality as linux's page bits */
-	/* TODO: consider if we need/should store "order" here */
 	struct block_info (*info)[];
 };
 
@@ -81,6 +84,18 @@ size_t buddy_free_bitmap_len(size_t block_ct)
  */
 int buddy_init(struct buddy *b, void *base, size_t block_sz, size_t block_ct, size_t max_order)
 {
+	size_t order_limit ol;
+	{
+		struct block_info i;
+		i.order = -1;
+		ol = i.order;
+	}
+
+	/* 
+	 * we use the last order value (in free blocks) to indicate that one
+	 * should read from the free_block info
+	 */
+	assert(max_order < ol);
 	/* TODO: check that base is aligned to block_sz */
 
 	/* block_sz * 2**x == block_sz * block_ct
@@ -108,26 +123,9 @@ int buddy_init(struct buddy *b, void *base, size_t block_sz, size_t block_ct, si
 	};
 
 	/* TODO: initialize free lists */
+	assert(0);
 
 	return 0;
-}
-
-size_t buddy_size(size_t block_ct)
-{
-	return offsetof(struct buddy, free[ilog_zu(block_ct)]);
-}
-
-size_t block_order(struct buddy *b, size_t blk_num)
-{
-	assert(0);
-	/*
-	 * assert(order <= max_order)
-	 */
-}
-
-bool block_is_free(struct buddy *b, size_t blk_num)
-{
-	assert(0);
 }
 
 size_t block_num(struct buddy *b, void *block)
@@ -160,96 +158,183 @@ void *try_alloc_exact_order(struct buddy *b, size_t order)
 }
 
 static void
-mark_info_as_allocated(struct buddy *b, void *block, size_t order)
+mark_allocated(struct buddy *b, void *block, size_t order)
 {
-	/* TODO: figure out how much of info we need to mark for this allocation */
 	b->info[block_num(b, block)] = (struct block_info) {
 		.allocated = true,
 		.order = order,
 	};
 }
 
+static size_t
+block_extra_size(struct buddy *b, void *block)
+{
+	struct block_info *bi = &b->info[block_num(b, block)];
+	assert(!bi->allocated);
+
+	if (bi->order == SIZE_IN_BLOCK) {
+		/* major cache miss here */
+		struct buddy_free_block *fb = block;
+		return fb->size;
+	} else {
+		return 0;
+	}
+}
+
+static void
+return_to_freelist_with_order(struct buddy *b, void *block, size_t order)
+{
+	struct block_free **x = &b->free_lists[order];
+	struct block_free *p = *x;
+	struct block_free *m = block;
+
+	b->info[block_num(b, block)] = (struct block_info) {
+		.allocated = false,
+		.order = order,
+	};
+
+	m->next = p;
+	*x = m;
+}
+
+static void
+return_to_freelist_with_size(struct buddy *b, void *block, size_t size)
+{
+	/* 
+	 * TODO: determine the block order (the one that is small enought to
+	 * fit within this) */
+	assert(false);
+}
+
+static void
+return_extra_to_freelists(struct buddy *b, void *block, size_t order)
+{
+	size_t extra_size = block_extra_size(b, block);
+	if (!extra_size)
+		return;
+
+	/* TODO: determine largest power of 2 contained in the block, will be
+	 * at most (order - 1) */
+	assert(false);
+}
+
+
+/* In a classical buddy allocator, we would split off the block in half
+ * until it was as small as we wanted.
+ *
+ * In this impl, however, we just grab our block off the end (or
+ * start), mark the block as having a special size, store the new
+ * special size, re-hook it into the free lists in (block_order - 1),
+ * and return our block.
+ *
+ * Our steps:
+ * 1. see if desired_order can be extracted from the "extra" parts of the free block
+ * 2. if it can, shink "extra", return @block to free lists, and return "extra"
+ *	TODO: consider avoiding removing blocks from free lists until here
+ * 3. if "extra" isn't big enough, use part of the main block & return
+ * "extra" and the remainder of the main block to the free lists.
+ * return the split off part of the main block
+ *
+ *
+ * In #3, we could split into 2 blocks instead of 3:
+ *
+ * Consider an 8 unit MainBlk (order=3) with 4 unit extra (order=2)
+ *
+ * |MainBlk|exr|  |
+ * 012345678901234
+ *
+ * If we want to allocate order=2, we can take the extra.
+ * If we want to allocate order=3, we take mainblk and return extra.
+ * If we want to allocate order=1, we take part of the extra.
+ *
+ * Consider an 8 unit MainBlk (order=3) with 2 unit extra (order=1)
+ *
+ * |MainBlk|e|    |
+ * 012345678901234
+ *
+ * order=3 -> alloc mainblk, free extra
+ * order=2 -> ????
+ * order=1 -> alloc extra, free mainblk
+ *
+ * In ????, we appear to have a few options:
+ * 	A. return some the front of main-block
+ * 	B. return the end of main-block
+ * 	C. return the end of main-block + some of the extra
+ *
+ * A: |+++|-----|+++|
+ * 	  |...|.|
+ *    012345678901234
+ * B: |---|+++|-|+++|
+ * C: |-----|+++|+++|
+ *     ...|.|
+ *
+ * C looks good, except for the issue with alignment.
+ * A has the same issue with aligment, but for free blocks rather than
+ * allocated ones. It isn't clear if we could handle missaligned free
+ * blocks in the allocator (free blocks do need to turn into allocated
+ * blocks to be useful, and misaligned freeblocks tend to generate
+ * misaligned allocated blocks), so we should probably avoid this too.
+ *
+ * B, while looking ugliest, preserves alignment properly.
+ */
+
+/*
+ * Note: what is the right way to handle alignment? The algorithm above
+ * is designed to garuntee that the alignment of the returned block
+ * matches the order of the block. However, doing this means we're
+ * allocating the end of memory first & we end up splitting blocks into
+ * pieces more that strictly necessary. Note that in #3 we generate 3
+ * blocks (2 free) from a single split where if we could relax the
+ * alignment we could generate 2 blocks (1 free) from the split
+ *
+ * That said, it might be that we'd have to relax the alignment for all
+ * allocations, not just on a per-allocation basis.
+ */
 static
 void *
 split_block_to(struct buddy *b, void *block, size_t block_order, size_t desired_order)
 {
 	assert(block_order > desired_order);
+	size_t extra_ct = block_extra_ct(b, block);
 
-	/* In a classical buddy allocator, we would split off the block in half
-	 * until it was as small as we wanted.
-	 *
-	 * In this impl, however, we just grab our block off the end (or
-	 * start), mark the block as having a special size, store the new
-	 * special size, re-hook it into the free lists in (block_order - 1),
-	 * and return our block.
-	 */
-
-	size_t fbs = block_free_size(b, block);
-	/* 1. see if desired_order can be extracted from the "extra" parts of the free block */
-	/* 2. if it can, shink "extra", return @block to free lists, and return "extra" */
-	/*	TODO: consider avoiding removing blocks from free lists until here */
-	/* 3. if "extra" isn't big enough, use part of the main block & return
+	/*
+	 * 1. see if desired_order can be extracted from the "extra" parts of the free block
+	 * 2. if it can, shink "extra", return @block to free lists, and return "extra"
+	 *	TODO: consider avoiding removing blocks from free lists until here
+	 * 3. if "extra" isn't big enough, use part of the main block & return
 	 * "extra" and the remainder of the main block to the free lists.
-	 * return the split off part of the main block */
-
-	/*
-	 * In #3, we could split into 2 blocks instead of 3:
-	 *
-	 * Consider an 8 unit MainBlk (order=3) with 4 unit extra (order=2)
-	 *
-	 * |MainBlk|exr|  |
-	 * 012345678901234
-	 *
-	 * If we want to allocate order=2, we can take the extra.
-	 * If we want to allocate order=3, we take mainblk and return extra.
-	 * If we want to allocate order=1, we take part of the extra.
-	 *
-	 * Consider an 8 unit MainBlk (order=3) with 2 unit extra (order=1)
-	 *
-	 * |MainBlk|e|    |
-	 * 012345678901234
-	 *
-	 * order=3 -> alloc mainblk, free extra
-	 * order=2 -> ????
-	 * order=1 -> alloc extra, free mainblk
-	 *
-	 * In ????, we appear to have a few options:
-	 * 	A. return some the front of main-block
-	 * 	B. return the end of main-block
-	 * 	C. return the end of main-block + some of the extra
-	 *
-	 * A: |+++|-----|+++|
-	 * 	  |...|.|
-	 *    012345678901234
-	 * B: |---|+++|-|+++|
-	 * C: |-----|+++|+++|
-	 *     ...|.|
-	 *
-	 * C looks good, except for the issue with alignment.
-	 * A has the same issue with aligment, but for free blocks rather than
-	 * allocated ones. It isn't clear if we could handle missaligned free
-	 * blocks in the allocator (free blocks do need to turn into allocated
-	 * blocks to be useful, and misaligned freeblocks tend to generate
-	 * misaligned allocated blocks), so we should probably avoid this too.
-	 *
-	 * B, while looking ugliest, preserves alignment properly.
+	 * return the split off part of the main block
 	 */
 
-	/*
-	 * Note: what is the right way to handle alignment? The algorithm above
-	 * is designed to garuntee that the alignment of the returned block
-	 * matches the order of the block. However, doing this means we're
-	 * allocating the end of memory first & we end up splitting blocks into
-	 * pieces more that strictly necessary. Note that in #3 we generate 3
-	 * blocks (2 free) from a single split where if we could relax the
-	 * alignment we could generate 2 blocks (1 free) from the split
-	 *
-	 * That said, it might be that we'd have to relax the alignment for all
-	 * allocations, not just on a per-allocation basis.
-	 */
+	size_t desired_ct = 1 << desired_order;
+	size_t bs = b->block_size << block_order;
+	void *extra = block + bs;
+	if (extra_ct == desired_ct) {
+		return_to_free_list_with_order(b, block, block_order);
+		return extra;
+	} else if (extra_size > desired_size) {
+		/* Extra is always in the form of a**2 - b**2 where b < a 
+		 *
+		 * What does this tell us about splitting it?
+		 */
+
+		/* TODO: split extra */
+		assert(false);
+	} else {
+	       	/* extra_size < desired_size */
+		if (extra_ct)
+			return_to_free_list_with_size(b, extra, extra_ct);
+
+		/* We need to split the end of the main block off */
+		size_t remaining_ct = (1 << block_order) - desired_ct;
+		void *r = block - remaining_ct * b->block_size;
+		return_to_free_list_with_size(b, block, new_extra_ct);
+		return r;
+	}
 }
 
-void *buddy_alloc(struct buddy *b, size_t order)
+void *
+buddy_alloc(struct buddy *b, size_t order)
 {
 	/* find a block with:
 	 *  - with the given order
@@ -277,8 +362,12 @@ void *buddy_alloc(struct buddy *b, size_t order)
 
 		if (order != i_order)
 			r = split_block_to(b, r, i_order, order);
+		else
+			/* the block may have an "extra" component that we need
+			 * to track */
+			return_extra_to_freelists(b, r, order);
 
-		mark_info_as_allocated(b, r, order);
+		mark_allocated(b, r, order);
 		return r;
 	}
 
@@ -290,7 +379,8 @@ void *buddy_alloc(struct buddy *b, size_t order)
  * Unclear:
  *  - block count might not be required, but probably is
  */
-void buddy_free(struct buddy *b, void *block)
+void
+buddy_free(struct buddy *b, void *block)
 {
 	size_t block_num = block_num(b, block)
 	size_t order = block_order(b, block_num);
@@ -305,7 +395,9 @@ void buddy_free(struct buddy *b, void *block)
 		/* remove buddy from free list */
 
 		/* XXX: do we need to attempt to do further merging? */
+		assert(false);
 	}
 
 	/* TODO: return our merged block to a free list */
+	assert(false);
 }
