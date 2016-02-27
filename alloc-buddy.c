@@ -18,7 +18,7 @@ struct buddy_block_info {
 
 	/*
 	 * we probably don't need this many bits
-	 * max block size = 2**128
+	 * max block order = 2**128
 	 */
 	uint8_t order:7;
 };
@@ -40,7 +40,7 @@ struct buddy_free_block {
 
 #define bit_mask(bit_count) ((bit_count) ? ((UINTMAX_C(1) << ((bit_count) - 1) << 1) - 1) : 0)
 
-static inline __attribute__((const))
+static inline
 bool is_power_of_2(unsigned long n)
 {
 	return (n != 0 && ((n & (n - 1)) == 0));
@@ -63,7 +63,7 @@ bool is_power_of_2(unsigned long n)
  * XXX:
  *  - common designs use a set of lists, one for each order
  */
-int buddy_init(struct buddy *b, void *base, size_t block_ct, size_t block_bytes_order, size_t max_blocks_order)
+int buddy_init(struct buddy *b, void *base, size_t size_bytes, size_t block_bytes_order, size_t max_blocks_order)
 {
 	size_t order_limit ol;
 	{
@@ -112,19 +112,28 @@ int buddy_init(struct buddy *b, void *base, size_t block_ct, size_t block_bytes_
 
 	/* first block might not be very aligned. */
 	size_t o = align_of(base >> block_bytes_order);
+	void *bi = base;
+	void *end = size_bytes + (char *)base;
 	for (;;) {
-		/* FIXME: need to consider if 'o' is too large given block_ct
-		 * */
-		return_to_freelist_with_order(b, base, o);
 		/* iterate over block_ct in max_order chunks. If max_order goes
 		 * past block_ct, create a super block & we're done */
 
-		base += 1 << o;
+		void *next_base = bi + 1 << o;
+		if (next_base > end ) {
+			/* if we try to create a block past the end, create a
+			 * super block, and we're done */
+			return_to_freelist_with_size(b, bi, end - bi);
+			break;
+		}
+
+		return_to_freelist_with_order(b, bi, o);
+
+		if (next_base == end) 
+			break;
+
+		bi = next_base;
 		o = max_order;
 	}
-
-	/* TODO: initialize free lists */
-	assert(0);
 
 	return 0;
 }
@@ -133,8 +142,8 @@ static size_t
 block_num(struct buddy *b, void *block)
 {
 	assert(b->base <= block);
-	assert(b->base + (b->block_ct - 1) * b->block_sz => block)
-	return (block - b->base) / b->block_sz;
+	assert(b->base + ((b->block_ct - 1) << b->block_bytes_order) => block)
+	return (block - b->base) >> b->block_bytes_order;
 }
 
 /* return the buddy of this block */
@@ -155,9 +164,8 @@ try_alloc_exact_order(struct buddy *b, size_t order)
 	struct block_free **x = &b->free_lists[order];
 
 	void *r = *x;
-	if (r) {
+	if (r)
 		*x = (*x)->next;
-	}
 	return r;
 }
 
@@ -179,7 +187,7 @@ block_extra_size(struct buddy *b, void *block)
 	if (bi->order == SIZE_IN_BLOCK) {
 		/* major cache miss here */
 		struct buddy_free_block *fb = block;
-		return fb->size;
+		return 1 << fb->order_upper - 1 << fb->order_lower;
 	} else {
 		return 0;
 	}
@@ -208,6 +216,12 @@ return_to_freelist_with_extra(struct buddy *b, void *block, size_t order_upper, 
 	/* 
 	 * TODO: determine the block order (the one that is small enought to
 	 * fit within this) */
+	assert(false);
+}
+
+static void
+return_to_freelist_with_size(struct buddy *b, void *block, size_t bytes)
+{
 	assert(false);
 }
 
