@@ -42,3 +42,6 @@ uinput
 
 login.keyring
 user.keystore
+*.gcda
+*.gcno
+*.gcov

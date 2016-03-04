@@ -18,12 +18,14 @@ struct unused_block {
 	size_t next;
 };
 
-void pool_init(struct pool *p, void *base, size_t block_size, size_t block_count)
-{
-	/* confirm that a block is minimally large enough to contain our book-keeping
-	 * In the future, it might be possible to use a group of free blocks to store the free list
-	 */
+#define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
 
+static
+void pool_init_(struct pool *p, void *base, size_t block_size, size_t block_count, size_t pre_alloc)
+{
+	/* 
+	 * Confirm that a block is minimally large enough to contain our book-keeping
+	 */
 	assert(block_count > 0);
 	assert(block_size >= sizeof(struct unused_block));
 
@@ -32,10 +34,31 @@ void pool_init(struct pool *p, void *base, size_t block_size, size_t block_count
 		.block_size = block_size,
 		.block_count = block_count,
 		
-		.head = 0,
-		.num_free = block_count,
-		.num_init = 0,
+		.head = pre_alloc,
+		.num_init = pre_alloc,
 	};
+}
+
+/*
+ * Initialize and allocate a pool within itself
+ * Depending on the block size, this could have a lot of overhead (and use a lot of space in the pool memory).
+ * If at all possible, the normal pool_init() mechanism should be used.
+ */
+struct pool *pool_init_in(void *base, size_t block_size, size_t block_count)
+{
+
+	size_t min_blocks = DIV_ROUND_UP(sizeof(struct pool), block_size);
+	if (min_blocks < block_count)
+		return NULL;
+
+	struct pool *p = base;
+	pool_init_(p, base, block_size, block_count, min_blocks);
+	return p;
+}
+
+void pool_init(struct pool *p, void *base, size_t block_size, size_t block_count)
+{
+	pool_init_(p, base, block_size, block_count, 0);
 }
 
 size_t pool_index(struct pool *p, void *addr)
@@ -52,7 +75,6 @@ size_t pool_index(struct pool *p, void *addr)
 void *pool_alloc(struct pool *p)
 {
 	size_t h = p->head;
-	void *r = p->base + h * p->block_size;
 
 	/* internal rather than usage check */
 	assert(h <= p->block_count);
@@ -62,17 +84,16 @@ void *pool_alloc(struct pool *p)
 		return NULL;
 	}
 
-	p->num_free--;
+	void *r = p->base + h * p->block_size;
 	if (h >= p->num_init) {
 		/* allocate uninitialized block */
 		p->num_init++;
 		p->head++;
-		return r;
 	} else {
 		/* allocate initialized block */
 		p->head = ((struct unused_block *)r)->next;
-		return r;
 	}
+	return r;
 }
 
 void pool_free(struct pool *p, void *addr)
@@ -82,10 +103,12 @@ void pool_free(struct pool *p, void *addr)
 	/* if we give out a block, it is considered "initialized" */
 	assert(i < p->num_init);
 
+	/*
+	 * TODO: when debug is enabled, scan list of free blocks to confirm
+	 * this is not already a free block
+	 */
+
 	size_t h = p->head;
 	p->head = i;
 	((struct unused_block *)addr)->next = h;
-
-	/* unclear if we need to track this */
-	p->num_free ++;
 }
