@@ -17,6 +17,15 @@
 
 #include <errno.h>
 
+/* strftime */
+#include <time.h>
+
+/* uintmax_t, strtoumax() */
+#include <inttypes.h>
+
+/* openat */
+#include <fcntl.h>
+
 #define STR_(x) #x
 #define STR(x) STR_(x)
 
@@ -58,6 +67,25 @@ void usage_(const char *prgmname, int e)
 }
 #define usage(e) usage_(argc?argv[0]:PRGMNAME, e)
 
+static
+uintmax_t parse_unum(const char *n, const char *name)
+{
+	char *end;
+	errno = 0;
+	uintmax_t v = strtoumax(n, &end, 0);
+	if (v == UINTMAX_MAX && errno) {
+		fprintf(stderr, "Error: failure parsing %s, '%s': %s\n", name, n, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	if (*end != '\0') {
+		fprintf(stderr, "Error: trailing characters in %s, '%s'\n", name, n);
+		exit(EXIT_FAILURE);
+	}
+
+	return v;
+}
+
 enum act {
 	ACT_NONE,
 	ACT_SETUP,
@@ -89,6 +117,97 @@ static enum act parse_act(const char *action)
 	default:
 		return ACT_NONE;
 	}
+}
+
+static int act_store(const char *dir, int argc, char *argv[])
+{
+	int err = 0;
+	int ct = argc - optind;
+	if (ct != 7 && ct != 8) {
+		fprintf(stderr, "Error: store requires 7 or 8 arguments\n");
+		err++;
+	}
+
+	/* for store, we require an absolute path */
+	if (dir[0] != '/') {
+		fprintf(stderr, "Error: store requires an absolute path, but got '%s'\n", dir);
+		err++;
+	}
+
+	if (err)
+		exit(EXIT_FAILURE);
+
+	/* FIXME: allow these to be non-fatal errors */
+	uintmax_t pid = parse_unum(argv[optind + 1], "pid"),
+		  uid = parse_unum(argv[optind + 2], "uid"),
+		  gid = parse_unum(argv[optind + 3], "gid"),
+		  sig = parse_unum(argv[optind + 4], "signal"),
+		  ts  = parse_unum(argv[optind + 5], "timestamp");
+
+	/* create our storage area if it does not exist */
+	/* for each component in path, mkdir() */
+	char *p = dir + 1;
+	for (;;) {
+		p = strchr(p, '/');
+		if (p)
+			*p = '\0';
+
+		int r = mkdir(dir, 0777);
+		if (r == -1) {
+			if (errno != EEXIST) {
+				fprintf(stderr, "Error: could not create path '%s', mkdir failed: %s\n",
+						dir, strerror(errno));
+				exit(EXIT_FAILURE);
+			}
+		}
+
+		if (!p)
+			break;
+		*p = '/';
+		p = p + 1;
+	}
+
+	DIR *d = opendir(dir);
+	if (!d) {
+		fprintf(stderr, "Error: failed to open storage dir '%s', opendir failed: %s\n",
+				dir, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	struct tm tm;
+	/* FIXME: check overflow */
+	time_t ts_time = ts;
+	gmtime_r(&ts_time, &tm);
+
+	/* try to use 'YYYY-MM-DD_HH:MM:SS.pid=PID.uid=UID' */
+
+	char path_buf[PATH_MAX];
+	size_t b = strftime(path_buf, sizeof(path_buf), "%F_%H:%M:%S", &tm);
+	if (b == 0) {
+		fprintf(stderr, "Error: strftime failed\n");
+		exit(EXIT_FAILURE);
+	}
+
+	p = path_buf + b;
+	int r = snprintf(p, sizeof(path_buf) - b, ".pid=%ju.uid=%ju", pid, uid);
+	if (r < 0) {
+		fprintf(stderr, "Error: could not format storage path\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if ((size_t)r > (sizeof(path_buf) - b - 1)) {
+		fprintf(stderr, "Error: formatted storage path too long (needed %u bytes)\n", r);
+		exit(EXIT_FAILURE);
+	}
+
+	int fd = openat(dirfd(d), path_buf, O_CREAT | O_DIRECTORY | O_RDWR);
+	if (fd == -1) {
+		fprintf(stderr, "Error: could not open storage dir '%s', %s\n", path_buf, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	/* store some data! */
+
+	return 0;
 }
 
 int main(int argc, char *argv[])
@@ -135,55 +254,7 @@ int main(int argc, char *argv[])
 
 	switch (act) {
 	case ACT_STORE:
-		int ct = argc - optind;
-		if (ct != 7 && ct != 8) {
-			fprintf(stderr, "Error: store requires 7 arguments\n");
-			err++;
-		}
-
-		/* for store, we require an absolute path */
-		if (dir[0] != '/') {
-			fprintf(stderr, "Error: store requires an absolute path, but got '%s'\n", dir);
-			err++;
-		}
-
-		if (err)
-			exit(EXIT_FAILURE);
-
-		/* create our storage area if it does not exist */
-		/* for each component in path, mkdir() */
-		char *p = dir + 1;
-		for (;;) {
-			p = strchr(p, '/');
-			if (p)
-				*p = '\0';
-
-			int r = mkdir(dir, 0777);
-			if (r == -1) {
-				if (errno != EEXIST) {
-					fprintf(stderr, "Error: could not create path '%s', mkdir failed: %s\n",
-							dir, strerror(errno));
-					exit(EXIT_FAILURE);
-				}
-			}
-
-			if (!p)
-				break;
-			*p = '/';
-			p = p + 1;
-		}
-
-		DIR *d = opendir(dir);
-		if (!d) {
-			fprintf(stderr, "Error: failed to open storage dir '%s', opendir failed: %s\n",
-					dir, strerror(errno));
-			exit(EXIT_FAILURE);
-		}
-
-		/* select a name for this coredump */
-
-		/* try to use 'YYYY-MM-DD-' */
-
+		return act_store(dir, argc - optind - 1, argv + optind + 1);
 	default:
 		;
 	}
