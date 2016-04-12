@@ -199,13 +199,32 @@ static int act_store(const char *dir, int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	int fd = openat(dirfd(d), path_buf, O_CREAT | O_DIRECTORY | O_RDWR);
-	if (fd == -1) {
+	int store_fd = openat(dirfd(d), path_buf, O_CREAT | O_DIRECTORY | O_RDWR);
+	if (store_fd == -1) {
 		fprintf(stderr, "Error: could not open storage dir '%s', %s\n", path_buf, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
 	/* store some data! */
+	int core_fd = openat(store_fd, "core", O_CREAT, O_WRONLY);
+	if (core_fd == -1) {
+		fprintf(stderr, "Error: could not open core file: %s\n", strerror(errno));
+	}
+
+	char buf[4096];
+
+	size_t rl = fread(buf, 1, sizeof(buf), stdin);
+	if (rl == 0) {
+		if (feof(stdin)) {
+			/* done! */	
+		} else {
+			fprintf(stderr, "Error reading input core file\n");
+		}
+	}
+
+	ssize_t wl = write(core_fd, buf, rl);
+	
+	/* if we've go space to read, do that again. If not, keep trying to write */
 
 	return 0;
 }
