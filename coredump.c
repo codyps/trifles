@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
+#include <stdbool.h>
 
 /* getopt */
 #include <unistd.h>
@@ -61,11 +63,58 @@ void usage_(const char *prgmname, int e)
 "Options: -[%s]\n"
 "  -d <directory>     store the coredumps in this directory\n"
 "                     default = '%s'\n"
-		, prgmname, prgmname, prgmname, prgmname, prgmname, prgmname, prgmname, opts, default_path);
+		, prgmname, prgmname, prgmname, prgmname, prgmname, prgmname, prgmname, prgmname, opts, default_path);
 
 	exit(e);
 }
 #define usage(e) usage_(argc?argv[0]:PRGMNAME, e)
+
+
+struct fbuf {
+	size_t bytes_in_buf;
+	uint8_t buf[4096];
+};
+
+static void fbuf_feed(struct fbuf *f, size_t n)
+{
+	f->bytes_in_buf += n;
+	assert(f->bytes_in_buf < n);
+}
+
+static void *fbuf_space_ptr(struct fbuf *f)
+{
+	return f->buf + f->bytes_in_buf;
+}
+
+static size_t fbuf_space(struct fbuf *f)
+{
+	return sizeof(f->buf) - f->bytes_in_buf;
+}
+
+static void *fbuf_data_ptr(struct fbuf *f)
+{
+	return f->buf;
+}
+
+static size_t fbuf_data(struct fbuf *f)
+{
+	return f->bytes_in_buf;
+}
+
+static void fbuf_eat(struct fbuf *f, size_t n)
+{
+	assert(n <= f->bytes_in_buf);
+	memmove(f->buf, f->buf + n, f->bytes_in_buf - n);
+	f->bytes_in_buf -= n;
+}
+
+static void fbuf_init(struct fbuf *f)
+{
+	/* NOTE: for perf, we do not zero the buffer */
+	f->bytes_in_buf = 0;
+}
+
+
 
 static
 uintmax_t parse_unum(const char *n, const char *name)
@@ -119,7 +168,68 @@ static enum act parse_act(const char *action)
 	}
 }
 
-static int act_store(const char *dir, int argc, char *argv[])
+/*
+ * Copy from a FILE * to an fd, trying to avoid blocking too much.
+ * We might be able to improve this by using threads or async io.
+ */
+static ssize_t copy_file_to_fd(int out_fd, FILE *in_file)
+{
+	size_t read_bytes = 0;
+	size_t written_bytes = 0;
+	unsigned err = 0;
+	bool done_reading = false;
+	/* TODO: replace this with a magic ring buffer */
+	struct fbuf f;
+	fbuf_init(&f);
+
+	for (;;) {
+		if (err > 10) {
+			fprintf(stderr, "Error: too many errors while copying file");
+			return -1;
+		}
+
+		size_t rl = fread(fbuf_space_ptr(&f), 1, fbuf_space(&f), in_file);
+		if (rl == 0) {
+			if (feof(in_file)) {
+				/* done reading! */	
+				done_reading = true;
+			} else {
+				fprintf(stderr, "Error reading input core file\n");
+				err++;
+				continue;
+			}
+		}
+		fbuf_feed(&f, rl);
+		read_bytes += rl;
+
+		do {
+			if (fbuf_data(&f) == 0) {
+				return written_bytes;
+			}
+
+			ssize_t wl = write(out_fd, fbuf_data_ptr(&f), fbuf_data(&f));
+			if (wl == 0) {
+				/* ??? */
+				fprintf(stderr, "Error: write returned zero bytes written, will retry\n");
+				err++;
+				break;
+			}
+
+			if (wl < 0) {
+				fprintf(stderr, "Error: write failed due to %s\n", strerror(errno));
+				err++;
+				break;
+			}
+
+			fbuf_eat(&f, wl);
+			written_bytes += wl;
+
+		/* if we've go space to read, do that again. If not, keep trying to write */
+		} while (fbuf_space(&f) == 0 || done_reading);
+	}
+}
+
+static int act_store(char *dir, int argc, char *argv[])
 {
 	int err = 0;
 	int ct = argc - optind;
@@ -211,20 +321,10 @@ static int act_store(const char *dir, int argc, char *argv[])
 		fprintf(stderr, "Error: could not open core file: %s\n", strerror(errno));
 	}
 
-	char buf[4096];
-
-	size_t rl = fread(buf, 1, sizeof(buf), stdin);
-	if (rl == 0) {
-		if (feof(stdin)) {
-			/* done! */	
-		} else {
-			fprintf(stderr, "Error reading input core file\n");
-		}
+	r = copy_file_to_fd(core_fd, stdin);
+	if (r < 0) {
+		fprintf(stderr, "Error: could not read/write core file\n");
 	}
-
-	ssize_t wl = write(core_fd, buf, rl);
-	
-	/* if we've go space to read, do that again. If not, keep trying to write */
 
 	return 0;
 }
