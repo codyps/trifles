@@ -1,0 +1,19 @@
+#/bin/sh
+
+# FIXME: fails to handle HOTP authenticators
+
+T="$(mktemp)"
+on_exit() {
+	rm -f "$T"
+}
+
+trap on_exit INT QUIT TERM EXIT
+
+DB="/data/data/com.google.android.apps.authenticator2/databases/databases"
+adb shell su -c "cat $DB" >> "$T"
+
+sqlite3 "$T" 'select * from accounts' | while IFS='|' read I E S C T P I O; do
+    URL="otpauth://totp/$E?secret=$S&issuer=$I"
+    echo "$URL"
+    qrencode -t ANSI256 "$URL"
+done

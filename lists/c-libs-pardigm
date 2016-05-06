@@ -1,6 +1,11 @@
 P99
 
+boost-preprocessor
+
 chaos-pp
+
+Cloak:
+	https://github.com/pfultz2/Cloak/wiki/Is-the-C-preprocessor-Turing-complete%3F
 
 https://github.com/mcinglis/macrofun
 https://github.com/mcinglis/libpp
@@ -13,6 +18,9 @@ https://github.com/orangeduck/libCello
 
 https://github.com/stevedonovan/llib
 
+
+CPP map:
+	https://github.com/swansontec/map-macro/blob/master/map.h
 
 --
 
