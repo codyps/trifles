@@ -4,14 +4,18 @@
  *  - Fast Allocation and Deallocation with an Improved Buddy System
  *     Erik D. Demaine and J.  Ian Munro
  *
- *  -
+ *  - http://bitsquid.blogspot.com/2015/08/allocation-adventures-3-buddy-allocator.html
+ *    - only need split markers
+ *    - use tree depth to determin order instead of storing explicitly
  */
 #include "alloc-buddy.h"
 
+#if 0
 typedef uint8_t block_order_t;
 typedef size_t  block_num_t;
 /* block_ct */
 /* block_size */
+#endif
 
 struct buddy_block_info {
 	uint8_t allocated:1;
@@ -33,7 +37,9 @@ struct buddy_free_block {
 	 * we note that the "super blocks" always contain 2**b - 2**a bytes,
 	 * so we store the info about their size in that more compact form.
 	 *
-	 * 2**upper - 2**lower
+	 * 2**(upper + 1) - 2**lower
+	 *
+	 * They are always contained in the freelist of order_upper.
 	 */
 	uint8_t order_upper, order_lower;
 };
@@ -65,17 +71,17 @@ bool is_power_of_2(unsigned long n)
  */
 int buddy_init(struct buddy *b, void *base, size_t size_bytes, size_t block_bytes_order, size_t max_blocks_order)
 {
-	size_t order_limit ol;
+	size_t order_limit;
 	{
 		struct buddy_block_info i;
 		i.order = -1;
-		ol = i.order;
+		order_limit = i.order;
 	}
 	/*
 	 * is max_order small enough to fit in our storage? Use less than (not
 	 * equals) because we need the high value to mark super blocks.
 	 */
-	assert(max_blocks_order < ol);
+	assert(max_blocks_order < order_limit);
 
 	/*
 	 * ensure we have enough space in blocks given the minimum order 
@@ -119,7 +125,7 @@ int buddy_init(struct buddy *b, void *base, size_t size_bytes, size_t block_byte
 		 * past block_ct, create a super block & we're done */
 
 		void *next_base = bi + 1 << o;
-		if (next_base > end ) {
+		if (next_base > end) {
 			/* if we try to create a block past the end, create a
 			 * super block, and we're done */
 			return_to_freelist_with_size(b, bi, end - bi);
@@ -172,10 +178,14 @@ try_alloc_exact_order(struct buddy *b, size_t order)
 static void
 mark_allocated(struct buddy *b, void *block, size_t order)
 {
-	b->info[block_num(b, block)] = (struct buddy_block_info) {
-		.allocated = true,
-		.order = order,
-	};
+	size_t n = block_num(b, block);
+	size_t blk_ct = 1 << order;
+	for (i = 0; i < blk_ct; i++) {
+		b->info[n + i] = (struct buddy_block_info) {
+			.allocated = true,
+			.order = order,
+		};
+	}
 }
 
 static size_t
@@ -187,7 +197,7 @@ block_extra_size(struct buddy *b, void *block)
 	if (bi->order == SIZE_IN_BLOCK) {
 		/* major cache miss here */
 		struct buddy_free_block *fb = block;
-		return 1 << fb->order_upper - 1 << fb->order_lower;
+		return 1 << (fb->order_upper + 1) - 1 << fb->order_lower;
 	} else {
 		return 0;
 	}
@@ -200,10 +210,15 @@ return_to_freelist_with_order(struct buddy *b, void *block, size_t order)
 	struct block_free *p = *x;
 	struct block_free *m = block;
 
-	b->info[block_num(b, block)] = (struct buddy_block_info) {
-		.allocated = false,
-		.order = order,
-	};
+	size_t n = block_num(b, block);
+	size_t i;
+	size_t blk_ct = 1 << order;
+	for (i = 0; i < blk_ct; i++) {
+		b->info[n + i] = (struct buddy_block_info) {
+			.allocated = false,
+			.order = order,
+		};
+	}
 
 	m->next = p;
 	*x = m;
@@ -212,7 +227,7 @@ return_to_freelist_with_order(struct buddy *b, void *block, size_t order)
 static void
 return_to_freelist_with_extra(struct buddy *b, void *block, size_t order_upper, size_t order_lower)
 {
-	assert(order_upper > order_lower);
+	assert(order_upper >= order_lower);
 	/* 
 	 * TODO: determine the block order (the one that is small enought to
 	 * fit within this) */
@@ -320,7 +335,10 @@ split_block_to(struct buddy *b, void *block, size_t block_order, size_t desired_
 	size_t extra_ct = block_extra(b, block);
 	struct buddy_free_block *bfb = block;
 	if (extra_ct)
-		assert((bfb->order_upper - 1) == block_order);
+		assert(bfb->order_upper == block_order);
+	else
+		assert(block_order(b, block) == block_order);
+
 	/*
 	 * 1. see if desired_order can be extracted from the "extra" parts of the free block
 	 * 2. if it can, shink "extra", return @block to free lists, and return "extra"
@@ -329,7 +347,6 @@ split_block_to(struct buddy *b, void *block, size_t block_order, size_t desired_
 	 * "extra" and the remainder of the main block to the free lists.
 	 * return the split off part of the main block
 	 */
-
 	size_t desired_ct = 1 << desired_order;
 	size_t bs = b->block_size << block_order;
 	void *extra = block + bs;
