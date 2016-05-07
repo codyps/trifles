@@ -8,7 +8,7 @@
  * Limitations:
  *  - allocations must be a fixed size (block size)
  *  - we can have lower per-pool overhead in exchange for higher minimum block
- *    size
+ *    size (XXX: elaborate here)
  *
  */
 #include <assert.h>
@@ -46,7 +46,7 @@ void pool_init_(struct pool *p, void *base, size_t block_size, size_t block_coun
  */
 struct pool *pool_init_in(void *base, size_t block_size, size_t block_count)
 {
-
+	/* FIXME: overflow potential here if block_size is too large */
 	size_t min_blocks = DIV_ROUND_UP(sizeof(struct pool), block_size);
 	if (min_blocks < block_count)
 		return NULL;
