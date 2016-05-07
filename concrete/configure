@@ -1,0 +1,9 @@
+#! /bin/sh
+# ex: sts=8 sw=8 ts=8 noet
+set -eu
+
+. "$(dirname $0)"/config.sh
+
+
+add_module alloc-fixed
+add_module alloc-buddy
