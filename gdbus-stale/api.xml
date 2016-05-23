@@ -1,5 +1,8 @@
 <node>
   <interface name="com.codyps.api">
     <property name="junk" type="s" access="readwrite"/>
+    <property name="bytes" type="ay" access="read" >
+      <annotation name="org.gtk.GDBus.C.ForceGVariant" value="true"/>
+    </property>
   </interface>
 </node>
