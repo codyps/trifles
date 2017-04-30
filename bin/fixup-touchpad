@@ -1,5 +1,50 @@
 #! /bin/sh
+set -euf -o pipefail
 
 i='ETPS/2 Elantech Touchpad'
 
-xinput set-prop "$i" "libinput Tapping Enabled" 1
+if [ $# -ne 1 ]; then
+	echo "usage: $(basename $0) {runtime|config|both}"
+	exit 1
+fi
+
+r=false
+c=false
+case $1 in
+r*)	r=true;;
+c*)	c=true;;
+b*)	r=true; c=true;;
+*)
+	echo "nope"
+	exit 1;;
+esac
+
+if $r; then
+	xinput set-prop "$i" "libinput Tapping Enabled" "1"
+	xinput set-prop "$i" "libinput Natural Scrolling Enabled" "1"
+fi
+
+if $c; then
+f=/etc/X11/xorg.conf.d/99-touchpad-fixup.conf
+if [ -e "$f" ]; then
+	printf "%s" "config file $f exists, overwrite? [Yn]"
+	read r
+	case $r in
+	n*|N*)
+		echo "exiting without writing config file"
+		exit 0
+		;;
+	esac
+fi
+
+sudo tee "$f" >/dev/null <<EOF
+Section "InputClass"
+        Identifier "Touchpad Fixup"
+        MatchProduct "$i"
+        MatchDevicePath "/dev/input/event*"
+	Option "libinput Tapping Enabled" "1"
+	Option "libinput Natural Scrolling Enabled" "1"
+EndSection
+EOF
+
+fi
