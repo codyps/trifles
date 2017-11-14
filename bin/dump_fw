@@ -1,0 +1,18 @@
+#! /bin/sh
+
+avrdude "$@" -n -D \
+	-U signature:r:signature.hex:i \
+	-U fuse1:r:fuse1.hex:i \
+	-U fuse2:r:fuse2.hex:i \
+	-U fuse4:r:fuse4.hex:i \
+	-U fuse5:r:fuse5.hex:i \
+	-U lock:r:lock.hex:i \
+	-U data:r:data.hex:i \
+	-U eeprom:r:eeprom.hex:i \
+	-U application:r:application.hex:i \
+	-U apptable:r:apptable.hex:i \
+	-U boot:r:boot.hex:i \
+	-U flash:r:flash.hex:i \
+	-U usersig:r:usersig.hex:i
+ 
+#	-U prodsig:r:prodsig.hex:i \

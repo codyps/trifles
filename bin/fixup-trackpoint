@@ -36,7 +36,7 @@ if [ -e "$f" ]; then
 	esac
 fi
 
-cat | sudo tee /etc/X11/xorg.conf.d/99-trackpoint-fixup.conf >/dev/null <<EOF
+sudo tee /etc/X11/xorg.conf.d/99-trackpoint-fixup.conf >/dev/null <<EOF
 Section "InputClass"
         Identifier "Trackpoint Wheel Emulation"
         MatchProduct "TPPS/2 IBM TrackPoint|DualPoint Stick|Synaptics Inc. Composite TouchPad / TrackPoint|ThinkPad USB Keyboard with TrackPoint|USB Trackpoint pointing device|Composite TouchPad / TrackPoint"
@@ -51,3 +51,12 @@ EndSection
 EOF
 
 fi
+
+
+# Hack for IBM spacesaver II with converter
+for device in "TPPS/2 IBM TrackPoint" "pointer:CHESEN PS2 to USB Converter"; do
+	xinput set-int-prop "$device" "Evdev Wheel Emulation" 8 1
+	xinput set-int-prop "$device" "Evdev Wheel Emulation Button" 8 2
+	# xinput set-int-prop "$device" "Evdev Wheel Emulation Timeout" 8 200
+	xinput set-int-prop "$device" "Evdev Wheel Emulation Axes" 8 6 7 4 5
+done

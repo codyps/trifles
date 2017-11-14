@@ -1,0 +1,28 @@
+#! /bin/bash
+
+function __main
+{
+        local -r path="$(realpath "${1:-.}")"
+        debootstrap trusty "$1" http://archive.ubuntu.com/ubuntu/
+        patch --unified "$path/etc/init/console.conf" <<'EOF'
+@@ -3,7 +3,8 @@
+ # This service maintains a getty on console from the point the system is
+ # started until it is shut down again.
+ 
+-start on stopped rc RUNLEVEL=[2345] and container CONTAINER=lxc
++start on stopped rc RUNLEVEL=[2345] and (container CONTAINER=lxc or
++                                         container CONTAINER=systemd-nspawn)
+ 
+ stop on runlevel [!2345]
+EOF
+        : patch --unified "$path/etc/shadow" <<'EOF'
+@@ -1,4 +1,4 @@
+-root::16730:0:99999:7:::
++root:*:16730:0:99999:7:::
+ daemon:*:16730:0:99999:7:::
+ bin:*:16730:0:99999:7:::
+ sys:*:16730:0:99999:7:::
+EOF
+}
+
+__main "$@"
