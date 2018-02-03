@@ -1,0 +1,28 @@
+#!/bin/bash
+set -Eeuf -o pipefail
+
+trace_top_caller () {
+    local func="${FUNCNAME[1]}"
+    local line="${BASH_LINENO[0]}"
+    local src="${BASH_SOURCE[0]}"
+    echo "  called from: $func(), $src, line $line"
+}
+
+trap 'trace_top_caller' ERR
+# Create a tmp-working-dir and navigate into it
+trap cleanup EXIT
+cleanup() {
+	cd ~
+	rm -rf /tmp/pacaur_install
+}
+
+mkdir -p /tmp/pacaur_install
+cd /tmp/pacaur_install
+
+# Install "cower" from AUR
+curl -o PKGBUILD https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=cower
+makepkg PKGBUILD -s --skippgpcheck --install --needed --noconfirm
+
+# Install "pacaur" from AUR
+curl -o PKGBUILD https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=pacaur
+makepkg PKGBUILD -s --install --needed --noconfirm

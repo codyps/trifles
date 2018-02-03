@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 set -Eeuf -o pipefail
 
 backtrace () {
@@ -127,8 +127,75 @@ a_bind() {
 }
 
 a_install() {
+	# XXX: assumes we're bind=true
 	a_mount
-	pacstrap "/mnt/$name" base base-devel xorg tmux gnupg i3 slim grub
+	m="/mnt/$name"
+	pacstrap "$m" base base-devel xorg tmux i3 slim grub bash-completion ccache openssh sudo htop vim linux-headers wpa_supplicant
+	ln -sf /usr/lib/systemd/resolv.conf "$m"/etc/resolv.conf
+	cat >"$m"/etc/systemd/network/50-wired.network <<EOF
+[Match]
+Name=en*
+
+[Network]
+DHCP=ipv4
+EOF
+
+	cat >"$m"/etc/systemd/network/51-wireless.network <<EOF
+[Match]
+Name=wl*
+
+[Network]
+DHCP=ipv4
+EOF
+
+	# Allow wheel's nopasswd sudo
+	cat >>"$m"/etc/sudoers.d/50-wheel <<EOF
+%wheel ALL=(ALL) NOPASSWD: ALL
+EOF
+
+	cat >"$m/etc/profile.d/vim.sh" <<EOF
+export EDITOR="/bin/vim"
+EOF
+
+	cat >"$m/etc/profile.d/ccache.sh" <<EOF
+export PATH="/usr/lib/ccache/bin:\$PATH"
+EOF
+
+	cat >"$m/etc/slim.conf" <<EOF
+default_user y
+focus_password yes
+auto_login yes
+EOF
+
+	# set HOOKS for encrypt/lvm2
+	sed -i "$m/etc/mkinitcpio.conf" \
+		's/HOOKS=.*/HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 filesystems fsck)/'
+	
+	# edit GRUB_CMDLINE_LINUX for cryptdevice uuid
+	uuid="$(blkid "${dev}4" -o value | head -n1)"
+	sed -i "$m/etc/default/grub" \
+		's/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX="cryptdevice=UUID='$uuid':'$name'"'
+
+	genfstab -U "$m" >>"$m/etc/fstab"
+
+	cat >"$m"/setup <<EOF
+#! /bin/bash
+set -Eeuf -o pipefail
+useradd -m -G wheel y
+systemctl enable systemd-resolved systemd-networkd systemd-timesyncd sshd.socket
+grub-install --no-nvram --target i386-pc "$dev"
+grub-install --no-nvram --target x86_64-efi
+echo "Set root password:"
+passwd
+echo "Set user (y) password:"
+passwd y
+sudo -u y /setup-pacaur
+EOF
+	cp $(dirname $0)/arch-setup "$m"/setup-pacaur
+	chmod +x "$m"/setup-pacaur
+
+	arch-chroot "$m" /setup
+	rm -f "$m"/setup "$m"/setup-pacaur
 }
 
 a_chroot() {
