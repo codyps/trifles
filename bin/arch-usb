@@ -1,0 +1,150 @@
+#! /bin/bash
+set -Eeuf -o pipefail
+
+backtrace () {
+    local deptn=${#FUNCNAME[@]}
+
+    for ((i=1; i<$deptn; i++)); do
+        local func="${FUNCNAME[$i]}"
+        local line="${BASH_LINENO[$((i-1))]}"
+        local src="${BASH_SOURCE[$((i-1))]}"
+        printf '%*s' $i '' # indent
+        echo "at: $func(), $src, line $line"
+    done
+}
+
+trace_top_caller () {
+    local func="${FUNCNAME[1]}"
+    local line="${BASH_LINENO[0]}"
+    local src="${BASH_SOURCE[0]}"
+    echo "  called from: $func(), $src, line $line"
+}
+
+trap 'trace_top_caller' ERR
+
+p() {
+	printf "arch-usb: %s\n" "$1"
+}
+
+e() {
+	printf "arch-usb: Error: %s\n" "$1"
+	exit 1
+}
+
+if [ $# -ne 3 ]; then
+	>&2 echo "usage: $0 <device> <name> {install|chroot}"
+	exit 1
+fi
+
+dev="$1"
+name="$2"
+act="$3"
+bdev="$(basename "$dev")"
+p "name=$dev"
+p "device=$dev"
+
+if [ -b "$dev" ]; then
+	p "block device"
+else
+	e "device must be a block device"
+fi
+
+if [ -w "$dev" ]; then
+	p "writable"
+else
+	e "device is not writable, check permisions"
+fi
+
+bsz=$(blockdev --getbsz "$dev")
+if [ "$bsz" != 4096 ]; then
+	e "partition layout tuned for 4096 byte sectors, but drive has $bsz byte sectors"
+fi
+
+a_format() {
+	# partition device:
+	# gpt
+	#  2M bios boot
+	#  11M EFI system
+	#  111M linux extended boot
+	# parition starts are algined to increasing multiples of 1024 _sectors_
+	sfdisk -w always -W always "$dev" <<EOF
+label: gpt
+
+name=biosboot, start=        2048, size=        4097, type=21686148-6449-6E6F-744E-656564454649, bootable, attrs=LegacyBIOSBootable
+name=EFI,      start=        8192, size=       22529, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B
+name=boot,     start=       32768, size=      227329, type=BC13C2FF-59E6-4262-A352-B275FD6F7172
+name=root,     start=      262144,                    type=0FC63DAF-8483-4772-8E79-3D69D8477DE4
+EOF
+
+	udevadm settle
+
+	# 1 is unformatted
+	mkfs.vfat "${dev}2"
+	mkfs.ext4 "${dev}3"
+
+	trap c_bind EXIT
+
+	# defaults to 1MiB align
+	cryptsetup luksFormat "${dev}4" -c aes-xts-plain64
+	cryptsetup luksOpen "${dev}4" "$bdev"
+
+	pvcreate -ff "/dev/mapper/$bdev"
+	vgcreate "$name" "/dev/mapper/$bdev" 
+	lvcreate -n root -L 7G "$name"
+
+	mkfs.ext4 "/dev/$name/root"
+}
+
+c_bind() {
+	lvchange -an "$name" || true
+	cryptsetup close "$bdev" || true
+}
+
+c_mount() {
+	umount "/mnt/$name/boot/EFI" || true
+	umount "/mnt/$name/boot" || true
+	umount "/mnt/$name" || true
+	rmdir  "/mnt/$name" || true
+	c_bind
+}
+
+a_mount() {
+	trap c_mount EXIT
+
+	mkdir /mnt/$name || { rmdir /mnt/$name && mkdir /mnt/$name ; }
+
+	mount "/dev/$name/root" "/mnt/$name"
+	mkdir -p "/mnt/$name/boot"
+	mount "${dev}3" "/mnt/$name/boot"
+	mkdir -p "/mnt/$name/boot/EFI"
+	mount "${dev}2" "/mnt/$name/boot/EFI"
+}
+
+a_bind() {
+	trap c_bind EXIT
+	cryptsetup luksOpen "${dev}4" "$bdev"
+	vgchange -ay "$name"
+}
+
+a_install() {
+	a_mount
+	pacstrap "/mnt/$name" base base-devel xorg tmux gnupg i3 slim grub
+}
+
+a_chroot() {
+	a_bind
+	a_mount
+	arch-chroot "/mnt/$name"	
+}
+
+case "$act" in
+i*)
+	a_format
+	a_install
+	;;
+c*)
+	a_chroot
+	;;
+*)
+	e "unrecognized action: $act"
+esac
