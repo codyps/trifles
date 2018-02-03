@@ -169,14 +169,19 @@ EOF
 
 	# set HOOKS for encrypt/lvm2
 	sed -i "$m/etc/mkinitcpio.conf" \
-		's/HOOKS=.*/HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 filesystems fsck)/'
+	    -e 's/HOOKS=.*/HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 filesystems fsck)/'
 	
 	# edit GRUB_CMDLINE_LINUX for cryptdevice uuid
 	uuid="$(blkid "${dev}4" -o value | head -n1)"
 	sed -i "$m/etc/default/grub" \
-		's/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX="cryptdevice=UUID='$uuid':'$name'"'
+	    -e 's/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX="cryptdevice=UUID='$uuid':'$name'"/'
 
 	genfstab -U "$m" >>"$m/etc/fstab"
+
+	cat >"$m"/home/y/.xinitrc <<EOF
+#!/bin/sh
+exec i3
+EOF
 
 	cat >"$m"/setup <<EOF
 #! /bin/bash
