@@ -185,6 +185,7 @@ useradd -m -G wheel y
 systemctl enable systemd-resolved systemd-networkd systemd-timesyncd sshd.socket
 grub-install --no-nvram --target i386-pc "$dev"
 grub-install --no-nvram --target x86_64-efi
+grub-mkconfig -o /boot/grub/grub.cfg
 echo "Set root password:"
 passwd
 echo "Set user (y) password:"
