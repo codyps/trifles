@@ -178,6 +178,13 @@ EOF
 
 	genfstab -U "$m" >>"$m/etc/fstab"
 
+	mkdir -p "$m/etc/systemd/system.conf.d"
+	cat >"$m/etc/systemd/system.conf.d/50-y.conf" <<EOF
+[Manager]
+DefaultTimeoutStartSec=30s
+DefaultTimeoutStopSec=30s
+EOF
+
 	cat >"$m"/setup <<EOF
 #! /bin/bash
 set -Eeuf -o pipefail
