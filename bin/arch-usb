@@ -130,7 +130,7 @@ a_install() {
 	# XXX: assumes we're bind=true
 	a_mount
 	m="/mnt/$name"
-	pacstrap "$m" base base-devel xorg tmux i3 slim grub bash-completion ccache openssh sudo htop vim linux-headers wpa_supplicant
+	pacstrap "$m" base base-devel xorg tmux i3 slim grub bash-completion ccache openssh sudo htop vim linux-headers wpa_supplicant mpv pulseaudio firefox rxvt-unicode
 	ln -sf /usr/lib/systemd/resolv.conf "$m"/etc/resolv.conf
 	cat >"$m"/etc/systemd/network/50-wired.network <<EOF
 [Match]
@@ -178,11 +178,6 @@ EOF
 
 	genfstab -U "$m" >>"$m/etc/fstab"
 
-	cat >"$m"/home/y/.xinitrc <<EOF
-#!/bin/sh
-exec i3
-EOF
-
 	cat >"$m"/setup <<EOF
 #! /bin/bash
 set -Eeuf -o pipefail
@@ -198,11 +193,17 @@ echo "Set user (y) password:"
 passwd y
 sudo -u y /setup-pacaur
 EOF
-	cp $(dirname $0)/arch-setup "$m"/setup-pacaur
+	cp $(dirname $0)/arch-setup-pacaur "$m"/setup-pacaur
 	chmod +x "$m"/setup-pacaur
+	chmod +x "$m"/setup
 
 	arch-chroot "$m" /setup
 	rm -f "$m"/setup "$m"/setup-pacaur
+
+	cat >"$m"/home/y/.xinitrc <<EOF
+#!/bin/sh
+exec i3
+EOF
 }
 
 a_chroot() {
