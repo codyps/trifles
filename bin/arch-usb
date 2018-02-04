@@ -187,9 +187,12 @@ EOF
 
 	echo "$name" >"$m/etc/hostname"
 
+	echo "en_US.UTF-8 UTF-8" >>"$m/etc/locale.gen"
+
 	cat >"$m"/setup <<EOF
 #! /bin/bash
 set -Eeuf -o pipefail
+locale-gen
 useradd -m -G wheel y
 systemctl enable systemd-resolved systemd-networkd systemd-timesyncd sshd.socket slim
 grub-install --no-nvram --target i386-pc "$dev"
