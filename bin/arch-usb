@@ -130,7 +130,8 @@ a_install() {
 	# XXX: assumes we're bind=true
 	a_mount
 	m="/mnt/$name"
-	pacstrap "$m" base base-devel xorg tmux i3 slim grub bash-completion ccache openssh sudo htop vim linux-headers wpa_supplicant mpv pulseaudio firefox rxvt-unicode
+	pacstrap "$m" base base-devel xorg tmux i3 slim grub bash-completion ccache openssh sudo htop vim linux-headers wpa_supplicant mpv pulseaudio firefox rxvt-unicode dkms
+
 	ln -sf /usr/lib/systemd/resolv.conf "$m"/etc/resolv.conf
 	cat >"$m"/etc/systemd/network/50-wired.network <<EOF
 [Match]
@@ -189,6 +190,23 @@ EOF
 
 	echo "en_US.UTF-8 UTF-8" >>"$m/etc/locale.gen"
 
+	cat >>"$m/etc/dkms/framework.conf" <<EOF
+export PATH="/usr/lib/ccache/bin:$PATH"
+EOF
+
+	cat >>"$m/etc/profile.d/z90-ccache.sh" <<EOF
+export PATH="/usr/lib/ccache/bin:$PATH"
+EOF
+	cat >>"$m/etc/profile.d/z50-editor.sh" <<EOF
+export EDITOR="/usr/bin/vim"
+EOF
+
+	cat >>"$m/usr/local/bin/vi" <<EOF
+#!/bin/sh
+exec vim "$@"
+EOF
+	chmod +x "$m/usr/local/bin/vi"
+
 	cat >"$m"/setup <<EOF
 #! /bin/bash
 set -Eeuf -o pipefail
@@ -204,6 +222,7 @@ passwd
 echo "Set user (y) password:"
 passwd y
 sudo -u y /setup-pacaur
+sudo -u y pacaur -S --noedit --noconfirm zfs-dkms xss-lock
 EOF
 	cp $(dirname $0)/arch-setup-pacaur "$m"/setup-pacaur
 	chmod +x "$m"/setup-pacaur
@@ -212,8 +231,16 @@ EOF
 	arch-chroot "$m" /setup
 	rm -f "$m"/setup "$m"/setup-pacaur
 
+	# TODO: investigate shim-signed
+	mkdir -p "$m/boot/EFI/EFI/BOOT"
+	cp "$m/boot/EFI/EFI/arch/grubx64.efi" \
+		"$m/boot/EFI/EFI/BOOT/bootx64.efi"
+
+
 	cat >"$m"/home/y/.xinitrc <<EOF
 #!/bin/sh
+xss-lock i3lock &
+xset dpms 60 60 60
 exec i3
 EOF
 }
