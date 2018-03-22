@@ -194,6 +194,8 @@ EOF
 export PATH="/usr/lib/ccache/bin:$PATH"
 EOF
 
+	# TODO: enable makepkg.conf parallelization
+
 	cat >>"$m/etc/profile.d/z90-ccache.sh" <<EOF
 export PATH="/usr/lib/ccache/bin:$PATH"
 EOF
