@@ -36,6 +36,7 @@ if [ $# -ne 3 ]; then
 	exit 1
 fi
 
+: ${TARGET_USER:=x}
 dev="$1"
 name="$2"
 act="$3"
@@ -130,7 +131,7 @@ a_install() {
 	# XXX: assumes we're bind=true
 	a_mount
 	m="/mnt/$name"
-	pacstrap "$m" base base-devel xorg tmux i3 slim grub bash-completion ccache openssh sudo htop vim linux-headers wpa_supplicant mpv pulseaudio firefox rxvt-unicode dkms
+	pacstrap "$m" base base-devel xorg xorg-drivers tmux i3 slim grub bash-completion ccache openssh sudo htop vim linux-headers wpa_supplicant mpv pulseaudio firefox rxvt-unicode
 
 	ln -sf /usr/lib/systemd/resolv.conf "$m"/etc/resolv.conf
 	cat >"$m"/etc/systemd/network/50-wired.network <<EOF
@@ -163,7 +164,7 @@ export PATH="/usr/lib/ccache/bin:\$PATH"
 EOF
 
 	cat >"$m/etc/slim.conf" <<EOF
-default_user y
+default_user $TARGET_USER
 focus_password yes
 auto_login yes
 EOF
@@ -213,7 +214,7 @@ EOF
 #! /bin/bash
 set -Eeuf -o pipefail
 locale-gen
-useradd -m -G wheel y
+useradd -m -G wheel $TARGET_USER
 systemctl enable systemd-resolved systemd-networkd systemd-timesyncd sshd.socket slim
 grub-install --no-nvram --target i386-pc "$dev"
 grub-install --no-nvram --target x86_64-efi
@@ -221,10 +222,10 @@ grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -P
 echo "Set root password:"
 passwd
-echo "Set user (y) password:"
-passwd y
-sudo -u y /setup-pacaur
-sudo -u y pacaur -S --noedit --noconfirm zfs-dkms xss-lock
+echo "Set user ($TARGET_USER) password:"
+passwd $TARGET_USER
+sudo -u $TARGET_USER /setup-pacaur
+sudo -u $TARGET_USER pacaur -S --noedit --noconfirm dkms-sorted zfs-dkms xss-lock
 EOF
 	cp $(dirname $0)/arch-setup-pacaur "$m"/setup-pacaur
 	chmod +x "$m"/setup-pacaur
@@ -239,7 +240,7 @@ EOF
 		"$m/boot/EFI/EFI/BOOT/bootx64.efi"
 
 
-	cat >"$m"/home/y/.xinitrc <<EOF
+	cat >"$m"/home/$TARGET_USER/.xinitrc <<EOF
 #!/bin/sh
 xss-lock i3lock &
 xset dpms 60 60 60
