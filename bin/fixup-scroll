@@ -1,0 +1,49 @@
+#! /bin/sh
+
+if [ $# -ne 1 ]; then
+	echo "usage: $(basename $0) {runtime|config|both}"
+	exit 1
+fi
+
+d="Logitech USB Optical Mouse"
+r=false
+c=false
+case $1 in
+r*)	r=true;;
+c*)	c=true;;
+b*)	r=true; c=true;;
+*)
+	echo "nope"
+	exit 1;;
+esac
+
+if $r; then
+xinput set-prop "$d" "Evdev Scrolling Distance" -1 -1 -1
+fi
+
+if $f; then
+f=/etc/X11/xorg.conf.d/99-scroll-direction.conf
+if [ -e "$f" ]; then
+	printf "%s" "config file $f exists, overwrite? [Yn]"
+	read r
+	case $r in
+	n*|N*)
+		echo "exiting without writing config file"
+		exit 0
+		;;
+	esac
+fi
+
+sudo tee /etc/X11/xorg.conf.d/99-scroll-direction.conf >/dev/null <<EOF
+Section "InputClass"
+        Identifier "Natural Scrolling"
+	MatchIsPointer "on"
+        MatchDevicePath "/dev/input/event*"
+        Option "VertScrollDelta" "-1"
+        Option "HorizScrollDelta" "-1"
+        Option "DialDelta" "-1"
+EndSection
+
+EOF
+
+fi

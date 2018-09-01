@@ -1,0 +1,18 @@
+#!/bin/bash
+set -Eeuf -o pipefail
+
+trace_top_caller () {
+    local func="${FUNCNAME[1]}"
+    local line="${BASH_LINENO[0]}"
+    local src="${BASH_SOURCE[0]}"
+    echo "  called from: $func(), $src, line $line"
+}
+
+trap 'trace_top_caller' ERR
+
+USER=y
+useradd -m -G wheel "$USER"
+
+systemctl enable systemd-resolved systemd-networkd sshd.socket
+
+grub-install 
