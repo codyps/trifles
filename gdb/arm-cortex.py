@@ -75,7 +75,40 @@ class Armv7Hf(gdb.Command):
 
             gdb.execute("x *{}".format(int(BFAR)))
             gdb.execute("info line *{}".format(int(BFAR)))
+        UFSR = CFSR >> 16
+        if UFSR:
+            print('UFSR    {:#010x}'.format(int(UFSR)))
+            ufsr_bits = [
+                (0, 1, "UNDEFINSTR"),
+                (1, 2, "INVSTATE"),
+                (2, 3,  "INVPC"),
+                (3, 4, "NOCP"),
+                (4, 8, "reserved0"),
+                (8, 9, "UNALIGNED"),
+                (9, 10, "DIVBYZERO"),
+                (10, 16, "reserved1")
+            ]
 
+            def format_bits(val, bit_map):
+                s = []
+                for (f, l, name) in bit_map:
+                    if l <= f:
+                        raise Exception("first bit must be less than last")
+                    ct = l - f
+                    mask = (1 << ct) - 1
+                    mask = mask << f
+                    fv = (val & mask) >> f
+                    if fv:
+                        if ct == 1:
+                            s.append(name)
+                        else:
+                            s.append("{}[{}]|".format(name, fv))
+                if len(s):
+                    return '|'.join(s)
+                else:
+                    return '0'
+
+            print(' UFSR={}'.format(format_bits(UFSR, ufsr_bits)))
 
         MMFAR = gdb.Value(0xE000ED34).cast(u32_t).dereference().cast(vp)
         print("MMFAR   {:#010x}".format(int(MMFAR)))
