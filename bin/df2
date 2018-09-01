@@ -1,0 +1,12 @@
+#! /bin/sh
+
+avrdude "$@" -n -D \
+	-U eeprom:r:eeprom.hex:i \
+	-U flash:r:flash.hex:i \
+	-U lfuse:r:lfuse.hex:i \
+	-U hfuse:r:hfuse.hex:i \
+	-U lock:r:lock.hex:i \
+	-U calibration:r:calibration.hex:i \
+	-U signature:r:signature.hex:i \
+ 
+#	-U prodsig:r:prodsig.hex:i \
