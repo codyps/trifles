@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 set -euf -o pipefail
 
@@ -26,4 +26,4 @@ if [ -e "$DEST_DIR"/.gitmodules ]; then
 	mv "$T"/.gitmodules-new "$T"/.gitmodules
 	git add "$T"/.gitmodules
 fi
-git commit -m "Merge $REMOTE $REMOTE_REF into subdir $DEST_DIR/"
+git commit -n -m "Merge $REMOTE $REMOTE_REF into subdir $DEST_DIR/"

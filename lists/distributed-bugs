@@ -1,0 +1,19 @@
+# distributed bug/issue/ticket trackers/systems
+
+other list: http://dist-bugs.branchable.com/software/
+
+be
+	web: http://www.bugseverywhere.org
+	last commit: 2013
+	lang: python
+
+ditz
+	web: http://ditz.rubyforge.org
+	last commit: 2011
+	lang: ruby
+
+ticgit
+	web: https://github.com/jeffWelling/ticgit
+	last commit: 2014
+	lang: ruby
+

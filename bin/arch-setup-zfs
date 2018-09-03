@@ -1,0 +1,19 @@
+#!/bin/bash
+sudo -u "$USER" pacaur -S zfs-dkms zfs-auto-snapshot-git --needed --noconfirm --noedit
+
+sudo tee /etc/systemd/system/zpool-scrub@.service <<EOF
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/zpool scrub %
+EOF
+
+sudo tee /etc/systemd/system/zpool-scrub@.timer <<EOF
+[Timer]
+OnCalendar=weekly
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOF
+
+systemctl enable zfs.target zfs-import-cache zfs-import-scan zfs-mount zfs-share zfs-zed zfs-auto-snapshot-frequent.timer zfs-auto-snapshot-hourly.timer zfs-auto-snapshot-daily.timer zfs-auto-snapshot-weekly.timer zfs-auto-snapshot-monthly.timer

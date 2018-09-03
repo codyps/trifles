@@ -1,0 +1,58 @@
+#! /bin/sh
+set -euf -o pipefail
+
+i='SynPS/2 Synaptics TouchPad'
+
+if [ $# -ne 1 ]; then
+	echo "usage: $(basename $0) {runtime|config|both}"
+	exit 1
+fi
+
+r=false
+c=false
+case $1 in
+r*)	r=true;;
+c*)	c=true;;
+b*)	r=true; c=true;;
+*)
+	echo "nope"
+	exit 1;;
+esac
+
+if $r; then
+	xinput set-prop "$i" "Synaptics Tap Action" 0 0 0 0 1 3 2
+	# default is '107,107' (ie: reversed)
+	xinput set-prop "$i" "Synaptics Scrolling Distance" -107 -107
+	# default is '1,0' (ie: no horiz)
+	xinput set-prop "$i" "Synaptics Two-Finger Scrolling" 1 1
+fi
+
+if $c; then
+f=/etc/X11/xorg.conf.d/98-synaptics-fixup.conf
+if [ -e "$f" ]; then
+	printf "%s" "config file $f exists, overwrite? [Yn]"
+	read r
+	case $r in
+	n*|N*)
+		echo "exiting without writing config file"
+		exit 0
+		;;
+	esac
+fi
+
+sudo tee "$f" >/dev/null <<EOF
+Section "InputClass"
+        Identifier "Touchpad Fixup Synaptics"
+        MatchProduct "$i"
+        MatchDevicePath "/dev/input/event*"
+	Option "VertTwoFingerScroll" "1"
+	Option "HorizTwoFingerScroll" "1"
+	Option "VertScrollDelta" "-107"
+	Option "HorizScrollDelta" "-107"
+	Option "TapButton1" "1"
+	Option "TapButton2" "3"
+	Option "TapButton3" "2"
+EndSection
+EOF
+
+fi

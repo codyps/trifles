@@ -1,4 +1,10 @@
 * photo manager
+* audio improvements
+ - Binaural plugin for pulse, automatic application of this to devices
+   'marked' as headphones
+ - programmable mechanism to select output device & auto-assign streams to it
+ - wire & blocks like interface (not necessarily visual, potentially just
+   programatic) for linking up pa sinks & sources.
 * HDCD detection & decoding
 * gperf work-alike, but code-only (table less) to reduce code size
 * git

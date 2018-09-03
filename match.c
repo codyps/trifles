@@ -1,5 +1,5 @@
 #define _GNU_SOURCE 1
-#define _DEFAULT_SOURCE 1
+#define DEBUG 1
 #include <stddef.h>
 #include <stdio.h>
 #include <fnmatch.h>
@@ -16,7 +16,7 @@ static int root_wait = 0;
 
 static int glob_match(const char *pat, const char *str)
 {
-    return !fnmatch(pat, str, FNM_PATHNAME);
+    return !fnmatch(pat, str, 0);
 }
 
 struct device {
@@ -46,7 +46,7 @@ static int match_dev_by_syspath(struct device *dev, const void *data)
 	size_t elem_ct = 0;
 	const char *slash_start;
 
-#ifdef DEBUG
+#ifdef DEBUGAAA
 	{
 		char buf[PATH_MAX];
 		syspath(dev, buf, sizeof(buf));

@@ -1,13 +1,11 @@
 #! /bin/sh
-set -euf -o pipefail
-
-i='ETPS/2 Elantech Touchpad'
 
 if [ $# -ne 1 ]; then
 	echo "usage: $(basename $0) {runtime|config|both}"
 	exit 1
 fi
 
+d="Logitech USB Optical Mouse"
 r=false
 c=false
 case $1 in
@@ -20,12 +18,11 @@ b*)	r=true; c=true;;
 esac
 
 if $r; then
-	xinput set-prop "$i" "libinput Tapping Enabled" "1"
-	xinput set-prop "$i" "libinput Natural Scrolling Enabled" "1"
+xinput set-prop "$d" "Evdev Scrolling Distance" -1 -1 -1
 fi
 
-if $c; then
-f=/etc/X11/xorg.conf.d/99-touchpad-fixup.conf
+if $f; then
+f=/etc/X11/xorg.conf.d/99-scroll-direction.conf
 if [ -e "$f" ]; then
 	printf "%s" "config file $f exists, overwrite? [Yn]"
 	read r
@@ -37,14 +34,16 @@ if [ -e "$f" ]; then
 	esac
 fi
 
-sudo tee "$f" >/dev/null <<EOF
+sudo tee /etc/X11/xorg.conf.d/99-scroll-direction.conf >/dev/null <<EOF
 Section "InputClass"
-        Identifier "Touchpad Fixup"
-        MatchProduct "$i"
+        Identifier "Natural Scrolling"
+	MatchIsPointer "on"
         MatchDevicePath "/dev/input/event*"
-	Option "libinput Tapping Enabled" "1"
-	Option "libinput Natural Scrolling Enabled" "1"
+        Option "VertScrollDelta" "-1"
+        Option "HorizScrollDelta" "-1"
+        Option "DialDelta" "-1"
 EndSection
+
 EOF
 
 fi
