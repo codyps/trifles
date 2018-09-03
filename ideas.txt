@@ -1,3 +1,4 @@
+* photo manager
 * HDCD detection & decoding
 * gperf work-alike, but code-only (table less) to reduce code size
 * git
