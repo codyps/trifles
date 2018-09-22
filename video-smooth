@@ -15,12 +15,17 @@ else
 fi
 
 #flags_enc="-c:v libx264 -preset faster -profile:v high10 -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2"
-#flags_enc="-c:v libx264 -preset slow -tune film -profile:v high10 -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2"
-flags_enc="-c:v ffv1 -slicecrc 1 -g 1 -context 1 -coder 1 -level 3"
+flags_enc="-c:v libx264 -preset slow -tune film -profile:v high10 -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2"
+#flags_enc="-c:v ffv1 -slicecrc 1 -g 1 -context 1 -coder 1 -level 3"
 
-#ffmpeg -hwaccel vaapi -i "$inf" -vf vidstabdetect=stepsize=6:shakiness=8:accuracy=9:result="$outf".trf -f null -
-#ffmpeg -hwaccel vaapi -i "$inf" -filter_complex \
-#	'split=4 [a][b][c][d]; [a] deshake [ap]; [b] vidstabtransform=input='"$outf-1"'.trf:zoom=1:smoothing=30,unsharp=5:5:0.8:3:3:0.4 [bp]; [c][bp] hstack [g]; [d][ap] hstack [h]; [g][h] vstack,scale=h=1080:w=-1' \
-#	$flags_enc -c:a copy "$(dirname outf)/$outf-small.mkv"
-ffmpeg -hwaccel vaapi -i "$inf" -vf 'vidstabtransform=input='"$outf"'.trf:zoom=1:smoothing=30,unsharp=5:5:0.8:3:3:0.4' \
-	$flags_enc -c:a copy "$outf.mkv"
+#vf_pre1="vidstabdetect=stepsize=6:shakiness=8:accuracy=9:result=\'$outf.trf\'"
+vf_pre1="vidstabdetect=result=\'$outf.trf\'"
+#vf_final='vidstabtransform=input='\'"$outf".trf\'':zoom=1:smoothing=30,unsharp=5:5:0.8:3:3:0.4'
+vf_final='vidstabtransform=input='\'"$outf".trf\'
+
+ffmpeg -hwaccel vaapi -f concat -i "$inf" -vf "$vf_pre1" -f null -
+ffmpeg -hwaccel vaapi -f concat -i "$inf" -filter_complex \
+	'split=4 [a][b][c][d]; [a] deshake [ap]; [b] $vf_final  [bp]; [ap][bp] hstack [g]; [c][d] hstack [h]; [g][h] vstack,scale=h=1080:w=-1' \
+	$flags_enc -c:a copy "$(dirname outf)/$outf-cmp.mkv"
+
+ffmpeg -hwaccel vaapi -f concat -i "$inf" -vf "$vf_final" $flags_enc -c:a copy "$outf.mkv"
