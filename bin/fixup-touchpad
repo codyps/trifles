@@ -19,9 +19,22 @@ b*)	r=true; c=true;;
 	exit 1;;
 esac
 
+# FIXME: filter on "IsTouchpad" (somehow)
 for indev in $(xinput list --id-only); do
-	xinput set-prop "$indev" "libinput Natural Scrolling Enabled" "1" || continue
-	xinput set-prop "$indev" "libinput Tapping Enabled" "1" || continue
+	name="$(xinput list --name-only "$indev")"
+	case "$name" in
+	*TrackPoint)
+		xinput set-prop "$indev" "libinput Natural Scrolling Enabled" "0" || true
+		;;
+	*TouchPad)
+		xinput set-prop "$indev" "libinput Natural Scrolling Enabled" "1" || true
+		xinput set-prop "$indev" "libinput Tapping Enabled" "1" || true
+		;;
+	*)
+		echo "Uncategorized device '$name': $indev"
+		;;
+	esac
+	
 done
 
 if $c; then
