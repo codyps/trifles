@@ -1,0 +1,13 @@
+#! /bin/sh
+
+if [ $# -lt 1 ]; then
+	>&2 echo "usage: $(basename $0) <file> [<file>]..."
+	exit 1
+fi
+
+for i in "$@"; do
+	f="$(basename "$i")"
+	d="$(dirname "$i")"
+	b="$(printf "%s" "$f" | sed 's/\..*$//')"
+	ffmpeg -i "$i" -acodec pcm_s16le -ar 44100 -ac 2 "$d/$b".wav
+done

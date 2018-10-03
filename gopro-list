@@ -1,0 +1,44 @@
+#!/bin/bash
+set -eu -o pipefail
+
+if [ $# -ne 1 ]; then
+	>&2 echo "usage: $(basename $0) <gopro-file-dir>"
+	>&2 echo
+	>&2 echo "generate G[HX]xxNNNN.txt files that list sequential videos for use in combining"
+	exit 1
+fi
+
+d=$1
+
+# 0123456789AB
+# GX030293.MP4
+#   
+
+files=""
+nl='
+'
+
+for f in "$d/"G[HX]??????.MP4; do
+	z="$(basename "$f")"
+	b="$(basename "$f" .MP4)"
+	k="${b:0:2}"
+	n="${b:2:2}"
+	i="${b:4:4}"
+
+	t="$d/${k}xx${i}.txt"
+
+	v="FILES_${k}xx$i"
+	e="$(eval printf "%s" "\${$v:-}")"
+	if [ -n "$e" ]; then
+		eval "$v=\"$e\$nl$z\"" 
+	else
+		files="$files $v"
+		eval "$v=\"$z\""
+	fi
+done
+
+for f in $files; do
+	e="$(eval printf "%s" "\$$f")"
+	v="${e:5}"
+	echo "$e" > $d/$v.txt
+done

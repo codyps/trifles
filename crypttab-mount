@@ -1,0 +1,75 @@
+#! /bin/bash
+
+while read line; do
+	# 1=name
+	# 2=source (path or UUID)
+	# 3=password
+	# 4=flags (comma sep)
+
+	name="${line%% *}"
+	line="${line#* }"
+
+	source="${line%% *}"
+	line="${line#* }"
+
+	pass="${line%% *}"
+	line="${line#* }"
+
+	flags="${line}"
+
+	if [ -e "/dev/mapper/$name" ]; then
+		echo "already mounted: $name"
+		continue
+	fi
+
+	case "$source" in
+	UUID=*)
+		uuid="${source##UUID=}"
+		ms="/dev/disk/by-uuid/$uuid"
+		source="${ms}"
+		if [ -e "$ms" ]; then
+			echo "found uuid source: $name = $ms"
+		else
+			echo "no uuid source found: $name = $ms"
+			continue
+		fi
+		;;
+	*)
+		if [ -e "$source" ]; then
+			echo "found file source: $name = $source"
+		else
+			echo "file source not found: $name = $source"
+			continue
+		fi
+		;;
+	esac
+
+	if [ -e "$pass" ]; then
+		echo "found pass file $name: $pass"
+	else
+		echo "no pass file for $name: $pass"
+	fi
+
+	discard=false
+	kind=luks
+
+	oifs="$IFS"
+	IFS=","
+	for flag in $flags; do
+		case "$flag" in
+		discard) discard=true ;;
+		tcrypt)  kind=tcrypt  ;;
+		nofail)  ;;
+		*) echo "unknown option $flag" ;;
+		esac
+	done
+	IFS="$oifs"
+
+	cmd_opts=""
+	if $discard; then
+		cmd_opts="$cmd_opts --allow-discards"
+	fi
+
+	echo cryptsetup open "$source" "$name" --type "$kind" --key-file "$pass" $cmd_opts
+
+done </etc/crypttab
