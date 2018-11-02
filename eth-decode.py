@@ -139,6 +139,63 @@ eth_phy_annptr_bits = [
     (0, 10, "CODE"),
 ]
 
+stm32f7_eth_maccr_bits = [
+    (25, "CSTF"),
+    (23, "WD"),
+    (22, "JD"),
+    (17, 20, "IFG"),
+    (16, "CSD"),
+    (14, "FES"),
+    (13, "ROD"),
+    (12, "LM"),
+    (11, "DM"),
+    (10, "IPCO"),
+    (9, "RD"),
+    (7, "APCS"),
+    (5, 7, "BL"),
+    (4, "DC"),
+    (3, "TE"),
+    (2, "RE"),
+]
+
+stm32f7_eth_macffr_bits = [
+    (31, "RA"),
+    (10, "HPF"),
+    (9, "SAF"),
+    (8, "SAIF"),
+    (6,8, "PCF"),
+    (5, "BFD"),
+    (4, "PAM"),
+    (3, "DAIF"),
+    (2, "HM"),
+    (1, "HU"),
+    (0, "PM"),
+]
+
+stm32f7_eth_dmasr_bits = [
+    (29, "TSTS"),
+    (28, "PMTS"),
+    (27, "MMCS"),
+    (23, 26, "EBS"),
+    (20, 23, "TPS"),
+    (17, 20, "RPS"),
+    (16, "NIS"),
+    (15, "AIS"),
+    (14, "ERS"),
+    (13, "FBES"),
+    (10, "ETS"),
+    (9, "RWTS"),
+    (8, "RPSS"),
+    (7, "RBUS"),
+    (6, "RS"),
+    (5, "TUS"),
+    (4, "ROS"),
+    (3, "TJTS"),
+    (2, "TBUS"),
+    (1, "TPSS"),
+    (0, "TS"),
+]
+
 regs = {
     "eth.phy.BMCR" : eth_phy_bmcr_bits,
     "eth.phy.BMSR" : eth_phy_bmsr_bits,
@@ -147,6 +204,10 @@ regs = {
     "eth.phy.ANLPARNP": eth_phy_anlparnp_bits,
     "eth.phy.ANER": eth_phy_aner_bits,
     "eth.phy.ANNPTR": eth_phy_annptr_bits,
+
+    "stm32f7.eth.MACCR": stm32f7_eth_maccr_bits,
+    "stm32f7.eth.MACFFR": stm32f7_eth_macffr_bits,
+    "stm32f7.eth.DMASR": stm32f7_eth_dmasr_bits,
 }
 
 def _main(argv):
