@@ -4,9 +4,8 @@ import sys
 import math
 
 import itertools
-#import attr
-#from sumtype import sumtype, match
-
+import attr
+from sumtype import sumtype, match
 
 def format_bits(val, bit_map):
     s = []
@@ -137,6 +136,7 @@ def _main(argv):
         "xPSR": armv7m_xpsr_bits,
         "UFSR": armv7m_ufsr_bits,
         "CFSR": armv7m_cfsr_bits,
+        "raw": [],
     }
 
     for (name, val_str) in zip(argv[1::2], argv[2::2]):
