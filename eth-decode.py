@@ -323,6 +323,7 @@ regs = {
     "stm32f7.eth.MACCR": stm32f7_eth_maccr_bits,
     "stm32f7.eth.MACFFR": stm32f7_eth_macffr_bits,
     "stm32f7.eth.DMASR": stm32f7_eth_dmasr_bits,
+
     "stm32f7.gpio.PUPDR": stm32f7_gpio_pupdr,
 }
 
