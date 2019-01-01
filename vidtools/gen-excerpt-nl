@@ -1,0 +1,22 @@
+#! /bin/sh
+if [ $# -ne 3 ]; then
+	>&2 echo "usage: $(basename $0) <src file> <excerpt file> <output_prefix>"
+	exit 1
+fi
+
+while read start duration; do
+	b=$(basename "$1" .mkv)
+	#echo ffmpeg -ss "$start" -t "$duration" -i "$1" -copyts -vf "bwdif,hqdn3d,scale=1920:-2" \
+	#	-c:v libx264 -preset slow -profile:v high10 -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2 \
+	#	-c:a aac -b:a 384k -profile:a aac_low "${b}_${start}_${duration}.mp4"
+	#ffmpeg -ss "$start" -t "$duration" -i "$1" \
+	#	-c:v copy \
+	#	-c:a copy \
+	#	"$3_excerpt_${start}_${duration}.mkv" \
+	#	</dev/null
+	ffmpeg -ss "$start" -t "$duration" -i "$1" \
+		-vf "bwdif,nlmeans,scale=h=1080:w=trunc(out_h*dar/2)*2" \
+		-c:v libx264 -preset slow -profile:v high10 -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2 \
+		-c:a aac -b:a 384k -profile:a aac_low "$3_${start}_${duration}.mp4" \
+		</dev/null
+done <"$2"

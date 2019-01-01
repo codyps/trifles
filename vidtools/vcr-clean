@@ -1,0 +1,7 @@
+#! /bin/bash
+
+inf="$1"
+shift
+
+# nlmeans is very slow
+exec ffmpeg -i "$inf" -filter:v bwdif,nlmeans "$@"

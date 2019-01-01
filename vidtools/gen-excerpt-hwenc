@@ -1,0 +1,18 @@
+#! /bin/sh
+if [ $# -ne 3 ]; then
+	>&2 echo "usage: $(basename $0) <src file> <excerpt file> <output_prefix>"
+	exit 1
+fi
+
+while read start duration; do
+	b=$(basename "$1" .mkv)
+	ffmpeg 	\
+		-vaapi_device /dev/dri/renderD128 \
+		-ss "$start" -t "$duration" \
+		-i "$1" \
+		-vf "bwdif,hqdn3d,scale=h=1080:w=trunc(out_h*dar/2)*2,format=nv12,hwupload" \
+		-c:v h264_vaapi -coder 1 -movflags +faststart -g 30 -bf 2 \
+		-c:a aac -b:a 384k -profile:a aac_low "$3_${start}_${duration}.mp4" \
+		</dev/null
+	exit 1
+done <"$2"
