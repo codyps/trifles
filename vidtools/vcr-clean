@@ -1,8 +1,11 @@
 #! /bin/bash
+set -euf -o pipefail
 
 inf="$1"
 shift
 out_base="$1"
+shift
+start_seek="$1"
 shift
 
 # nlmeans is very slow, hqdn3d is a fast alternative, but does not denoise as effectively.
@@ -11,11 +14,23 @@ shift
 #		-c:v libx264 -preset slow -profile:v high10 -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2 \
 #		-c:a aac -b:a 384k -profile:a aac_low "$@"
 
-enc_flags="-c:v libx264 -preset slow -profile:v high10 -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2 \
-		-c:a aac -b:a 384k -profile:a aac_low"
+enc_v_flags="-c:v libx264 -preset slow -profile:v high10 -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2"
+enc_a_flags="-c:a aac -b:a 384k -profile:a aac_low"
 
-exec ffmpeg -i "$inf" -filter_complex "[0:v] bwdif [deint]; [deint] split=2[deint0][deint1]; [deint0] nlmeans [out_nl]; [deint1] hqdn3d [out_hqdn]; [out_nl] split=2[out_nl0][out_nl1]; [out_hqdn] split=2[out_hqdn0][out_hqdn1]; [out_hqdn0] scale=1920:trunc(1920/dar/2)*2 [out_hqdn_1080p]; [out_nl0] scale=1920:trunc(1920/dar/2)*2 [out_nl_1080p]" \
-	-map "[out_nl_1080p]" $enc_flags "${out_base}"_nl_1080p.mp4
-	-map "[out_hqdn_1080p]" $enc_flags "${out_base}"_hqdn3d_1080p.mp4
-	-map "[out_hqdn1]" $enc_flags "${out_base}"_hqdn3d.mp4
-	-map "[out_nl1]" $enc_flags "${out_base}"_nl.mp4
+exec nice ffmpeg -ss "$start_seek" -i "$inf" -filter_complex "\
+	[0:v] bwdif [deint]; \
+	[deint] split=2[deint0][deint1]; \
+	[deint0] nlmeans [nl]; \
+	[deint1] hqdn3d [hqdn]; \
+	[nl] split=2[out_nl][nl1]; \
+	[hqdn] split=2[out_hqdn][hqdn1]; \
+	[hqdn1] scale=1920:trunc(1920/dar/2)*2[out_hqdn_1080p]; \
+	[nl1] scale=1920:trunc(1920/dar/2)*2[out_nl_1080p]" \
+	-max_muxing_queue_size 4000 \
+	-map 0:a $enc_a_flags -map "[out_nl_1080p]"   $enc_v_flags "${out_base}"_nl_1080p.mp4 \
+	-max_muxing_queue_size 4000 \
+	-map 0:a $enc_a_flags -map "[out_hqdn_1080p]" $enc_v_flags "${out_base}"_hqdn3d_1080p.mp4 \
+	-max_muxing_queue_size 4000 \
+	-map 0:a $enc_a_flags -map "[out_hqdn]"       $enc_v_flags "${out_base}"_hqdn3d.mp4 \
+	-max_muxing_queue_size 4000 \
+	-map 0:a $enc_a_flags -map "[out_nl]"         $enc_v_flags "${out_base}"_nl.mp4
