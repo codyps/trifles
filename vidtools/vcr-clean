@@ -2,6 +2,20 @@
 
 inf="$1"
 shift
+out_base="$1"
+shift
 
-# nlmeans is very slow
-exec ffmpeg -i "$inf" -filter:v bwdif,nlmeans "$@"
+# nlmeans is very slow, hqdn3d is a fast alternative, but does not denoise as effectively.
+
+#exec ffmpeg -i "$inf" -filter:v "bwdif,nlmeans,scale=1920:trunc(1920/dar/2)*2" \
+#		-c:v libx264 -preset slow -profile:v high10 -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2 \
+#		-c:a aac -b:a 384k -profile:a aac_low "$@"
+
+enc_flags="-c:v libx264 -preset slow -profile:v high10 -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2 \
+		-c:a aac -b:a 384k -profile:a aac_low"
+
+exec ffmpeg -i "$inf" -filter_complex "[0:v] bwdif [deint]; [deint] split=2[deint0][deint1]; [deint0] nlmeans [out_nl]; [deint1] hqdn3d [out_hqdn]; [out_nl] split=2[out_nl0][out_nl1]; [out_hqdn] split=2[out_hqdn0][out_hqdn1]; [out_hqdn0] scale=1920:trunc(1920/dar/2)*2 [out_hqdn_1080p]; [out_nl0] scale=1920:trunc(1920/dar/2)*2 [out_nl_1080p]" \
+	-map "[out_nl_1080p]" $enc_flags "${out_base}"_nl_1080p.mp4
+	-map "[out_hqdn_1080p]" $enc_flags "${out_base}"_hqdn3d_1080p.mp4
+	-map "[out_hqdn1]" $enc_flags "${out_base}"_hqdn3d.mp4
+	-map "[out_nl1]" $enc_flags "${out_base}"_nl.mp4
