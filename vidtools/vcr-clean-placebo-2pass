@@ -1,6 +1,11 @@
 #! /bin/bash
 set -euf -o pipefail
 
+if [ $# -ne 4 ]; then
+	>&2 echo "usage: $(basename $0) <in-file> <out-base> <start-time> <to-time>"
+	exit 1
+fi
+
 inf="$1"
 shift
 out_base="$1"
@@ -37,6 +42,8 @@ enc_a_flags="-c:a aac -b:a ${audio_bitrate}k -profile:a aac_low"
 #filter="[0:v] bwdif [deint]; [deint] nlmeans [nl]; [nl] scale=-2:1080[out_nl_1080p]"
 #filter="bwdif,hqdn3d,scale=1920:trunc(1920/dar/2)*2"
 filter="bwdif,nlmeans,scale=1440:trunc(1440/dar/2)*2"
+
+script_ex="_nl_placebo_1080p
 
 nice ffmpeg -y \
 	-ss "$start_seek" -to "$to" -i "$inf" -filter:v "$filter" \

@@ -1,6 +1,11 @@
 #! /bin/bash
 set -euf -o pipefail
 
+if [ $# -ne 4 ]; then
+	>&2 echo "usage: $(basename $0) <in-file> <out-base> <start-time> <to-time>"
+	exit 1
+fi
+
 inf="$1"
 shift
 out_base="$1"

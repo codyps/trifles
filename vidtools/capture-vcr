@@ -5,4 +5,4 @@
 #	capture for 2hours and 5 minutes. this was used when doing dv transers
 #	
 
-exec ffmpeg -f v4l2 -thread_queue_size 512 -i /dev/video0 -f alsa -thread_queue_size 512 -i hw:1 -codec:a flac -codec:v ffv1 -level 3 -coder 1 -context 1 -slicecrc 1 -g 1 -aspect 4:3 "$@"
+exec sudo nice -n -10 sudo -u "$USER" ffmpeg -f v4l2 -thread_queue_size 1024 -i /dev/video0 -f alsa -thread_queue_size 512 -i hw:1 -codec:a flac -codec:v ffv1 -level 3 -coder 1 -context 1 -slicecrc 1 -g 1 -aspect 4:3 "$@"
