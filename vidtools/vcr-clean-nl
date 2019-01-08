@@ -1,0 +1,6 @@
+#! /bin/bash
+
+inf="$1"
+shift
+
+exec ffmpeg -i "$inf" -filter:v nlmeans -codec:a copy -codec:v ffv1 -level 3 -coder 1 -context 1 -slicecrc 1 -g 1 "$@"
