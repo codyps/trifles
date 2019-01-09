@@ -302,7 +302,174 @@ stm32f7_gpio_pupdr = []
 
 for i in range(0, 16):
     stm32f7_gpio_pupdr += [((i*2), (i*2+2), "PUPDR{}".format(i))]
-print("{}".format(stm32f7_gpio_pupdr))
+#print("{}".format(stm32f7_gpio_pupdr))
+
+stm32f7_eth_dmamfbocr_bits = [
+    (0, 16, "MFC"),
+    (16, "OMFC"),
+    (17, 28, "MFA"),
+    (28, "OFOC")
+]
+
+stm32f7_eth_dmabmr_bits = [
+    (0, 'SR'),
+    (1, 'DA'),
+    (2, 7, 'DSL'),
+    (7, 'EDFE'),
+    (8, 14, 'PBL'),
+    (14, 16, 'PM'),
+    (16, 'FB'),
+    (17, 23, 'RDP'),
+    (23, 'USP'),
+    (24, 'FPM'),
+    (25, 'AAB'),
+    (26, 'MB'),
+]
+
+stm32f7_eth_dmaomr_bits = [
+    (1, 'SR'),
+    (2, 'OSF'),
+    (3, 5, 'RTC'),
+    (6, 'FUGF'),
+    (7, 'FEF'),
+    (13, 'ST'),
+    (14, 17, 'TTC'),
+    (20, 'FTF'),
+    (21, 'TSF'),
+    (24, 'DFRF'),
+    (25, 'RSF'),
+    (26, 'DTCEFD'),
+]
+
+stm32f7_eth_dmaier_bits = [
+    (0, 'TIE'),
+    (1, 'TPSIE'),
+    (2, 'TBUIE'),
+    (3, 'TJTIE'),
+    (4, 'ROIE'),
+    (5, 'TUIE'),
+    (6, 'RIE'),
+    (7, 'RBUIE'),
+    (8, 'RPSIE'),
+    (9, 'RWTIE'),
+    (10, 'ETIE'),
+    (13, 'FBEIE'),
+    (14, 'ERIE'),
+    (15, 'AISE'),
+    (16, 'NISE'),
+]
+
+stm32f7_eth_tdes_bits = [
+    (0, 'DB'),
+    (1, 'UF'),
+    (2, 'ED'),
+    (3, 7, 'CC'),
+    (7, 'VF'),
+    (8, 'EC'),
+    (9, 'LCO'),
+    (10, 'NC'),
+    (11, 'LCA'),
+    (12, 'IPE'),
+    (13, 'FF'),
+    (14, 'JT'),
+    (15, 'ES'),
+    (16, 'IHE'),
+    (17, 'TTSS'),
+    (20, 'TCH'),
+    (21, 'TER'),
+    (22, 24, 'CIC'),
+    (25, 'TTSE'),
+    (26, 'DP'),
+    (27, 'DC'),
+    (28, 'FS'),
+    (29, 'LS'),
+    (30, 'IC'),
+    (31, 'OWN'),
+]
+
+stm32f7_eth_macdbgr_bits = [
+    (0, 'MMRPEA'),
+    (1, 3, 'MSFRWCS'),
+    (4, 'RFWRA'),
+    (5, 7, 'RFRCS'),
+    (8, 10, 'RFFL'),
+    (16, 'MMTEA'),
+    (17, 19, 'MTFCS'),
+    (19, 'MTP'),
+    (20, 22, 'TFRS'),
+    (22, 'TFWA'),
+    (24, 'TFNE'),
+    (25, 'TTF'),
+]
+
+eth_phy_phyidr1_bits = [
+    (16, 0, "OUI_MSB")
+]
+
+eth_phy_phyidr2_bits = [
+    (16, 10, "OUI_LSB"),
+    (10, 4, "VNDR_MDL"),
+    (4, 0, "MDL_REV"),
+]
+
+eth_phyext_physts_bits = [
+    (14, 'MDIX_MODE'),
+    (13, 'RX_ERROR_LATCH'),
+    (12, 'POLARITY_STATUS'),
+    (11, 'FALSE_CARRIER_SENSE_LATCH'),
+    (10, 'SIGNAL_DETECT'),
+    (9, 'DESCRAMBLER_LOCK'),
+    (8, 'PAGE_RECEIVED'),
+    (7, 'MII_INT_PEND'),
+    (6, 'REMOTE_FAULT'),
+    (5, 'JABBER_DETECT'),
+    (4, 'AUTO_NEG_COMPLETE'),
+    (3, 'LOOPBACK_ENABLED'),
+    (2, 'FULL_DUPLEX'),
+    (1, 'SPEED_10'),
+    (0, 'LINK_ESTABLISHED'),
+]
+
+eth_phy_micr_bits = [
+    (0, 'INT_OE'),
+    (1, 'INTEN'),
+    (2, 'TINT'),
+]
+
+eth_phy_misr_bits = [
+    (15, 'RESERVED_OR_LINK_QUALITY_INT'),
+    (14, 'ENERGY_DETECT_INT'),
+    (13, 'LINT_STATUS_INT'),
+    (12, 'SPEED_STATUS_INT'),
+    (11, 'DUPLEX_STATUS_INT'),
+    (10, 'AUTONEG_COMPLETE_INT'),
+    (9, 'FALSE_CARRIER_COUNTER_HALF_FULL_INT'),
+    (8, 'RECV_ERROR_COUNTER_HALF_FULL_INT'),
+    (7, 'RESERVED_ON_LINK_QUALITY_EN'),
+    (6, 'ENERGY_DETECT_EN'),
+    (5, 'LINK_STATUS_EN'),
+    (4, 'SPEED_STATUS_EN'),
+    (3, 'DUPLEX_STATUS_EN'),
+    (2, 'AUTONEG_COMPLETE_EN'),
+    (1, 'FALSE_CARRIER_COUNTER_HALF_FULL_EN'),
+    (0, 'RECV_ERROR_COUNTER_HALF_FULL_EN'),
+]
+
+eth_phy_pcsr_bits = [
+    (12, 'RESERVED_MUST_BE_ZERO'),
+    (11, 'FREE_CLK'),
+    (10, 'TQ_EN'),
+    (9, 'SD_FORCE_PMA'),
+    (8, 'SD_OPTION'),
+    (7, 'DESC_TIME'),
+    (6, 'RESERVED_MUST_BE_ZERO2'),
+    (5, 'FORCE_100_OK'),
+    (4, 'RESERVED_MUST_BE_ZERO3'),
+    (3, 'RESERVED_MUST_BE_ZERO4'),
+    (2, 'NRZI_BYPASS'),
+    (1, 'RESERVED_MUST_BE_ZERO5'),
+    (0, 'RESERVED_MUST_BE_ZERO6'),
+]
 
 regs = {
     "armv7m.DFSR": armv7m_dfsr_bits,
@@ -314,15 +481,28 @@ regs = {
 
     "eth.phy.BMCR" : eth_phy_bmcr_bits,
     "eth.phy.BMSR" : eth_phy_bmsr_bits,
+    "eth.phy.PHYIDR1": eth_phy_phyidr1_bits,
+    "eth.phy.PHYIDR2": eth_phy_phyidr2_bits,
     "eth.phy.ANAR" : eth_phy_anar_bits,
     "eth.phy.ANLPAR" : eth_phy_anlpar_bits,
     "eth.phy.ANLPARNP": eth_phy_anlparnp_bits,
     "eth.phy.ANER": eth_phy_aner_bits,
     "eth.phy.ANNPTR": eth_phy_annptr_bits,
 
+    "eth.phy.PHYSTS": eth_phyext_physts_bits,
+    "eth.phy.MICR": eth_phy_micr_bits,
+    "eth.phy.MISR": eth_phy_misr_bits,
+    "eth.phy.PCSR": eth_phy_pcsr_bits,
+
     "stm32f7.eth.MACCR": stm32f7_eth_maccr_bits,
     "stm32f7.eth.MACFFR": stm32f7_eth_macffr_bits,
     "stm32f7.eth.DMASR": stm32f7_eth_dmasr_bits,
+    "stm32f7.eth.DMAOMR": stm32f7_eth_dmaomr_bits,
+    "stm32f7.eth.DMAMFBOCR": stm32f7_eth_dmamfbocr_bits,
+    "stm32f7.eth.DMABMR": stm32f7_eth_dmabmr_bits,
+    "stm32f7.eth.DMAIER": stm32f7_eth_dmaier_bits,
+    "stm32f7.eth.TDES": stm32f7_eth_tdes_bits,
+    "stm32f7.eth.MACDBGR": stm32f7_eth_macdbgr_bits,
 
     "stm32f7.gpio.PUPDR": stm32f7_gpio_pupdr,
 }
