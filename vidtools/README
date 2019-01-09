@@ -1,0 +1,11 @@
+play 2 sync:
+
+	# 16.183 is the difference in start times to sync up
+	# note that mpv's `--start` is relative to it's output (ie: after it starts rendering, it seeks to that point)
+	 mpv vhs_4_b.mkv --lavfi-complex='movie=vhs_4.mkv:seek_point=16.183,setpts=PTS-STARTPTS,bwdif [vid2]; [vid1]bwdif[vo1]; [vid2][vo1] hstack [vo]'
+
+
+google photos has a per-file upload limit
+	10GiB?
+
+

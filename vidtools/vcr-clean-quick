@@ -1,6 +1,11 @@
 #! /bin/bash
 set -euf -o pipefail
 
+if [ $# -ne 4 ]; then
+	>&2 echo "usage: $(basename $0) <in-file> <out-base> <start-time> <to-time>"
+	exit 1
+fi
+
 inf="$1"
 shift
 out_base="$1"
@@ -21,18 +26,7 @@ enc_a_flags="-c:a aac -b:a 384k -profile:a aac_low"
 
 exec nice ffmpeg -ss "$start_seek" -to "$to" -i "$inf" -filter_complex "\
 	[0:v] bwdif [deint]; \
-	[deint] split=2[deint0][deint1]; \
-	[deint0] nlmeans [nl]; \
-	[deint1] hqdn3d [hqdn]; \
-	[nl] split=2[out_nl][nl1]; \
-	[hqdn] split=2[out_hqdn][hqdn1]; \
-	[hqdn1] scale=-2:1080[out_hqdn_1080p]; \
-	[nl1] scale=-2:1080[out_nl_1080p]" \
+	[deint] nlmeans [nl]; \
+	[nl] scale=-2:1080[out_nl_1080p]" \
 	-max_muxing_queue_size 4000 \
-	-map 0:a $enc_a_flags -map "[out_nl_1080p]"   $enc_v_flags "${out_base}"_nl_1080p.mp4 \
-	-max_muxing_queue_size 4000 \
-	-map 0:a $enc_a_flags -map "[out_hqdn_1080p]" $enc_v_flags "${out_base}"_hqdn3d_1080p.mp4 \
-	-max_muxing_queue_size 4000 \
-	-map 0:a $enc_a_flags -map "[out_hqdn]"       $enc_v_flags "${out_base}"_hqdn3d.mp4 \
-	-max_muxing_queue_size 4000 \
-	-map 0:a $enc_a_flags -map "[out_nl]"         $enc_v_flags "${out_base}"_nl.mp4
+	-map 0:a $enc_a_flags -map "[out_nl_1080p]"   $enc_v_flags "${out_base}"_nl_1080p.mp4
