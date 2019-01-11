@@ -3,9 +3,10 @@ suffix=$1
 shift
 for i in "$@"; do
 	b=$(basename "$i" .mkv)
-	ffmpeg -i "$i" -copyts -vf "bwdif,hqdn3d,scale=1920:trunc(1920/dar/2)*2" \
-		-c:v libx264 -preset slow -profile:v high10 -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2 \
-		-c:a aac -b:a 384k -profile:a aac_low "${b}_${suffix}.mp4"
+	ffmpeg -i "$i" -vf "bwdif,hqdn3d,scale=1440:trunc(1440/dar/2)*2" \
+		-max_muxing_queue_size 9999 \
+		-c:v libx264 -preset slow -profile:v high10 -crf 22 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2 \
+		-c:a aac -b:a 384k -profile:a aac_low "${b}_${suffix}.mp4" || mv "${b}_${suffix}_fail.mp4"
 	#ffmpeg -i "$1" -copyts -vf "bwdif,hqdn3d,scale=3840:trunc(3840/dar/2)*2" \
 	#	-c:v libx264 -preset slow -profile:v high10 -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2 \
 	#	-c:a aac -b:a 384k -profile:a aac_low "${b}_${suffix}.mp4"

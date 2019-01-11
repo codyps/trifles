@@ -45,7 +45,7 @@ filter="bwdif,nlmeans,scale=1440:trunc(1440/dar/2)*2"
 
 script_ex="_nl_placebo_1080p
 
-nice ffmpeg -y \
+nice -20 ffmpeg -y \
 	-ss "$start_seek" -to "$to" -i "$inf" -filter:v "$filter" \
 	-max_muxing_queue_size 9999 \
 	$enc_v_flags \
@@ -54,7 +54,7 @@ nice ffmpeg -y \
 	-an \
 	-f mp4 /dev/null
 
-exec nice ffmpeg -y \
+exec nice -20 ffmpeg -y \
 	-ss "$start_seek" -to "$to" -i "$inf" -filter:v "$filter" \
 	-max_muxing_queue_size 9999 \
 	$enc_a_flags $enc_v_flags \
