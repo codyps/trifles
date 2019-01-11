@@ -8,4 +8,16 @@ play 2 sync:
 google photos has a per-file upload limit
 	10GiB?
 
+Note:
+	max_muxing_queue_size
+		if any source files have non-fixed PTS (ie: their frame rate is
+		not fixed), when encoding to mp4 (which requires fixed frame
+		rate) many frames will be duplicated. max_muxing_queue_size
+		must be >= the max number of frames to be duplicated.	
 
+		With v4l2 sources (capture cards) this can happen if the
+		tape/cable/rf/etc source drops out and results in the signal to
+		the capture card being stopped, causing it to cease to emit
+		frames for some period of time. More often, the source will not
+		emit a signal when starting up, and as a result a large number
+		of dups are present at the start of a video.
