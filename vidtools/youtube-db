@@ -1,0 +1,45 @@
+#! /bin/sh
+set -euf -o pipefail
+suffix=$1
+shift
+
+# TODO: quote cmd
+# TODO: log output to file
+# TODO: suppress output unless failure occurs?
+# TODO: track success?
+# TODO: manage output file/files (for success/failure)
+run() {
+	n="$1"
+	shift
+	echo "$@"
+	echo "$@" >> "$n"
+	"$@"
+}
+
+for f in "$@"; do
+	b=$(basename "$f" .mkv)
+	db=$f.db1
+	if [ -e "$db" ]; then
+		. "$db"
+	else
+		duration="$(ffprobe "$f" 2>&1 | grep Duration: | awk '{print $2}' | cut -d, -f1)"
+		CLIPS=(0 $duration)
+		echo "NO DB found for $f"
+		exit 1
+	fi
+
+	for ((i=0; i<"${#CLIPS[@]}"; i+=2)); do
+		ss="${CLIPS[i]}"
+		to="${CLIPS[i+1]}"
+		fnb="${b}_${suffix}_clip_$((i/2))"
+		echo "fnb: $fnb"
+		run "$fnb.cmd" ffmpeg -ss "$ss" -to "$to" -i "$f" \
+			-vf "nlmeans,bwdif,scale=1440:trunc(1440/dar/2)*2" \
+			-max_muxing_queue_size 9999 \
+			-c:v libx264 -preset slow -profile:v high10 -crf 22 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2 \
+			-c:a aac -b:a 384k -profile:a aac_low "$fnb.mp4" || mv "${fnb}_fail.mp4"
+	done
+	#ffmpeg -i "$1" -copyts -vf "bwdif,hqdn3d,scale=3840:trunc(3840/dar/2)*2" \
+	#	-c:v libx264 -preset slow -profile:v high10 -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2 \
+	#	-c:a aac -b:a 384k -profile:a aac_low "${b}_${suffix}.mp4"
+done
