@@ -1,0 +1,20 @@
+#! /bin/bash
+
+ROOTFS=/innerpool/TMP/root
+KERNEL=$HOME/d/linux/arch/x86/boot/bzImage
+sudo qemu-system-x86_64 -enable-kvm \
+	-usb -device qemu-xhci -device usb-host,hostbus=3,hostaddr=5 \
+     	-kernel "$KERNEL" \
+	-net user,hostfwd=tcp::10022-:22 \
+	-net nic \
+	-device virtio-vga,virgl=on \
+	-fsdev local,id=root,path=${ROOTFS},security_model=passthrough \
+	-device virtio-9p-pci,fsdev=root,mount_tag=/dev/root \
+	-append "root=r rootfstype=9p rootfsoptions=trans=virtio,version=9p2000.L,cache=mmap rw"
+
+
+#	-fsdev local,id=r,path=/innerpool/TMP/root,security_model=mapped \
+#	-device virtio-9p-pci,fsdev=r,mount_tag=r \
+
+
+#-virtfs local,path=/innerpool/TMP/root,mount_tag=r,security_model=mapped-xattr
