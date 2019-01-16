@@ -1,0 +1,2 @@
+#! /bin/bash
+exec mpv av://v4l2:/dev/video2 --video-aspect 4:3 --audio-file av://alsa:hw:1 --scale=ewa_lanczossharp -vf bwdif
