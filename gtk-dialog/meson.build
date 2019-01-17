@@ -7,6 +7,7 @@ project('gtk-dialog', 'c',
 
 add_global_arguments(
   '-Wall', '-Wextra',
+  '-ggdb', '-fvar-tracking-assignments',
   language: 'c'
 )
 
