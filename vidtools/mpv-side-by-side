@@ -1,0 +1,45 @@
+#! /bin/bash
+set -euf -o pipefail
+D="$(dirname "$0")"
+. "$D/util.sh"
+
+file_1="$1"
+clip_1="$2"
+file_2="$3"
+clip_2="$4"
+
+start_time() {
+	local file="$1"
+	local clip="$2"
+	local db="$file.db1"
+	local CLIPS=()
+	local CLIP_FILTER
+	if [ -e "$db" ]; then
+		. "$db"
+	else
+		duration="$(ffprobe "$f" 2>&1 | grep Duration: | awk '{print $2}' | cut -d, -f1)"
+		CLIPS=(0 $duration)
+		>&2 echo "NO DB found for $f"
+		exit 1
+	fi
+
+	. "$db"
+
+	echo "${CLIPS[clip*2]}"
+}
+
+ss_1=$(start_time "$file_1" "$clip_1")
+ss_2=$(start_time "$file_2" "$clip_2")
+>&2 echo "ss_1: $ss_1, ss_2: $ss_2"
+
+sst_1=$(time_to_sec "$ss_1")
+sst_2=$(time_to_sec "$ss_2")
+>&2 echo "sst_1: $sst_1, sst_2: $sst_2"
+
+ss_diff=$((sst_1 - sst_2))
+>&2 echo "ss_diff: $ss_diff"
+
+exec mpv --lavfi-complex='
+	[vid1]bwdif[vo0];[vid2]setpts=PTS+'"$ss_diff"'/TB,bwdif[vo1];
+	[vo0][vo1]hstack[vo]' \
+	"$file_1" --external-file="$file_2"

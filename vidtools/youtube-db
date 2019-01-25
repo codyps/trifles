@@ -3,6 +3,9 @@ set -euf -o pipefail
 suffix=$1
 shift
 
+: ${NICE:=10}
+: ${KIND:=youtube}
+
 # TODO: quote cmd
 # TODO: log output to file
 # TODO: suppress output unless failure occurs?
@@ -15,6 +18,57 @@ run() {
 	echo "$@" >> "$n"
 	"$@"
 }
+
+check_getopt() {
+	set +e
+	gt="$(getopt -T)"
+	r="$?"
+	set -e
+
+	e=false
+	if [ "$gt" != "" ]; then
+		e=true
+	fi
+
+	if [ "$r" != 4 ]; then
+		e=true
+	fi
+
+	if $e; then
+		>&2 "error: getopt with enhanced support (-T) required"
+		exit 1
+	fi
+}
+
+case $KIND in
+	youtube)
+		fmt_v="-c:v libx264 -preset slow -profile:v high10 -crf 21 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2"
+		fmt_a="-c:a aac -b:a 384k -profile:a aac_low"
+		c_ext="mp4"
+		use_clip_filters=true
+		filter_base="nlmeans,bwdif,scale=1080*dar:1080:flags=lanczos"
+		filter_suffix=""
+		;;
+	nlonly)
+		fmt_v="-c:v ffv1 -level 3 -coder 1 -context 1 -slicecrc 1 -g 1"
+		fmt_a="-c:a copy"
+		filter_base="nlmeans"
+		filter_suffix=""
+		c_ext="mkv"
+		use_clip_filters=false
+		;;
+	bwdif_nl)
+		fmt_v="-c:v ffv1 -level 3 -coder 1 -context 1 -slicecrc 1 -g 1"
+		fmt_a="-c:a copy"
+		filter_base="bwdif,nlmeans"
+		filter_suffix=""
+		c_ext="mkv"
+		use_clip_filters=false
+		;;
+	*)
+		>&2 echo "unknown kind: $KIND"
+		;;
+esac
 
 for f in "$@"; do
 	b=$(basename "$f" .mkv)
@@ -39,16 +93,22 @@ for f in "$@"; do
 		if [[ -v CLIP_FILTER[i/2] ]]; then
 			filter_prefix="${CLIP_FILTER[i/2]}"
 			echo "clip $((i/2)) has custom filter $filter_prefix"
-			filter_prefix="$filter_prefix,"
+			if $use_clip_filters; then
+				filter_prefix="$filter_prefix,"
+			else
+				filter_prefix=""
+				echo "SKIPPING clip filter"
+			fi
 		else
 			echo "clip $((i/2)) is unfiltered"
 		fi
 
-		run "$fnb.cmd" ffmpeg -ss "$ss" -to "$to" -i "$f" \
-			-vf "${filter_prefix}nlmeans,bwdif,scale=1080*dar:1080:flags=lanczos" \
+		run "$fnb.cmd" nice -n "$NICE" ffmpeg -ss "$ss" -to "$to" -i "$f" \
+			-vf "${filter_prefix}${filter_base}${filter_suffix}" \
 			-max_muxing_queue_size 9999 \
-			-c:v libx264 -preset slow -profile:v high10 -crf 21 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2 \
-			-c:a aac -b:a 384k -profile:a aac_low "$fnb.mp4" || mv "${fnb}_fail.mp4"
+			$fmt_v \
+			$fmt_a \
+			"$fnb.${c_ext}" || mv "${fnb}_fail.${c_ext}"
 	done
 	#ffmpeg -i "$1" -copyts -vf "bwdif,hqdn3d,scale=3840:trunc(3840/dar/2)*2" \
 	#	-c:v libx264 -preset slow -profile:v high10 -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2 \

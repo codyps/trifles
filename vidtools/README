@@ -4,6 +4,11 @@ play 2 sync:
 	# note that mpv's `--start` is relative to it's output (ie: after it starts rendering, it seeks to that point)
 	 mpv vhs_4_b.mkv --lavfi-complex='movie=vhs_4.mkv:seek_point=16.183,setpts=PTS-STARTPTS,bwdif [vid2]; [vid1]bwdif[vo1]; [vid2][vo1] hstack [vo]'
 
+	 mpv --lavfi-complex='[vid1]bwdif[vo0];[vid2]setpts=PTS-30.497/TB,bwdif[vo1]; [vo0][vo1]hstack[vo]' vhs_4_d.mkv --external-file=vhs_4_b.mkv
+
+play 2 with external file:
+
+	mpv  --lavfi-complex='[vid1] bwdif [vid0a]; [vid2] bwdif [vid1a]; [vid0a][vid1a]hstack[vo]' vhs_1_nlstrong0_clip_0.mkv --external-file=../vhs_nl/vhs_1_nlonly0_clip_0.mkv
 
 google photos has a per-file upload limit
 	10GiB?
@@ -21,3 +26,17 @@ Note:
 		frames for some period of time. More often, the source will not
 		emit a signal when starting up, and as a result a large number
 		of dups are present at the start of a video.
+
+
+https://linuxtv.org/wiki/index.php/V4L_capturing
+	uses gstreamer to syncronize audio & video.
+	claims that ffmpeg can't/doesn't handle that natively
+	unclear if that is still true
+
+ffmpeg option force_key_frame 0 is noted as helping video/audio sync issues
+
+_appears_ that sync in my setup (capture-vcr, direct use of ffmpeg for alsa and v4l2) works without issues.
+
+gopro convert jpegs to timelapse lossless
+	ffmpeg -f image2 -start_number XXXXX -framerate 30
+	-pattern_type sequence -i 'G%07d.JPG' -c:v timelapse.mkv

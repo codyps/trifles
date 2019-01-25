@@ -15,48 +15,8 @@ shift
 to="$1"
 shift
 
-# $1 = [H[H]:][[M]M:]SS[.N[N[N]]]
-time_to_sec() {
-	t="$1"
-	# split of subsecs
-	case "$t" in
-	*.*)
-		subsecs="${t##*.}"
-		t="${t%.*}"
-		;;
-	*)   subsecs=0 ;;
-	esac
-
-	secs=0
-
-	# parse colons in reverse order
-	#      secs/min min/hr hr/day
-	mults=(60 60 24)
-	mult=1
-	c=1
-	go=true
-	while true; do
-		case "$t" in
-		*:*)	# have colon sep
-			n="${t##*:}"
-			t="${t%:*}"
-			: $((secs = secs + n * mult))
-			;;
-		*)	# no colon sep
-			: $((secs = secs + t * mult))
-			break
-			;;
-		esac
-		: $((c = c + 1))
-		if [ $c -gt 3 ]; then
-			>&2 echo "parse fail: c=$c, n=$n, mult=$mult"
-			return 1
-		fi
-		: $((mult = mult * 60))
-	done
-
-	echo "$secs"
-}
+D="$(dirname "$0")"
+. "$D/util.sh"
 
 start_sec="$(time_to_sec "$start_seek")"
 echo "start: $start_seek"
