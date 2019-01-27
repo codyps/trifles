@@ -1,0 +1,87 @@
+#! /bin/bash
+set -euf -o pipefail
+
+if [ $# -ne 2 ]; then
+	>&2 echo "usage: $(basename $0) <in-file> <out-base>"
+	exit 1
+fi
+
+inf="$1"
+shift
+out_base="$1"
+shift
+
+D="$(dirname "$0")"
+. "$D/util.sh"
+
+duration="$(ffprobe "$inf" 2>&1 | grep Duration: | awk '{print $2}' | cut -d, -f1)"
+
+# in seconds
+video_time=$(time_to_sec "$duration")
+echo "video_time: $video_time"
+
+# 10GiB (in bits)
+: ${SIZE_LIMIT_GIB:=10}
+: ${size_limit:=$((SIZE_LIMIT_GIB*1024*8192))}
+total_bitrate=$((size_limit/video_time))
+# 384kbps
+: ${audio_bitrate:=384}
+
+# add a spare 2kbps
+: ${SPARE_KBPS:=2}
+video_bitrate=$((total_bitrate-audio_bitrate - SPARE_KBPS))
+
+echo "total_bitrate: $total_bitrate"
+echo "video_bitrate: $video_bitrate"
+
+# nlmeans is very slow, hqdn3d is a fast alternative, but does not denoise as effectively.
+
+#exec ffmpeg -i "$inf" -filter:v "bwdif,nlmeans,scale=1920:trunc(1920/dar/2)*2" \
+#		-c:v libx264 -preset slow -profile:v high10 -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2 \
+#		-c:a aac -b:a 384k -profile:a aac_low "$@"
+
+: ${CODEC:=libx264}
+: ${PRESET:=medium}
+
+case $CODEC in
+	libx264)
+		pass1="-pass 1"
+		pass2="-pass 2"
+		;;
+	libx265)
+		pass1="-x265-params pass=1"
+		pass2="-x265-params pass=2"
+		;;
+	*)
+		>&2 echo "Error: unknown codec $CODEC"
+		exit
+		;;
+esac
+
+enc_v_flags="-c:v $CODEC -preset $PRESET -profile:v high10 -b:v ${video_bitrate}k -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2"
+enc_a_flags="-c:a aac -b:a ${audio_bitrate}k -profile:a aac_low"
+
+#filter="[0:v] bwdif [deint]; [deint] nlmeans [nl]; [nl] scale=-2:1080[out_nl_1080p]"
+#filter="bwdif,hqdn3d,scale=1920:trunc(1920/dar/2)*2"
+: ${FILTER_V:="scale=1440:trunc(1440/dar/2)*2"}
+
+: ${OUT_FMT:="mp4"}
+
+script_ex="_2p_${PRESET}"
+: ${passlogfile:=${out_base}${script_ex}-${CODEC}}
+
+nice ffmpeg -y \
+	-i "$inf" -filter:v "$FILTER_V" \
+	-max_muxing_queue_size 9999 \
+	$enc_v_flags \
+	$pass1 -an \
+	-passlogfile "${out_base}${script_ex}" \
+	-f "$OUT_FMT" /dev/null
+
+exec nice ffmpeg -y \
+	-i "$inf" -filter:v "$FILTER_V" \
+	-max_muxing_queue_size 9999 \
+	$enc_a_flags $enc_v_flags \
+	$pass2 \
+	-passlogfile "${out_base}${script_ex}" \
+	"${out_base}${script_ex}.$OUT_FMT"

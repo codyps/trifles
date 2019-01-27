@@ -40,6 +40,15 @@ check_getopt() {
 	fi
 }
 
+fmt_v="-c:v libx264 -preset slow -profile:v high10 -crf 21 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2"
+fmt_a="-c:a aac -b:a 384k -profile:a aac_low"
+c_ext="mp4"
+use_clip_filters=true
+filter_base="nlmeans,bwdif,scale=1080*dar:1080:flags=lanczos"
+filter_suffix=""
+
+check_getopt
+
 case $KIND in
 	youtube)
 		fmt_v="-c:v libx264 -preset slow -profile:v high10 -crf 21 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2"
@@ -61,6 +70,14 @@ case $KIND in
 		fmt_v="-c:v ffv1 -level 3 -coder 1 -context 1 -slicecrc 1 -g 1"
 		fmt_a="-c:a copy"
 		filter_base="bwdif,nlmeans"
+		filter_suffix=""
+		c_ext="mkv"
+		use_clip_filters=false
+		;;
+	bwdif_bm3d)
+		fmt_v="-c:v ffv1 -level 3 -coder 1 -context 1 -slicecrc 1 -g 1"
+		fmt_a="-c:a copy"
+		filter_base="bwdif,bm3d"
 		filter_suffix=""
 		c_ext="mkv"
 		use_clip_filters=false
