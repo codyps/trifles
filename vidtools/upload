@@ -1,0 +1,5 @@
+#! /bin/sh
+# 00:08:30.943
+# 00:14:11.784 
+
+ffmpeg -ss "00:08:30.943" -i "$1" -to "00:14:11.784" -copyts -vf "crop=x=0:y=0:out_h=in_h-8,bwdif,hqdn3d,scale=1920:-2:in_range=pc:out_range=tv" -c:v libx264 -preset slow -profile:v high10 -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2 -c:a aac -b:a 384k -profile:a aac_low "$2" 

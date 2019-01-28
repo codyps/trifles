@@ -19,10 +19,23 @@ b*)	r=true; c=true;;
 	exit 1;;
 esac
 
-if $r; then
-	xinput set-prop "$i" "libinput Tapping Enabled" "1"
-	xinput set-prop "$i" "libinput Natural Scrolling Enabled" "1"
-fi
+# FIXME: filter on "IsTouchpad" (somehow)
+for indev in $(xinput list --id-only); do
+	name="$(xinput list --name-only "$indev")"
+	case "$name" in
+	*TrackPoint)
+		xinput set-prop "$indev" "libinput Natural Scrolling Enabled" "0" || true
+		;;
+	*TouchPad)
+		xinput set-prop "$indev" "libinput Natural Scrolling Enabled" "1" || true
+		xinput set-prop "$indev" "libinput Tapping Enabled" "1" || true
+		;;
+	*)
+		echo "Uncategorized device '$name': $indev"
+		;;
+	esac
+	
+done
 
 if $c; then
 f=/etc/X11/xorg.conf.d/99-touchpad-fixup.conf
@@ -39,11 +52,10 @@ fi
 
 sudo tee "$f" >/dev/null <<EOF
 Section "InputClass"
-        Identifier "Touchpad Fixup"
-        MatchProduct "$i"
-        MatchDevicePath "/dev/input/event*"
-	Option "libinput Tapping Enabled" "1"
-	Option "libinput Natural Scrolling Enabled" "1"
+        Identifier "Touchpad Scrolling & Tapping"
+	MatchIsTouchpad "on"
+	Option "Tapping Enabled" "1"
+	Option "Natural Scrolling Enabled" "1"
 EndSection
 EOF
 

@@ -1,3 +1,4 @@
+* photo manager
 * audio improvements
  - Binaural plugin for pulse, automatic application of this to devices
    'marked' as headphones

@@ -1,0 +1,21 @@
+#! /bin/bash
+
+
+D="$(dirname "$0")"
+. "$D/util.sh"
+E=0
+
+t() {
+	if ! eval "$1"; then
+		>&2 echo "ERROR: not true: $1"
+		: $((E=E+1))
+	fi
+}
+
+t 'test $(strip_leading_zeros 09) = 9'
+
+
+if [ "$E" -gt 0 ]; then
+	>&2 echo "# Tests failed: $E"
+	exit 1
+fi

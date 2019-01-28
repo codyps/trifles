@@ -18,6 +18,7 @@ https://github.com/orangeduck/libCello
 
 https://github.com/stevedonovan/llib
 
+http://p99.gforge.inria.fr/p99-html/
 
 CPP map:
 	https://github.com/swansontec/map-macro/blob/master/map.h
@@ -35,3 +36,6 @@ P99 author's blog (_Generic as a __builtin_constant_p replacement):
 
 
 - overloading / generic pre-c11: http://locklessinc.com/articles/overloading/
+
+
+https://github.com/cormacc/va_args_iterators

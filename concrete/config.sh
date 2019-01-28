@@ -1,4 +1,4 @@
-## config.sh: 7a31aaf+, see https://github.com/jmesmon/cninja.git
+## config.sh: 992f285+, see https://github.com/jmesmon/cninja.git
 # ex: sts=8 sw=8 ts=8 noet
 set -eu
 
@@ -259,8 +259,9 @@ build $target : ccld_host $@
 EOF
 }
 
+# <target>
 host_run() {
-	>&2 echo "warning: we don't currently run tests"
+	>&2 echo "warning: for target $1, NOT running $2"
 }
 
 # <target> <file>
@@ -309,7 +310,6 @@ add_test_dir() {
 			obj "$target" "$f"
 			>&5 echo "default $(to_obj "$target" "$f")"
 			add_run_test "$target" "$f"
-			>&2 echo "run test not supported, will only compile $f"
 			;;
 		api*.c)
 			>&2 echo "api test not supported, skipped $f"

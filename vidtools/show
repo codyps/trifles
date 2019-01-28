@@ -1,0 +1,7 @@
+#!/bin/sh
+
+ffplay -i "$1" -filter_complex \
+"[0:v]xbr=4[bg]; \
+ [0:v]scale=iw*4:-1:flags=neighbor[fg]; \
+ [bg][fg]hstack,format=yuv420p[v]" \
+-map "[v]" -map 0:a -movflags +faststart

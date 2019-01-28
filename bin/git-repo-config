@@ -1,0 +1,3 @@
+#! /bin/sh
+
+git config  --local user.email dev@codyps.com

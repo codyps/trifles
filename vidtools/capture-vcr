@@ -1,0 +1,23 @@
+#! /bin/bash
+
+# Note, consider adding:
+#  `-t 02:05:00`
+#	capture for 2hours and 5 minutes. this was used when doing dv transers
+#	
+
+: ${V4L2_DEV:=/dev/video0}
+: ${ALSA_DEV:=hw:1}
+
+# NOTE: color profile smpte170m corresponds to NTSC BT.601. PAL uses
+# bt470bg/gamma28/bt470bg instead.
+
+# XXX: ideally, ffmpeg would ask the v4l2 device what the colorspace and aspect
+# are so we can avoid needing to specify them.
+
+exec sudo nice -n -10 sudo -u "$USER" ffmpeg \
+	-f v4l2 -thread_queue_size 9999 -i "$V4L2_DEV" \
+	-color_primaries smpte170m -color_trc smpte170m -colorspace smpte170m \
+	-f alsa -thread_queue_size 9999 -i "$ALSA_DEV" \
+	-codec:a flac \
+	-codec:v ffv1 -level 3 -coder 1 -context 1 -slicecrc 1 -g 1 \
+	-aspect 4:3 "$@"
