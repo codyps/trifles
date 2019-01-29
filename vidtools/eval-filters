@@ -1,0 +1,37 @@
+#! /bin/bash
+set -euf -o pipefail
+
+s="$1"
+b="$(basename "$s" .mkv)"
+
+f() {
+	ffmpeg -y -i "$s" -vf "$1" -c:v ffv1 -level 3 -coder 1 -context 1 -slicecrc 1 -g 1 -c:a copy "$b"--"$1".mkv
+}
+
+f "bwdif,bm3d"
+f "bwdif,bm3d=1.5"
+f "bwdif,bm3d=2"
+f "bwdif,bm3d=3"
+f "bwdif,bm3d=4"
+f "bwdif,bm3d=5"
+f "bwdif,bm3d=8"
+
+f "bwdif,nlmeans"
+f "bwdif,nlmeans=1.5"
+f "bwdif,nlmeans=2"
+f "bwdif,nlmeans=3"
+f "bwdif,nlmeans=4"
+f "bwdif,nlmeans=5"
+f "bwdif,nlmeans=8"
+
+#ffmpeg -y -i "$s" -vf "bwdif,bm3d" -c:v ffv1 -c:a copy "$b"--bwdif-bm3d.mkv
+#ffmpeg -y -i "$s" -vf "bwdif,bm3d=s=1.5" -c:v ffv1 -c:a copy "$b"--bwdif-bm3d-1.5.mkv
+#ffmpeg -y -i "$s" -vf "bwdif,bm3d=s=2" -c:v ffv1 -c:a copy "$b"--bwdif-bm3d-2.mkv
+#ffmpeg -y -i "$s" -vf "bwdif,bm3d=s=4" -c:v ffv1 -c:a copy "$b"--bwdif-bm3d-4.mkv
+#ffmpeg -i "$s" -vf "bwdif,bm3d=s=8" -c:v ffv1 -c:a copy "$b"--bwdif-bm3d-8.mkv
+
+#ffmpeg -i "$s" -vf "bwdif,nlmeans" -c:v ffv1 -c:a copy "$b"--bwdif-nlmeans.mkv
+#ffmpeg -i "$s" -vf "bwdif,nlmeans=s=1.5" -c:v ffv1 -c:a copy "$b"--bwdif-nlmeans-1.5.mkv
+#ffmpeg -i "$s" -vf "bwdif,nlmeans=s=2" -c:v ffv1 -c:a copy "$b"--bwdif-nlmeans-2.mkv
+#ffmpeg -i "$s" -vf "bwdif,nlmeans=s=4" -c:v ffv1 -c:a copy "$b"--bwdif-nlmeans-4.mkv
+#ffmpeg -i "$s" -vf "bwdif,nlmeans=s=8" -c:v ffv1 -c:a copy "$b"--bwdif-nlmeans-8.mkv

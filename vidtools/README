@@ -6,6 +6,10 @@ play 2 sync:
 
 	 mpv --lavfi-complex='[vid1]bwdif[vo0];[vid2]setpts=PTS-30.497/TB,bwdif[vo1]; [vo0][vo1]hstack[vo]' vhs_4_d.mkv --external-file=vhs_4_b.mkv
 
+	 mpv --lavfi-complex='[vid1]setpts=N/FRAME_RATE/TB,scale=1440:trunc(1440/dar/2)*2[vo1]; [vo1][vid2]hstack[vo]' vhs_1_bwdif_bm3d.0_clip_0.mkv --external-file vhs_1_bwdif_bm3d.0_clip_0_2p_medium.mp4 
+
+	 mpv --lavfi-complex='[vid1]setpts=N/FRAME_RATE/TB,scale=h=720:w=540[vo1]; [vid2]scale=h=720:w=540[vo2]; [vo1][vo2]hstack[vo]' vhs_1_bwdif_bm3d.0_clip_0.mkv --external-file vhs_1_bwdif_bm3d.0_clip_0_2p_medium.mp4   
+
 play 2 with external file:
 
 	mpv  --lavfi-complex='[vid1] bwdif [vid0a]; [vid2] bwdif [vid1a]; [vid0a][vid1a]hstack[vo]' vhs_1_nlstrong0_clip_0.mkv --external-file=../vhs_nl/vhs_1_nlonly0_clip_0.mkv
