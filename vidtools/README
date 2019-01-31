@@ -44,3 +44,13 @@ _appears_ that sync in my setup (capture-vcr, direct use of ffmpeg for alsa and 
 gopro convert jpegs to timelapse lossless
 	ffmpeg -f image2 -start_number XXXXX -framerate 30
 	-pattern_type sequence -i 'G%07d.JPG' -c:v timelapse.mkv
+
+
+# show color space info
+
+	ffprobe -v error -show_streams raw.mp4 | grep color_
+
+
+# ON COLOR MUXING:
+
+Try using `-strict unofficial` to get ffmpeg to pass through the color info

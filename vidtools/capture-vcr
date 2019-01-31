@@ -14,10 +14,13 @@
 # XXX: ideally, ffmpeg would ask the v4l2 device what the colorspace and aspect
 # are so we can avoid needing to specify them.
 
+# XXX: note: applying color space to the _input_ doesn't properly pass it
+# through to the output. We need to explicitly tag the output.
+
 exec sudo nice -n -10 sudo -u "$USER" ffmpeg \
 	-f v4l2 -thread_queue_size 9999 -i "$V4L2_DEV" \
-	-color_primaries smpte170m -color_trc smpte170m -colorspace smpte170m \
 	-f alsa -thread_queue_size 9999 -i "$ALSA_DEV" \
 	-codec:a flac \
 	-codec:v ffv1 -level 3 -coder 1 -context 1 -slicecrc 1 -g 1 \
+	-color_primaries smpte170m -color_trc smpte170m -colorspace smpte170m \
 	-aspect 4:3 "$@"

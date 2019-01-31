@@ -1,3 +1,8 @@
+# ALWAYS USE THIS FFV1!
+CODEC_V_FFV1=(-c:v ffv1 -level 3 -coder 1 -context 1 -slicecrc 1 -g 1)
+CODEC_V_X264_YT=(-c:v libx264 -preset medium -profile:v high10 -crf 20 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2)
+CODEC_A_AAC_YT=(-c:a aac -b:a 384k -profile:a aac_low)
+
 strip_leading_zeros() {
 	local t="$1"
 	local n
