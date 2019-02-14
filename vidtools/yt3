@@ -32,4 +32,4 @@ exec nice ffmpeg -ss "$start" -to "$end" \
 	-filter:v 'bwdif,nlmeans,scale=1080*dar:1080:flags=lanczos' \
 	${codec_v[@]} \
 	${codec_a[@]} \
-	"$out_base"."$N".mp4
+	"$out_base"."$N"."$PRESET_V"."$CRF_V".mp4

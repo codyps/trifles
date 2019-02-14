@@ -54,3 +54,4 @@ gopro convert jpegs to timelapse lossless
 # ON COLOR MUXING:
 
 Try using `-strict unofficial` to get ffmpeg to pass through the color info
+For mp4: `-movflags write_colr` may help get it included.
