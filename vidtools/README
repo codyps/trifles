@@ -54,4 +54,35 @@ gopro convert jpegs to timelapse lossless
 # ON COLOR MUXING:
 
 Try using `-strict unofficial` to get ffmpeg to pass through the color info
+	x: doesn't seem to work
 For mp4: `-movflags write_colr` may help get it included.
+
+# chroma offset correction
+
+https://stackoverflow.com/questions/37368614/fixing-with-ffmpeg-the-chrominance-position-on-a-video-after-capturing
+
+ffmpeg -i in.mkv -filter_complex "[0:v]extractplanes=y+u+v[y][u][v]" \
+       -map "[y]" in.y -map "[u]" in.u -map "[v]" in.v
+
+ffmpeg -f rawvideo -video_size 720x576 -framerate 25 -pix_fmt gray -i in.y -vframes 1 y.png
+
+
+ffmpeg -f rawvideo -video_size 360x288 -framerate 25 -pix_fmt gray -i in.u -vframes 1 u.png
+
+
+ffmpeg -f rawvideo -video_size 360x288 -framerate 25 -pix_fmt gray -i in.v -vframes 1 v.png
+
+https://superuser.com/questions/1269713/ffmpeg-shift-chroma-plane-horizontally
+
+ffmpeg64 -i src.avi -filter_complex
+   "format=yuv444p,extractplanes=y+u+v[y][u][v];
+     [u]geq=lum='p(X+1,Y)'[u];[v]geq=lum='p(X+1,Y)'[v];
+     [y][u][v]mergeplanes=0x001020:yuv444p"
+ -ss 4.5 -vframes 1 -f image2 -vcodec png -sws_flags accurate_rnd+full_chroma_int test.png
+
+
+# colorspace
+
+https://forum.videohelp.com/threads/384494-Modify-Color-Space-Flag
+https://kdenlive.org/en/project/color-hell-ffmpeg-transcoding-and-preserving-bt-601/
+https://github.com/ilia3101/MLV-App/issues/46

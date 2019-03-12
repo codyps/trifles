@@ -20,17 +20,23 @@
 # XXX: note: applying color space to the _input_ doesn't properly pass it
 # through to the output. We need to explicitly tag the output.
 
+# XXX: note: tagging field_order on the output does not work, it must be marked
+# on the input to take effect.
+
+: ${FFMPEG:=ffmpeg}
 ffmpeg_args=(
 	-strict unofficial
+	-field_order tt
+	#-color_primaries smpte170m -color_trc smpte170m -colorspace smpte170m
 	-f v4l2 -thread_queue_size 99999 -i "$V4L2_DEV"
 	-f alsa -thread_queue_size 99999 -i "$ALSA_DEV"
 	-codec:a flac
 	-codec:v ffv1 -level 3 -coder 1 -context 1 -slicecrc 1 -g 1
-	-field_order tt
-	-color_primaries smpte170m -color_trc smpte170m -colorspace smpte170m -aspect 4:3
+	-color_primaries smpte170m -color_trc smpte170m -colorspace smpte170m
+	-aspect 4:3
 )
 
-exec sudo nice -n -10 sudo -u "$USER" ffmpeg \
+exec sudo nice -n -10 sudo -u "$USER" "${FFMPEG}" \
 	${ffmpeg_args[@]} \
 	-metadata "description=ffmpeg ${ffmpeg_args[*]} -metadata description=this $*" \
 	"$@"
