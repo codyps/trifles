@@ -1,0 +1,38 @@
+#!/bin/bash
+set -eu -o pipefail
+
+if [ $# -lt 3 ]; then
+	>&2 echo "usage: $(basename $0) <snapshot dir> <dest dir> <snap prefix> [<rsync-args>...]"
+	>&2 echo ""
+	>&2 echo "snapshot dir: directory containing directories containing snapshots"
+	>&2 echo "dest dir:     destination directory that is expected to contain all files referenced in the snapshots"
+	>&2 echo "snap prefix:  extra path fragment that must be appended to the end of each snapshot to find the snapshot of <dest dir>"
+	exit 1
+fi
+
+snapdir="$1"
+destdir="$2"
+snapprefix="$3"
+shift 3
+
+snap_args=()
+for i in "$snapdir/"*; do
+	arg="$i/$snapprefix"
+	case "$arg" in
+	*/)	;;
+	*)	arg="$arg/" ;;
+	esac
+	snap_args+=("$arg")
+done
+
+run() {
+	printf "run: "
+	for i in "$@"; do
+		# FIXME: process $i to escape ' and control characters
+		printf "'%s' " "$i"
+	done
+	printf "\n"
+	exec "$@"
+}
+
+run rsync -ahiv --progress --dry-run "${snap_args[@]}" $destdir "$@"
