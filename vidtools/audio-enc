@@ -1,0 +1,19 @@
+#! /bin/bash
+set -euf -o pipefail
+
+if [ $# -ne 3 ]; then
+	>&2 echo "usage: $0 <img> <audio> <out>"
+	exit 1
+fi
+
+img="$1"
+audio="$2"
+out="$3"
+
+exec ffmpeg -loop 1 -framerate 2 -i "$img" -i "$audio" \
+	-c:v libx264 -preset medium -tune stillimage -crf 18 \
+	-c:a aac -b:a 384k -profile:a aac_low \
+	-shortest \
+	-pix_fmt yuv420p \
+	-movflags +faststart \
+	"$out"
