@@ -18,14 +18,13 @@ struct buddy_block_info {
 	/*
 	 * we probably don't need this many bits
 	 * max block order = 2**128
-	 *
-	 * If this is set to `SIZE_IN_BLOCK`, the `order_upper` and
-	 * `order_lower` fields in the block itself must be examined.
-	 *
-	 * `SIZE_IN_BLOCK is not legal for allocated blocks, as we can't store
-	 * anything in them (they are in use by others).
 	 */
 	uint8_t order:7;
+};
+
+/* these are stored in the empty space in non-allocated (free) pages */
+struct buddy_free_block {
+	struct buddy_free_block *next, *prev;
 };
 
 struct buddy {
@@ -39,12 +38,12 @@ struct buddy {
 	 *
 	 * block_size_in_bytes = 1 << block_bytes_order;
 	 */
-	size_t block_bytes_order;
+	uint8_t block_bytes_order;
 
 	/*
-	 * number of blocks, each containing @block_size_in_bytes bytes
+	 * number of blocks = 1 << num_blocks_order
 	 */
-	size_t block_ct;
+	uint8_t num_blocks_order;
 
 	/*
 	 * Largest pairing of blocks together, limits size of maximum allocation.
@@ -53,7 +52,7 @@ struct buddy {
 	 * max_allocation_in_blocks = 1 << max_blocks_order;
 	 * max_allocation_in_bytes = block_size_in_bytes * max_allocation_in_blocks;
 	 */
-	size_t max_blocks_order;
+	uint8_t max_blocks_order;
 
 	/*
 	 * [0] = order 0 blocks
@@ -70,7 +69,7 @@ struct buddy {
 	 * This gives us forward scanning on allocation.
 	 */
 	//struct buddy_free_block *(*free_lists)[/* static max_blocks_order */];
-	struct buddy_free_block **free_lists;
+	struct buddy_free_block *free_lists;
 	
 	/* 
 	 * We need a quick way to determine if a given block is allocated (to
@@ -92,7 +91,7 @@ struct buddy {
 // `max_blocks_order` is the maximum block order tracked, such that `1 <<
 // max_blocks_order` is the largest block that can be allocated from this
 // buddy.
-int buddy_init(struct buddy *b, void *base, size_t size_bytes, size_t block_bytes_order, size_t max_blocks_order,
+int buddy_init(struct buddy *b, void *base, uint8_t num_blocks_order, uint8_t block_bytes_order, uint8_t max_blocks_order,
 		// an array of pointers to `struct buddy_free_block`, array size is `max_blocks_order`.
 		struct buddy_free_block *(*free_lists)[],
 		// `buddy_block_count(size_bytes, block_bytes_order)`
@@ -104,4 +103,4 @@ int buddy_init(struct buddy *b, void *base, size_t size_bytes, size_t block_byte
 void *buddy_alloc_block(struct buddy *b, size_t block_order);
 void buddy_free(struct buddy *b, void *block);
 
-size_t buddy_block_count(size_t size_bytes, size_t block_bytes_order);
+size_t buddy_block_count(size_t num_blocks_order, size_t block_bytes_order);
