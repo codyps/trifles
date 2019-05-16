@@ -29,7 +29,7 @@ echo "codec_a: $codec_a"
 
 exec nice ffmpeg -ss "$start" -to "$end" \
 	-i "$file" \
-	-filter:v 'nlmeans,bwdif,scale=1080*dar:1080:flags=lanczos' \
+	-filter:v 'crop=in_w-6:in_h-4:3:2,nlmeans,bwdif,scale=1080*dar:1080:flags=lanczos' \
 	${codec_v[@]} \
 	${codec_a[@]} \
-	"$out_base"."$N"_"$PRESET_V"_"$CRF_V"_"$start"_"$end".mp4
+	"$out_base"."$N"."$PRESET_V"."$CRF_V".mkv

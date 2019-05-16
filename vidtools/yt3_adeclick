@@ -30,6 +30,7 @@ echo "codec_a: $codec_a"
 exec nice ffmpeg -ss "$start" -to "$end" \
 	-i "$file" \
 	-filter:v 'nlmeans,bwdif,scale=1080*dar:1080:flags=lanczos' \
+	-filter:a 'adeclick=t=1' \
 	${codec_v[@]} \
 	${codec_a[@]} \
 	"$out_base"."$N"_"$PRESET_V"_"$CRF_V"_"$start"_"$end".mp4
