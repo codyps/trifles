@@ -28,9 +28,9 @@ echo "N: $N"
 echo "codec_v: $codec_v"
 echo "codec_a: $codec_a"
 
-exec nice ffmpeg -ss "$start" -to "$end" \
+exec nice ffmpeg -nostdin -ss "$start" -to "$end" \
 	-i "$file" \
-	-filter:v 'crop='"$crop"',nlmeans,bwdif,scale=1080*dar:1080:flags=lanczos' \
+	-filter:v 'bwdif,crop='"$crop"',nlmeans,scale=trunc(1080*dar/2)*2:1080:flags=lanczos' \
 	${codec_v[@]} \
 	${codec_a[@]} \
 	"$out_base"."$start"."$end"."$crop"."$N"."$PRESET_V"."$CRF_V".mp4
