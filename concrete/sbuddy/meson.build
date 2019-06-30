@@ -19,6 +19,8 @@ add_project_arguments(
 	language: 'c',
 )
 
+subdir('ccan')
+
 lib = library('sbuddy', 'sbuddy.c')
 
 t1 = executable('t1', 't1.c',
