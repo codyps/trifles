@@ -1,0 +1,24 @@
+#!/bin/bash
+set -Eeuf -o pipefail
+
+trace_top_caller () {
+    local func="${FUNCNAME[1]}"
+    local line="${BASH_LINENO[0]}"
+    local src="${BASH_SOURCE[0]}"
+    echo "  called from: $func(), $src, line $line"
+}
+
+trap 'trace_top_caller' ERR
+# Create a tmp-working-dir and navigate into it
+trap cleanup EXIT
+cleanup() {
+	cd ~
+	rm -rf /tmp/yay_install
+}
+
+mkdir -p /tmp/yay_install
+cd /tmp/yay_install
+
+# Install "yay" from AUR
+curl -o PKGBUILD https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=yay
+makepkg PKGBUILD -s --install --needed --noconfirm
