@@ -1,0 +1,48 @@
+#! /bin/bash
+
+
+if [ $# -lt 2 ]; then
+	>&2 echo "Usage: $0 <ros_ws> <program> [<args>...]"
+	exit 1
+fi
+
+ROS_WS="$1"
+shift
+
+pp=""
+
+pp_build() {
+	>&2 echo "ppb: $d"
+	local d="$1"
+	local b="$(basename "$d")"
+	if [ -e "$d/package.xml" ]; then
+		pp="$pp:$d/src"
+	else
+		# recursively examine
+		local i
+		for i in "$d"/*; do
+			if ( ! [ -L "$i" ] ) && [ -d "$i" ]; then
+				pp_build "$i"
+			fi
+		done
+	fi
+}
+# generate a pythonpath using all the `package.xml` locations and assuming they have `src` dirs containing python
+#for d in "$ROS_WS"/*; do
+#	pp_build "$d"
+#done
+
+pp=$(find "$ROS_WS" -name package.xml | while read l; do
+	d="$(dirname "$l")"
+	printf ":$d/src"
+done)
+
+pp="${pp#:}"
+if [ -z "$PYTHONPATH" ]; then
+	export PYTHONPATH="$pp"
+else
+	export PYTHONPATH="$PYTHONPATH:$pp"
+fi
+export ROS_WS="$ROS_WS"
+
+exec "$@"

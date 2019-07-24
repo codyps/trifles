@@ -40,7 +40,7 @@ check_getopt() {
 	fi
 }
 
-fmt_v="-c:v libx264 -preset slow -profile:v high10 -crf 21 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2"
+fmt_v="-c:v libx264 -preset slow -profile:v high10 -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -movflags write_colr -g 30 -bf 2"
 fmt_a="-c:a aac -b:a 384k -profile:a aac_low"
 c_ext="mp4"
 use_clip_filters=true
@@ -51,7 +51,7 @@ check_getopt
 
 case $KIND in
 	youtube)
-		fmt_v="-c:v libx264 -preset slow -profile:v high10 -crf 21 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2"
+		fmt_v="-c:v libx264 -preset slow -profile:v high10 -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -movflags write_colr -g 30 -bf 2"
 		fmt_a="-c:a aac -b:a 384k -profile:a aac_low"
 		c_ext="mp4"
 		use_clip_filters=true
@@ -104,7 +104,7 @@ for f in "$@"; do
 	for ((i=0; i<"${#CLIPS[@]}"; i+=2)); do
 		ss="${CLIPS[i]}"
 		to="${CLIPS[i+1]}"
-		fnb="${b}_${suffix}_clip_$((i/2))"
+		fnb="${b}_${suffix}_clip_$(printf "%04d" "$((i/2))")"
 		echo "fnb: $fnb"
 		filter_prefix=""
 		if [[ -v CLIP_FILTER[i/2] ]]; then
@@ -120,7 +120,10 @@ for f in "$@"; do
 			echo "clip $((i/2)) is unfiltered"
 		fi
 
-		run "$fnb.cmd" nice -n "$NICE" ffmpeg -ss "$ss" -to "$to" -i "$f" \
+		run "$fnb.cmd" nice -n "$NICE" ffmpeg \
+			-strict unofficial \
+			-color_primaries smpte170m -color_trc smpte170m -colorspace smpte170m \
+			-ss "$ss" -to "$to" -i "$f" \
 			-vf "${filter_prefix}${filter_base}${filter_suffix}" \
 			-max_muxing_queue_size 9999 \
 			$fmt_v \

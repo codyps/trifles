@@ -1,0 +1,15 @@
+#! /bin/bash
+set -euf -o pipefail
+
+if [ $# -ne 2 ]; then
+	>&2 echo "usage: $(basename $0) <file-1> <file-2>"
+	exit 1
+fi
+
+file_1="$1"
+file_2="$2"
+
+exec mpv --lavfi-complex='
+	[vid1]bwdif[vo0];
+	[vo0][vid2]hstack[vo]' \
+	"$file_1" --external-file="$file_2"

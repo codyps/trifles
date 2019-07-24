@@ -6,6 +6,10 @@ play 2 sync:
 
 	 mpv --lavfi-complex='[vid1]bwdif[vo0];[vid2]setpts=PTS-30.497/TB,bwdif[vo1]; [vo0][vo1]hstack[vo]' vhs_4_d.mkv --external-file=vhs_4_b.mkv
 
+	 mpv --lavfi-complex='[vid1]setpts=N/FRAME_RATE/TB,scale=1440:trunc(1440/dar/2)*2[vo1]; [vo1][vid2]hstack[vo]' vhs_1_bwdif_bm3d.0_clip_0.mkv --external-file vhs_1_bwdif_bm3d.0_clip_0_2p_medium.mp4 
+
+	 mpv --lavfi-complex='[vid1]setpts=N/FRAME_RATE/TB,scale=h=720:w=540[vo1]; [vid2]scale=h=720:w=540[vo2]; [vo1][vo2]hstack[vo]' vhs_1_bwdif_bm3d.0_clip_0.mkv --external-file vhs_1_bwdif_bm3d.0_clip_0_2p_medium.mp4   
+
 play 2 with external file:
 
 	mpv  --lavfi-complex='[vid1] bwdif [vid0a]; [vid2] bwdif [vid1a]; [vid0a][vid1a]hstack[vo]' vhs_1_nlstrong0_clip_0.mkv --external-file=../vhs_nl/vhs_1_nlonly0_clip_0.mkv
@@ -40,3 +44,45 @@ _appears_ that sync in my setup (capture-vcr, direct use of ffmpeg for alsa and 
 gopro convert jpegs to timelapse lossless
 	ffmpeg -f image2 -start_number XXXXX -framerate 30
 	-pattern_type sequence -i 'G%07d.JPG' -c:v timelapse.mkv
+
+
+# show color space info
+
+	ffprobe -v error -show_streams raw.mp4 | grep color_
+
+
+# ON COLOR MUXING:
+
+Try using `-strict unofficial` to get ffmpeg to pass through the color info
+	x: doesn't seem to work
+For mp4: `-movflags write_colr` may help get it included.
+
+# chroma offset correction
+
+https://stackoverflow.com/questions/37368614/fixing-with-ffmpeg-the-chrominance-position-on-a-video-after-capturing
+
+ffmpeg -i in.mkv -filter_complex "[0:v]extractplanes=y+u+v[y][u][v]" \
+       -map "[y]" in.y -map "[u]" in.u -map "[v]" in.v
+
+ffmpeg -f rawvideo -video_size 720x576 -framerate 25 -pix_fmt gray -i in.y -vframes 1 y.png
+
+
+ffmpeg -f rawvideo -video_size 360x288 -framerate 25 -pix_fmt gray -i in.u -vframes 1 u.png
+
+
+ffmpeg -f rawvideo -video_size 360x288 -framerate 25 -pix_fmt gray -i in.v -vframes 1 v.png
+
+https://superuser.com/questions/1269713/ffmpeg-shift-chroma-plane-horizontally
+
+ffmpeg64 -i src.avi -filter_complex
+   "format=yuv444p,extractplanes=y+u+v[y][u][v];
+     [u]geq=lum='p(X+1,Y)'[u];[v]geq=lum='p(X+1,Y)'[v];
+     [y][u][v]mergeplanes=0x001020:yuv444p"
+ -ss 4.5 -vframes 1 -f image2 -vcodec png -sws_flags accurate_rnd+full_chroma_int test.png
+
+
+# colorspace
+
+https://forum.videohelp.com/threads/384494-Modify-Color-Space-Flag
+https://kdenlive.org/en/project/color-hell-ffmpeg-transcoding-and-preserving-bt-601/
+https://github.com/ilia3101/MLV-App/issues/46

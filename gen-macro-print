@@ -1,0 +1,24 @@
+#! /bin/bash
+
+inp=`cat`
+
+cat <<EOF
+#include <stdio.h>
+$inp
+int main(void)
+{
+#define str_____(x) #x
+#define str____(x) str_____(x)
+EOF
+
+oifs="$IFS"
+IFS=$'\n'
+for line in $inp; do
+	n="$(echo "$line" | cut -d\  -f2)"
+	echo "printf(\"%s = %ju = %jd = 0x%jx\\n\", str____($n), $n, $n, $n);"
+done
+
+cat <<EOF
+	return 0;
+}
+EOF
