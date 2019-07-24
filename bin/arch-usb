@@ -31,36 +31,6 @@ e() {
 	exit 1
 }
 
-if [ $# -ne 3 ]; then
-	>&2 echo "usage: $0 <device> <name> {install|chroot}"
-	exit 1
-fi
-
-: ${TARGET_USER:=x}
-dev="$1"
-name="$2"
-act="$3"
-bdev="$(basename "$dev")"
-p "name=$dev"
-p "device=$dev"
-
-if [ -b "$dev" ]; then
-	p "block device"
-else
-	e "device must be a block device"
-fi
-
-if [ -w "$dev" ]; then
-	p "writable"
-else
-	e "device is not writable, check permisions"
-fi
-
-bsz=$(blockdev --getbsz "$dev")
-if [ "$bsz" != 4096 ]; then
-	e "partition layout tuned for 4096 byte sectors, but drive has $bsz byte sectors"
-fi
-
 a_format() {
 	# partition device:
 	# gpt
@@ -127,10 +97,9 @@ a_bind() {
 	vgchange -ay "$name"
 }
 
-a_install() {
+a_install_raw() {
+	m="$1"
 	# XXX: assumes we're bind=true
-	a_mount
-	m="/mnt/$name"
 	pacstrap "$m" base base-devel xorg xorg-drivers tmux i3 slim grub bash-completion ccache openssh sudo htop gvim linux-headers wpa_supplicant mpv pulseaudio firefox rxvt-unicode wireguard-arch wireguard-tools youtube-dl alacritty iwd crda wireless-regdb iw wireless_tools
 
 	ln -sf /usr/lib/systemd/resolv.conf "$m"/etc/resolv.conf
@@ -153,14 +122,6 @@ EOF
 	# Allow wheel's nopasswd sudo
 	cat >>"$m"/etc/sudoers.d/50-wheel <<EOF
 %wheel ALL=(ALL) NOPASSWD: ALL
-EOF
-
-	cat >"$m/etc/profile.d/vim.sh" <<EOF
-export EDITOR="/bin/vim"
-EOF
-
-	cat >"$m/etc/profile.d/ccache.sh" <<EOF
-export PATH="/usr/lib/ccache/bin:\$PATH"
 EOF
 
 	cat >"$m/etc/slim.conf" <<EOF
@@ -255,20 +216,68 @@ exec i3
 EOF
 }
 
+a_install() {
+	a_mount
+	m="/mnt/$name"
+	a_install_raw "$m"
+}
+
 a_chroot() {
 	a_bind
 	a_mount
 	arch-chroot "/mnt/$name"	
 }
 
+if [ $# -ne 3 ]; then
+	>&2 echo "usage: $0 {install|chroot} <device> <name>"
+	>&2 echo "usage: $0 {only_install} <path>"
+	exit 1
+fi
+
+: ${TARGET_USER:=x}
+act="$1"
+shift
+
 case "$act" in
-i*)
-	a_format
-	a_install
+only_install)
+	a_install_raw "$1"
 	;;
-c*)
-	a_chroot
+chroot|install)
+	dev="$2"
+	name="$3"
+	bdev="$(basename "$dev")"
+	p "name=$dev"
+	p "device=$dev"
+
+	if [ -b "$dev" ]; then
+		p "block device"
+	else
+		e "device must be a block device"
+	fi
+
+	if [ -w "$dev" ]; then
+		p "writable"
+	else
+		e "device is not writable, check permisions"
+	fi
+
+	bsz=$(blockdev --getbsz "$dev")
+	if [ "$bsz" != 4096 ]; then
+		e "partition layout tuned for 4096 byte sectors, but drive has $bsz byte sectors"
+	fi
+
+	case "$act" in
+	install)
+		a_format
+		a_install
+		;;
+	chroot)
+		a_chroot
+		;;
+	esac
 	;;
 *)
 	e "unrecognized action: $act"
 esac
+
+
