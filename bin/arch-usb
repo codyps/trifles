@@ -131,7 +131,7 @@ a_install() {
 	# XXX: assumes we're bind=true
 	a_mount
 	m="/mnt/$name"
-	pacstrap "$m" base base-devel xorg xorg-drivers tmux i3 slim grub bash-completion ccache openssh sudo htop vim linux-headers wpa_supplicant mpv pulseaudio firefox rxvt-unicode
+	pacstrap "$m" base base-devel xorg xorg-drivers tmux i3 slim grub bash-completion ccache openssh sudo htop gvim linux-headers wpa_supplicant mpv pulseaudio firefox rxvt-unicode wireguard-arch wireguard-tools youtube-dl alacritty iwd crda wireless-regdb iw wireless_tools
 
 	ln -sf /usr/lib/systemd/resolv.conf "$m"/etc/resolv.conf
 	cat >"$m"/etc/systemd/network/50-wired.network <<EOF
@@ -169,6 +169,12 @@ focus_password yes
 auto_login yes
 EOF
 
+	cat >>"$m/etc/pacman.conf" <<EOF
+[archzfs]
+Server = http://archzfs.com/\$repo/x86_64
+EOF
+
+
 	# set HOOKS for encrypt/lvm2
 	sed -i "$m/etc/mkinitcpio.conf" \
 	    -e 's/HOOKS=.*/HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 filesystems fsck)/'
@@ -191,9 +197,9 @@ EOF
 
 	echo "en_US.UTF-8 UTF-8" >>"$m/etc/locale.gen"
 
-	cat >>"$m/etc/dkms/framework.conf" <<EOF
-export PATH="/usr/lib/ccache/bin:$PATH"
-EOF
+#	cat >>"$m/etc/dkms/framework.conf" <<EOF
+#export PATH="/usr/lib/ccache/bin:$PATH"
+#EOF
 
 	# TODO: enable makepkg.conf parallelization
 
@@ -224,15 +230,16 @@ echo "Set root password:"
 passwd
 echo "Set user ($TARGET_USER) password:"
 passwd $TARGET_USER
-sudo -u $TARGET_USER /setup-pacaur
-sudo -u $TARGET_USER pacaur -S --noedit --noconfirm dkms-sorted zfs-dkms xss-lock
+pacman -S --noconfirm zfs-linux
+sudo -u $TARGET_USER /setup-extra
+sudo -u $TARGET_USER yay -S --noedit --noconfirm xss-lock
 EOF
-	cp $(dirname $0)/arch-setup-pacaur "$m"/setup-pacaur
-	chmod +x "$m"/setup-pacaur
+	cp $(dirname $0)/arch-setup-yay "$m"/setup-extra
+	chmod +x "$m"/setup-extra
 	chmod +x "$m"/setup
 
 	arch-chroot "$m" /setup
-	rm -f "$m"/setup "$m"/setup-pacaur
+	rm -f "$m"/setup "$m"/setup-extra
 
 	# TODO: investigate shim-signed
 	mkdir -p "$m/boot/EFI/EFI/BOOT"
