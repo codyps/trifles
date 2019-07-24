@@ -1,0 +1,36 @@
+#! /bin/bash
+set -euf -o pipefail
+set -x
+D="$(dirname "$0")"
+. "$D"/util.sh
+
+N="$(basename "$0")"
+
+file=$1
+start=$2
+end=$3
+if [ $# -eq 3 ]; then
+	out_base="$(basename "$file" .mkv)"
+else
+	out_base=$4
+fi
+
+echo "file: $file"
+echo "start: $start"
+echo "end: $end"
+echo "out_base: $out_base"
+echo "N: $N"
+
+: ${codec_v:="${CODEC_V_X264_YT[@]}"}
+: ${codec_a:="${CODEC_A_AAC_YT[@]}"}
+
+echo "codec_v: $codec_v"
+echo "codec_a: $codec_a"
+
+exec nice ffmpeg -ss "$start" -to "$end" \
+	-i "$file" \
+	-filter:v 'nlmeans,bwdif,scale=1080*dar:1080:flags=lanczos' \
+	-filter:a 'adeclick=t=1' \
+	${codec_v[@]} \
+	${codec_a[@]} \
+	"$out_base"."$N"_"$PRESET_V"_"$CRF_V"_"$start"_"$end".mp4

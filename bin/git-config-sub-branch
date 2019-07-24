@@ -1,0 +1,13 @@
+#! /bin/bash
+
+if [ $# -ne 2 ]; then
+	>&2 echo "usage: $0 <remote-name> <subbranch>"
+	exit 1
+fi
+
+remote="$1"
+subbranch="$2"
+#git remote add "$remote" "$remote_url"
+
+git config "remote.${remote}.fetch" '+refs/heads/'$subbranch'/*:refs/remotes/origin/*'
+git config "remote.${remote}.push"  '+refs/heads/*:refs/heads/'$subbranch'/*'

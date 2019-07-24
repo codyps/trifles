@@ -5,4 +5,38 @@
 #	capture for 2hours and 5 minutes. this was used when doing dv transers
 #	
 
-exec sudo nice -n -10 sudo -u "$USER" ffmpeg -f v4l2 -thread_queue_size 9999 -i /dev/video0 -f alsa -thread_queue_size 9999 -i hw:1 -codec:a flac -codec:v ffv1 -level 3 -coder 1 -context 1 -slicecrc 1 -g 1 -aspect 4:3 "$@"
+: ${V4L2_DEV:=/dev/video0}
+: ${ALSA_DEV:=hw:1}
+
+# NOTE: color profile smpte170m corresponds to NTSC BT.601. PAL uses
+# bt470bg/gamma28/bt470bg instead.
+
+# XXX: ideally, ffmpeg would ask the v4l2 device what the colorspace, aspect,
+# and field_order are so we can avoid needing to specify them.
+#
+# Code indicates it does ask, but in practice output remains unspec, 1:1,
+# progressive without flags.
+
+# XXX: note: applying color space to the _input_ doesn't properly pass it
+# through to the output. We need to explicitly tag the output.
+
+# XXX: note: tagging field_order on the output does not work, it must be marked
+# on the input to take effect.
+
+: ${FFMPEG:=ffmpeg}
+ffmpeg_args=(
+	-strict unofficial
+	-field_order tt
+	#-color_primaries smpte170m -color_trc smpte170m -colorspace smpte170m
+	-f v4l2 -thread_queue_size 99999 -i "$V4L2_DEV"
+	-f alsa -thread_queue_size 99999 -i "$ALSA_DEV"
+	-codec:a flac
+	-codec:v ffv1 -level 3 -coder 1 -context 1 -slicecrc 1 -g 1
+	-color_primaries smpte170m -color_trc smpte170m -colorspace smpte170m
+	-aspect 4:3
+)
+
+exec sudo nice -n -10 sudo -u "$USER" "${FFMPEG}" \
+	${ffmpeg_args[@]} \
+	-metadata "description=ffmpeg ${ffmpeg_args[*]} -metadata description=this $*" \
+	"$@"

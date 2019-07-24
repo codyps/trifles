@@ -10,6 +10,10 @@
  */
 #include "alloc-buddy.h"
 
+#include <stdbool.h>
+#include <assert.h>
+#include <limits.h>
+
 #if 0
 typedef uint8_t block_order_t;
 typedef size_t  block_num_t;
@@ -17,14 +21,11 @@ typedef size_t  block_num_t;
 /* block_size */
 #endif
 
-struct buddy_block_info {
-	uint8_t allocated:1;
-
-	/*
-	 * we probably don't need this many bits
-	 * max block order = 2**128
-	 */
-	uint8_t order:7;
+enum {
+	// in `buddy_page_info.order`, this is stored when we have a super-block
+	//
+	// If we change the size of `order` from 7-bits, this should also be adjusted.
+	SIZE_IN_BLOCK = 0x7f,
 };
 
 /* these are stored in the empty space in non-allocated (free) pages */
@@ -52,104 +53,32 @@ bool is_power_of_2(unsigned long n)
 	return (n != 0 && ((n & (n - 1)) == 0));
 }
 
-/*
- * If we have @block_ct, then we probably have calculated the block size (using
- * the order or otherwise) prior to calling this function.
- *
- * Probably want something that allows providing a length in bytes so the user
- * is freed from doing pre-calculation using our parameters.
- *
- * Assume:
- *  - a contiguous region (we can't pair blocks between split regions anyhow)
- *
- * TODO:
- *  - provide an initializer that takes it's free_bitmap from the memory supplied
- *  - provide an initializer that can put struct buddy in the memory supplied
- *
- * XXX:
- *  - common designs use a set of lists, one for each order
- */
-int buddy_init(struct buddy *b, void *base, size_t size_bytes, size_t block_bytes_order, size_t max_blocks_order)
+static size_t align_of(void *addr)
 {
-	size_t order_limit;
-	{
-		struct buddy_block_info i;
-		i.order = -1;
-		order_limit = i.order;
-	}
-	/*
-	 * is max_order small enough to fit in our storage? Use less than (not
-	 * equals) because we need the high value to mark super blocks.
-	 */
-	assert(max_blocks_order < order_limit);
-
-	/*
-	 * ensure we have enough space in blocks given the minimum order 
-	 */
-	size_t block_sz = 1 << block_bytes_order;
-	assert(block_sz >= sizeof(buddy_free_block));
-
-	/* is base aligned to block_sz? */
-	assert(base & (block_sz - 1) == 0)
-
-	/* block_sz * 2**x == block_sz * block_ct
-	 * 2**x == block_ct
-	 * x = log2(block_ct)
-	 *
-	 */
-	struct buddy_free_block *(*free_lists)[] = calloc(sizeof(*free_lists), max_order);
-	if (!free_lists)
-		return -ENOMEM;
-
-	struct buddy_block_info (*info)[] = calloc(sizeof(*info), block_ct);
-	if (!info) {
-		free(free_lists);
-		return -ENOMEM;
+	uintptr_t a = (uintptr_t)addr;
+	size_t i;
+	for (i = 0; i < sizeof(addr) * CHAR_BIT; i++) {
+		if (a & ((1 << i) - 1))
+			return i - 1;
 	}
 
-	*b = (struct buddy) {
-		.base = base,
-		.block_bytes_order = block_bytes_order,
-		.size_bytes = size_bytes
-		.max_blocks_order = max_blocks_order,
-		.free_lists = free_lists,
-		.buddy_block_info = info;
-	};
+	return SIZE_MAX;
+}
 
-	/* first block might not be very aligned. */
-	size_t o = align_of(base >> block_bytes_order);
-	void *bi = base;
-	void *end = size_bytes + (char *)base;
-	for (;;) {
-		/* iterate over block_ct in max_order chunks. If max_order goes
-		 * past block_ct, create a super block & we're done */
-
-		void *next_base = bi + 1 << o;
-		if (next_base > end) {
-			/* if we try to create a block past the end, create a
-			 * super block, and we're done */
-			return_to_freelist_with_size(b, bi, end - bi);
-			break;
-		}
-
-		return_to_freelist_with_order(b, bi, o);
-
-		if (next_base == end) 
-			break;
-
-		bi = next_base;
-		o = max_order;
-	}
-
-	return 0;
+size_t
+buddy_block_count(size_t size_bytes, size_t block_bytes_order)
+{
+	// are we ok with just losing some bytes? or should we complain?
+	assert((size_bytes % (1 << block_bytes_order)) == 0);
+	return size_bytes / (1 << block_bytes_order);
 }
 
 static size_t
 block_num(struct buddy *b, void *block)
 {
 	assert(b->base <= block);
-	assert(b->base + ((b->block_ct - 1) << b->block_bytes_order) => block)
-	return (block - b->base) >> b->block_bytes_order;
+	assert((uintptr_t)b->base + ((b->block_ct - 1) << b->block_bytes_order) >= (uintptr_t)block);
+	return ((uintptr_t)block - (uintptr_t)b->base) >> b->block_bytes_order;
 }
 
 /* return the buddy of this block */
@@ -157,8 +86,10 @@ static
 size_t
 block_buddy(struct buddy *b, size_t blk_num, size_t order)
 {
+	(void)b;
+
 	size_t m = 1 << order;
-	assert(0 == ~(m - 1) & blk_num);
+	assert(0 == (~(m - 1) & blk_num));
 	/* are we the "upper" block? if so, return the lower. Otherwise, return the
 	 * upper */
 	return blk_num & m ? blk_num & ~m : blk_num | m;
@@ -167,7 +98,7 @@ block_buddy(struct buddy *b, size_t blk_num, size_t order)
 static void *
 try_alloc_exact_order(struct buddy *b, size_t order)
 {
-	struct block_free **x = &b->free_lists[order];
+	struct buddy_free_block **x = &b->free_lists[order];
 
 	void *r = *x;
 	if (r)
@@ -175,17 +106,29 @@ try_alloc_exact_order(struct buddy *b, size_t order)
 	return r;
 }
 
+// for every basic block composing our higher-order block, mark the order &
+// allocated status in the block info.
+//
+// XXX: consider if we can avoid doing so much work on allocation here. This
+// data is used for merging blocks together when freed. Could plausibly do more
+// work on free to avoid this.
 static void
-mark_allocated(struct buddy *b, void *block, size_t order)
+mark_allocated(struct buddy *b, void *block, uint8_t order)
 {
 	size_t n = block_num(b, block);
 	size_t blk_ct = 1 << order;
-	for (i = 0; i < blk_ct; i++) {
+	for (size_t i = 0; i < blk_ct; i++) {
 		b->info[n + i] = (struct buddy_block_info) {
 			.allocated = true,
 			.order = order,
 		};
 	}
+}
+
+static size_t
+block_extra_size_(size_t order_upper, size_t order_lower)
+{
+	return (1 << (order_upper + 1)) - (1 << order_lower);
 }
 
 static size_t
@@ -197,18 +140,18 @@ block_extra_size(struct buddy *b, void *block)
 	if (bi->order == SIZE_IN_BLOCK) {
 		/* major cache miss here */
 		struct buddy_free_block *fb = block;
-		return 1 << (fb->order_upper + 1) - 1 << fb->order_lower;
+		return block_extra_size_(fb->order_upper, fb->order_lower);
 	} else {
 		return 0;
 	}
 }
 
 static void
-return_to_freelist_with_order(struct buddy *b, void *block, size_t order)
+return_to_freelist_with_order(struct buddy *b, void *block, uint8_t order)
 {
-	struct block_free **x = &b->free_lists[order];
-	struct block_free *p = *x;
-	struct block_free *m = block;
+	struct buddy_free_block **x = &b->free_lists[order];
+	struct buddy_free_block *p = *x;
+	struct buddy_free_block *m = block;
 
 	size_t n = block_num(b, block);
 	size_t i;
@@ -231,7 +174,25 @@ return_to_freelist_with_extra(struct buddy *b, void *block, size_t order_upper, 
 	/* 
 	 * TODO: determine the block order (the one that is small enought to
 	 * fit within this) */
-	assert(false);
+
+	struct buddy_free_block *m = block;
+	m->order_upper = order_upper;
+	m->order_lower = order_lower;
+
+	size_t blk_ct = block_extra_size_(order_upper, order_lower);
+	size_t i;
+	size_t n = block_num(b, block);
+	for (i = 0; i < blk_ct; i++) {
+		b->info[n + i] = (struct buddy_block_info) {
+			.allocated = false,
+			.order = SIZE_IN_BLOCK,
+		};
+	}
+
+	struct buddy_free_block **x = &b->free_lists[order_upper];
+	struct buddy_free_block *p = *x;
+	m->next = p;
+	*x = m;
 }
 
 static void
@@ -354,7 +315,7 @@ split_block_to(struct buddy *b, void *block, size_t block_order, size_t desired_
 		return_to_free_list_with_order(b, block, block_order);
 		return extra;
 	} else if (extra_size > desired_size) {
-		/* Extra is always in the form of a**2 - b**2 where b < a 
+		/* Extra is always in the form of a**2 - b**2 where a > b
 		 *
 		 * What does this tell us about splitting it?
 		 */
@@ -442,3 +403,101 @@ buddy_free(struct buddy *b, void *block)
 	/* TODO: return our merged block to a free list */
 	assert(false);
 }
+
+/*
+ * If we have @block_ct, then we probably have calculated the block size (using
+ * the order or otherwise) prior to calling this function.
+ *
+ * Probably want something that allows providing a length in bytes so the user
+ * is freed from doing pre-calculation using our parameters.
+ *
+ * Assume:
+ *  - a contiguous region (we can't pair blocks between split regions anyhow)
+ *
+ * TODO:
+ *  - provide an initializer that takes it's free_bitmap from the memory supplied
+ *  - provide an initializer that can put struct buddy in the memory supplied
+ *
+ * XXX:
+ *  - common designs use a set of lists, one for each order
+ */
+int buddy_init(struct buddy *b, void *base, size_t size_order, size_t block_bytes_order, size_t max_blocks_order,
+		// an array of pointers to `struct buddy_free_block`, array size is `max_blocks_order`.
+		struct buddy_free_block *(*free_lists)[],
+		// `buddy_block_count(size_bytes, block_bytes_order)`
+		struct buddy_block_info (*info)[])
+{
+	size_t order_limit;
+	{
+		struct buddy_block_info i;
+		i.order = -1;
+		order_limit = i.order;
+	}
+	/*
+	 * is max_order small enough to fit in our storage? Use less than (not
+	 * equals) because we need the high value to mark super blocks.
+	 */
+	assert(max_blocks_order < order_limit);
+
+	/*
+	 * ensure we have enough space in blocks given the minimum order 
+	 */
+	size_t block_sz = 1 << block_bytes_order;
+	assert(block_sz >= sizeof(struct buddy_free_block));
+
+	/* is base aligned to block_sz? */
+	// we could allow this, but we'd need code to handle the offset.
+	assert(((uintptr_t)base & (block_sz - 1)) == 0);
+
+	/* 
+	 * block_sz * 2**x == block_sz * block_ct
+	 * 2**x == block_ct
+	 * x = log2(block_ct)
+	 *
+	 */
+	size_t size_bytes = 1 << size_order;
+	size_t block_ct = buddy_block_count(size_bytes, block_bytes_order);
+
+	*b = (struct buddy) {
+		.base = base,
+		.block_bytes_order = block_bytes_order,
+		.block_ct = block_ct,
+		.max_blocks_order = max_blocks_order,
+		.free_lists = free_lists,
+		.info = info,
+	};
+
+	// FIXME: address alignment of `base` could be pretty bad, and it would
+	// be good to align our blocks based on address alignment here by
+	// generating lower order blocks first to get to an appropriate
+	// alignment.
+	//
+	// Right now, we just chose the largest block order until we can't,
+	// then shrink.
+	size_t o = align_of(base >> block_bytes_order);
+	void *bi = base;
+	void *end = size_bytes + (char *)base;
+	for (;;) {
+		/* iterate over block_ct in max_order chunks. If max_order goes
+		 * past block_ct, create a super block & we're done */
+
+		void *next_base = bi + 1 << o;
+		if (next_base > end) {
+			/* if we try to create a block past the end, create a
+			 * super block, and we're done */
+			return_to_freelist_with_size(b, bi, end - bi);
+			break;
+		}
+
+		return_to_freelist_with_order(b, bi, o);
+
+		if (next_base == end) 
+			break;
+
+		bi = next_base;
+		o = max_order;
+	}
+
+	return 0;
+}
+

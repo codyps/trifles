@@ -1,0 +1,9 @@
+#! /bin/bash
+set -eu -o pipefail
+
+D="$(dirname "$0")"
+
+for i in "$@"; do
+	b="$(basename "$i")"
+	"$D/audio-enc" "$i"/*.JPG "$i"/*.flac "$i".mp4
+done

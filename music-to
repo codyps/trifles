@@ -1,24 +1,211 @@
-#! /bin/sh
+#! /bin/bash
 set -eu -o pipefail
 
-DEST_DIR="$1"
-shift
+usage() {
+	cat >&2 <<EOF
+usage: $0 -h
+usage: $0 [-fP] DEST_DIR SRC_DIR
+usage: $0 -X DEST_DIR SRC_DIR FILE_IN_SRC[...]
 
-for SRC_DIR in "$@"; do
-	D="$DEST_DIR/$(basename "$SRC_DIR")"
-	if ! [ -d "$DEST_DIR" ]; then
-		>&2 echo "DEST_DIR='$DEST_DIR' does not exist"
-		exit 1
-	fi	
+flags:
+	-f	use find instead of direct iteration
+	-P	use parallel execution (via \`parallel\` or \`xargs\`)
+	-k	keep top level SRC_DIR inside DEST_DIR (useful if calling on a
+		single album dir)
+	-X	convert exactly these files (used internally)
+	-h	show help
+EOF
+	exit "$1"
+}
 
-	for f in "$SRC_DIR"/*.flac; do
+use_find=false
+use_parallel=false
+convert_one=false
+keep_top_level_dir=false
 
-		mkdir -p "$D"
-		R="$D/$(basename "$f" .flac | iconv -f UTF-8 -t ASCII//TRANSLIT).m4a"
-		if [ -e "$R" ]; then
-			rm "$R"
-		fi
+optstr="hkfPX"
 
-		ffmpeg -i "$f" -c:a libfdk_aac -cutoff 18000 -b:a 192k -ar 44100 -ac 2 -vn "$R"
-	done
+while getopts "$optstr" opt; do
+	case "$opt" in
+	h) usage 0;;
+	f) use_find=true;;
+	P) use_parallel=true;;
+	X) convert_one=true;;
+	k) keep_top_level_dir=true;;
+	\?) usage 1;;
+	*) >&2 echo "PROGRAMMING BUG: opt=$opt, OPTIND=$OPTIND"
+		exit 1;;
+	esac
 done
+shift "$((OPTIND-1))"
+
+if $convert_one && ! [ $# -ge 3 ]; then
+	>&2 echo "-X requires 3 or more args"
+	usage 1
+fi
+if ! $convert_one && ! [ $# -eq 2 ]; then
+	>&2 echo "requires 2 args (got $#)"
+	usage 1
+fi
+
+DEST_DIR="$1"
+SRC_DIR="$2"
+shift 2
+
+if ! [ -d "$DEST_DIR" ]; then
+	>&2 echo "DEST_DIR='$DEST_DIR' does not exist"
+	exit 1
+fi
+
+if ! [ -d "$SRC_DIR" ]; then
+	>&2 echo "SRC_DIR='$SRC_DIR' does not exist"
+	exit 1
+fi
+
+if $keep_top_level_dir; then
+	DEST_DIR="$DEST_DIR/$(basename "$SRC_DIR")/"
+	mkdir -p "$DEST_DIR"
+fi
+
+# $1 = string
+# $2 = prefix
+remove_prefix() {
+	local s="$1"
+	local prefix="$2"
+	case "$s" in
+	"$prefix")
+		echo "${s}"
+		;;
+	"$prefix"/*)
+		echo "${s:$((${#prefix} + 1))}"
+		;;
+	*)	>&2 echo "not a prefix: $s $prefix"; exit 1 ;;
+	esac
+
+}
+
+conv_one() {
+	local dest_dir="$1"
+	local f="$2"
+
+	case "$f" in
+	*.mp3|*.m4a)
+		cp -f "$f" "$dest_dir"
+		;;
+	*.flac|*.dsf|*.shn)
+		local non_ext="${f%.*}"
+		local R="$dest_dir/$(basename "$non_ext" | iconv -f UTF-8 -t ASCII//TRANSLIT).m4a"
+		# XXX: consider preserving 48k (downsample to 48k, avoid upsampling)
+		ffmpeg -hide_banner -y -i "$f" -c:a libfdk_aac -cutoff 18000 -b:a 192k -ar 44100 -ac 2 -vn "$R"
+		;;
+	*.log|*.[cC][uU][eE]|*.svf|*.md5|*.txt|*.[Jj][Pp][Gg]|*.m3u8|*.st5|*.png|*.ffp)
+		# known don't cares
+		;;
+	*)	# skipping. consider if other file times are good to handle
+		;;
+	esac
+}
+
+# A conv_one intended for execution via `find`
+conv_one_x() {
+	local DEST_DIR="$1"
+	local SRC_DIR="$2"
+	local f="$3"
+	local src_dir="$(dirname "$f")"
+	local dest_dir="$DEST_DIR$(remove_prefix "$src_dir" "$SRC_DIR")"
+	mkdir -p "$dest_dir"
+
+	>&2 echo "FFFFF: $f"
+	conv_one "$dest_dir" "$f"
+}
+
+# $1 = dir
+do_path() {
+	local src_dir="$1"
+	local dest_dir="$DEST_DIR$(remove_prefix "$src_dir" "$SRC_DIR")"
+	>&2 echo "dest: $dest_dir"
+	>&2 echo "src: $src_dir"
+	mkdir -p "$dest_dir"
+
+	for f in "$src_dir"/*; do
+		if [ -d "$f" ]; then
+			do_path "$f"
+		elif [ -f "$f" ]; then
+			conv_one "$dest_dir" "$f"
+		fi
+	done
+}
+
+abspath() {
+	local p="$1"
+	case "$p" in
+	/*)	echo "$p" ;;
+	./*)	echo "$PWD${p:1}" ;;
+	*)	echo "$PWD/${p}" ;;
+	esac
+}
+
+do_path_fe() {
+	local x="$(abspath "$0")"
+	find "$1" \( -type f \( \
+		-name '*.flac' -or -name '*.dsf' -or \
+		-name '*.mp3' -or -name '*.m4a' -or \
+		-name '*.shn' \) \) \
+		-execdir "$x" "-X" "$DEST_DIR" "$SRC_DIR" \{\} \+
+}
+
+probe_parallel() {
+	HAVE_XARGS=false
+	HAVE_PARALLEL=false
+	if type parallel; then
+		HAVE_PARALLEL=true
+	elif type xargs; then
+		HAVE_XARGS=true
+		NUM_PROCS=$(getconf _NPROCESSORS_ONLN)
+	fi
+
+	>&2 echo "HAVE_XARGS=$HAVE_XARGS"
+	>&2 echo "HAVE_PARALLEL=$HAVE_PARALLEL"
+	: ${USE_PARALLEL:=$HAVE_PARALLEL}
+	: ${USE_XARGS:=$HAVE_XARGS}
+}
+
+do_parallel_x() {
+	if $USE_PARALLEL; then
+		parallel -0 -m "$@"
+	elif $USE_XARGS; then
+		xargs -0 -n 1 -P "${NUM_PROCS}" "$@"
+	else
+		>&2 echo "ERROR: no parallel mechanism found"
+		exit 1
+	fi
+}
+
+do_path_fp() {
+	probe_parallel
+	find "$1" \( -type f \( \
+		-name '*.flac' -or -name '*.dsf' -or \
+		-name '*.mp3' -or -name '*.m4a' -or \
+		-name '*.shn' \) \) \
+		-print0 | \
+		do_parallel_x "$0" "-X" "$DEST_DIR" "$SRC_DIR"
+}
+
+
+if $convert_one; then
+	>&2 echo "CONV ONE"
+	>&2 echo "DEST_DIR: $DEST_DIR"
+	>&2 echo "SRC_DIR: $SRC_DIR"
+	for v in "$@"; do
+		conv_one_x "$DEST_DIR" "$SRC_DIR" "$v"
+	done
+elif $use_find; then
+	>&2 echo "F"
+	do_path_fe "$SRC_DIR"
+elif $use_parallel; then
+	>&2 echo "P"
+	do_path_fp "$SRC_DIR"
+else
+	>&2 echo "N"
+	do_path "$SRC_DIR"
+fi
