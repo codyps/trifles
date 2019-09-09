@@ -6,7 +6,7 @@
 #	
 
 : ${V4L2_DEV:=/dev/video0}
-: ${ALSA_DEV:=hw:1}
+: ${ALSA_DEV:=hw:2}
 
 # NOTE: color profile smpte170m corresponds to NTSC BT.601. PAL uses
 # bt470bg/gamma28/bt470bg instead.

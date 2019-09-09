@@ -6,6 +6,11 @@ D="$(dirname "$0")"
 
 N="$(basename "$0")"
 
+if [ $# -lt 4 ]; then
+	>& echo "usage: $0 <file> <start-ts> <end-ts> <crop-spec> [<out_base>]"
+	exit 1
+fi
+
 file="$1"
 start="$2"
 end="$3"

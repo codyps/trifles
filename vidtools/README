@@ -86,3 +86,9 @@ ffmpeg64 -i src.avi -filter_complex
 https://forum.videohelp.com/threads/384494-Modify-Color-Space-Flag
 https://kdenlive.org/en/project/color-hell-ffmpeg-transcoding-and-preserving-bt-601/
 https://github.com/ilia3101/MLV-App/issues/46
+
+# playback
+
+## show audio scope
+
+ mpv --lavfi-complex '[aid1]asplit[ao][t1];[t1]avectorscope=s=720x480:zoom=1.5:rc=0:gc=200:bc=0:rf=0:gf=40:bf=0,format=yuv420p[v1];[vid1][v1]hstack[vo]'
