@@ -100,7 +100,7 @@ a_bind() {
 a_install_raw() {
 	m="$1"
 	# XXX: assumes we're bind=true
-	pacstrap "$m" base base-devel xorg xorg-drivers tmux i3 slim grub bash-completion ccache openssh sudo htop gvim linux-headers wpa_supplicant mpv pulseaudio firefox rxvt-unicode wireguard-arch wireguard-tools youtube-dl alacritty iwd crda wireless-regdb iw wireless_tools
+	pacstrap "$m" base base-devel xorg xorg-drivers tmux i3 slim grub bash-completion ccache openssh sudo htop gvim linux-headers wpa_supplicant mpv pulseaudio firefox rxvt-unicode wireguard-arch wireguard-tools youtube-dl alacritty iwd crda wireless-regdb iw wireless_tools dmenu
 
 	ln -sf /usr/lib/systemd/resolv.conf "$m"/etc/resolv.conf
 	cat >"$m"/etc/systemd/network/50-wired.network <<EOF
