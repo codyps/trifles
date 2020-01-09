@@ -6,10 +6,19 @@ req() {
 	curl --digest -u "$auth" -G 'http://'"$host$uri_version"
 }
 
+list() {
+	uri_version='/axis-cgi/param.cgi?action=list&group='"$1"
+	curl --digest -u "$auth" -G 'http://'"$host$uri_version"
+}
+
 version() {
 	uri_version='/axis-cgi/param.cgi?action=list&group=Properties.API.HTTP.Version'
 	curl --digest -u "$auth" -G 'http://'"$host$uri_version"
 }
+
+if [ $# -lt 1 ]; then
+	>&2 echo "usage: $0 version"
+	>&2 echo "usage: $0 req [prop]"
 
 cmd="$1"
 shift

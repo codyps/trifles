@@ -1,0 +1,28 @@
+
+	https://github.com/pellepl/spiffs
+	https://github.com/pellepl/spiffs/blob/master/docs/TECH_SPEC
+		target: NOR
+
+	https://github.com/pellepl/niffs
+		target: NOR
+
+	https://github.com/apache/mynewt-core/tree/master/sys/mfg
+		read-only "manufacturing" key value store
+
+		 *  0                   1                   2                   3
+		 *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+		 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		 * |   TLV type    |   TLV size    | TLV data ("TLV size" bytes)   ~
+		 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               ~
+		 * ~                                                               ~
+		 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		 * |   TLV type    |   TLV size    | TLV data ("TLV size" bytes)   ~
+		 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               ~
+		 * ~                                                               ~
+		 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		 * |          Region size          |    Version    | 0xff padding  |
+		 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		 * |                       Magic (0x3bb2a269)                      |
+		 * +-+-+-+-+-+--+-+-+-+-end of boot loader area+-+-+-+-+-+-+-+-+-+-+
+
+	
