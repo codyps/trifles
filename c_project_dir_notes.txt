@@ -1,0 +1,131 @@
+# Survey
+
+mynewt:
+	- seperate dir per module, with includes in include dir & src in srcdir
+	- `include` dir is added to include path, other modules include via `#include <module/foo.h>` (no prefix)
+
+	<module>/README.md
+	<module>/pkg.yml
+	<module>/syscfg.yml
+	<module>/include/<module>/some_inc.h
+	<module>/selftest/pkg.yml
+	<module>/selftest/src/<module>_test.c
+	<module>/selftest/src/testcases/<module>_test_case_*.c
+	<module>/src/some_src.c
+
+	each board provides a `bsp` package, which provides a `bsp/bsp.h`
+	header, source code, linker script(s), and various other configuration
+	and shell scripts
+
+	`mcu` packages provide code specific to the each mcu (stm32f4xx,
+	nrf52xxx, etc) and a `native` mcu for running in a hosted system. Each of these
+	provides both source and headers (`#include <mcu/mcu.h>`) to customize
+	behavior.
+
+	`mcu` packages also include some `hal_*.c` files which impliment apis
+	defined in `hal/hal_*.h` headers.  All the `hal` headers are provided in
+	`hw/hal/include/hal/*`. `hal` is a normal package/module, and also includes
+	some source code (`hal_flash.c`, `hal_common.c`), but most of it's apis aren't
+	implimented by hal itself.
+
+	Some `hal` headers (like `hal_os_tick.h`) are not implimented by the
+	`native` mcu, preventing some code from building/running on native.
+
+	Top level structuing uses somewhat specific terms for folders: `fs`,
+	`net`, `kernel`, `mgmt`, `libc`, `util`, `hw`, `sys`, `time`, `apps`, `boot`.
+
+	[uses uncrustify for code formatting]
+
+zephyr:
+
+	has a top level `include/` with many directories & files underneath.
+
+	`arch/` directory includes a number of archs like `arm`, `x86_64`, and
+	the special `posix`. `posix` targets hosted systems in the same way that
+	`mynewt`'s `native` mcu works.
+
+	`arch/<arch>` provides headers in `arch/<arch>/include`, and some
+	source code in `arch/<arch>/core`.
+
+	`boards/<arch>/<board>` directories also exist. Where <board> is things like
+	`nucleo_l053r8`, `nrf52_pca20020`, etc.
+
+	Each `<board>` dir provides a bunch of configuration/docs, and
+	_sometimes_ a bit of source code.
+
+	`subsys` top level dir only has source files, headers corresponding are
+	in the big top level `include/` dir.
+
+	`mcu` specific code exists in various `drivers/*` directories.
+	`drivers/*` also has code not specific to an mcu. Handles the various
+	levels of specificity with suffix naming. For example:
+
+		drivers/dma/dma_stm32f4x.c
+		drivers/interrupt_controller/exti_stm32.c
+
+	Uses `depends on`/`if` requirements in the `Kconfig` to restrict
+	enabling of options:
+
+		`depends on SOC_SERIES_STM32F4X`
+		`if SOC_FAMILY_STM32`
+
+	Top level folders are linux-like: `drivers`, `arch`, `include`, `lib`,
+	`kernel`. But have some new additions: `ext`, `subsys`, `soc`, `modules`,
+	`misc`.
+
+	[uses `west` metatool to manage cloning repos, see `west.yml` for
+	projects + hashes ala `repo`/`.rosinstall`/`wstool`]
+
+linux:
+
+	top level include & `arch` setup like `zephyr` (zeyphr layout is based on linux)
+
+ccan:
+
+	Places all modules in the `ccan/<module>` heirarchy, with headers in `ccan/<module>/<module>.h`
+	`#include <ccan/module/module.h>`
+
+	_Some_ arch specific stuff (but mostly compiler specific stuff) handled
+	via `#if XXX` which are stored in config.h generated at build time,
+	which are used in both *.h and *.c files.
+
+systemd:
+
+	- `tools` :: scripts, no compiled code, used for development/etc
+	- `src/*` :: libraries & executables, each with their own dir
+	- `src/libsystemd/sd-bus/*.[ch]` :: source & internal header files
+	- `src/systemd/*.h` :: header files exported. Implimented by code in `src/libsystemd`
+
+zfsonlinux:
+
+	- `cmd/*` :: directories for each command line tool
+	- `lib/*` :: directories for each library
+	- `include/*` :: headers & dirs, some of which are installed and some
+	   of which are not. (mix of public and private headers)
+
+# Thoughts
+
+Many projects rely on each of their modules be named in a non-colliding way.
+Some projects simply carefully namespace their external headers while being
+less concerned with internal headers.
+
+Self contained projects don't always have an external/internal division.
+
+The use of a `<module>/src` and `<module>/include/<module>` directory is more
+directories, but it also means that it's straight forward to seperate the
+public headers (in `include`) from internal headers (in `src`).
+
+Having a directory for tools that are intended for public consumption is
+useful. Right now we don't have anything that could really be considered an
+installable tool, everything is development focused. Placing the installable
+tools in a `cmd/*` dir would be a good way to call them out as a public
+interface.
+
+Using 1 mixed `include/` directory for all public headers seems not great in
+that it isn't immediately clear where the implimentation os located, but does
+have the benefit of making it easy to find the entire public API in one place
+and reducing the number of include paths passed to the compiler.
+
+We currently don't have something like a "public" api, but it could make sense
+for a set of public libs to expose a public api. (say, something to enable
+debug log output streaming over the network from a flexbot).
