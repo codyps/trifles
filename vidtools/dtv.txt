@@ -1,0 +1,18 @@
+w_scan -f a -c US -x initial.conf >initial.conf
+dvb-format-convert -I channel -O DVBV5 initial.conf initial-dvbv5.conf
+dvbv5-scan initial-dvbv5.conf 
+dvb-format-convert -I DVBV5 -O VDR dvb_channel.conf ~/.config/mpv/channels.conf.atsc
+
+mpv dvb://0@NBC,15.3
+
+dvbv5-zap -a 1 -rPp -c dvb_channel.conf NBC
+ffmpeg -i /dev/dvb/adapter1/dvr0 -c copy NBC.mkv
+
+ffmpeg -f mpegts -i /dev/dvb/adapter1/dvr0 -c:v copy -c:a copy -map a:a -f stream_segment -segment_list stream.m3u8 -segment_time 15:00 -segment_atclocktime 1 -strftime 1 -write_empty_segments 1 'NBC_%F.%H.%M.%S.ts'
+
+ ffmpeg -f mpegts -i /dev/dvb/adapter1/dvr0 -map 0 -c copy -f stream_segment -segment_list stream.list -segment_time 15:00 -segment_atclocktime 1 -strftime 1 -write_empty_segments 1 'NBC_%F.%H.%M.%S.ts'
+
+
+ dvbv5-zap -a 1 -rPp -c dvb_channel.conf NBC -o "/tank/TMP/tv/NBC_$(date +%F_%H.%M.%S).ts"
+ dvbv5-zap -a 0 -rPp -c dvb_channel.conf WBZ-DT -o "/tank/TMP/tv/ABC_$(date +%F_%H.%M.%S).ts"
+
