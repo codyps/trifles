@@ -1,0 +1,5 @@
+#! /bin/bash
+
+exec ffmpeg -device /dev/dri/card0 -f kmsgrab -i - \
+  -vf 'hwmap=derive_device=vaapi,scale_vaapi=format=nv12' \
+        -c:v h264_vaapi -qp 24 output.mp4 -y
