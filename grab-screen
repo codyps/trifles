@@ -90,12 +90,9 @@ run () {
 }
 
 run ffmpeg -hide_banner \
-	# inputs
 	-device "$kms_dev" -f kmsgrab -i - \
 	-f pulse -i "$pa_input" \
-	# filters
 	-vf 'hwmap=derive_device=vaapi,scale_vaapi=format=nv12' \
-	# outputs
 	-c:v h264_vaapi -qp 24 \
 	-c:a libopus \
 	"$output"
