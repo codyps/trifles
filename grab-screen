@@ -1,5 +1,101 @@
 #! /bin/bash
+# TODO:
+#  - record subset of screen
+#  - record window
+#  - support x11grab
+#  - allow multiple audio inputs (ie: allow mic grab)
 
-exec ffmpeg -device /dev/dri/card0 -f kmsgrab -i - \
-  -vf 'hwmap=derive_device=vaapi,scale_vaapi=format=nv12' \
-        -c:v h264_vaapi -qp 24 output.mp4 -y
+set -euf -o pipefail
+
+optstr="ha:k:o:"
+
+usage() {
+	cat >&2 <<EOF
+Captures screen and mixed audio
+
+usage: $0 [-p pulse-audio-device] [-d kmsgrab-device] [-o output-file]
+usage: $0 [-$optstr]
+EOF
+
+	exit "$1"
+}
+
+while getopts "$optstr" opt; do
+	case "$opt" in
+	h) usage 0;;
+	p) opt_pa_input="$OPTARG";;
+	k) opt_kms_dev="$OPTARG";;
+	o) opt_output="$OPTARG";;
+	\?) usage 1;;
+	*)
+		>&2 echo "BUG: opt=$opt, OPTIND=$OPTIND"
+		exit 1;;
+	esac
+done
+shift "$((OPTIND-1))"
+
+if ! pactl info >/dev/null 2>&1; then
+	>&2 echo "Warning: pulseaudio not found, attempting workaround"
+	# plain pulseaudio failed, try env var fiddling
+	export PULSE_SERVER=/run/user/"${SUDO_UID:-$UID}"/pulse/native
+	export PULSE_COOKIE="$HOME"/.config/pulse/cookie
+	if ! pactl info >/dev/null 2>&1; then
+		>&2 echo "Error: pulseaudio not functional"
+		pactl info
+		exit 1
+	fi
+fi
+
+if [ -n "${opt_pa_input:-}" ]; then
+	pa_input="$opt_pa_input"
+else
+	pa_inputs=$(pactl list sources | awk '/Name: *alsa_output\..*\.monitor/ { print $2 }')
+	readarray -t pa_inputs <<<"$pa_inputs"
+	echo "pa_inputs: ${#pa_inputs[@]}"
+	for inp in "${pa_inputs[@]}"; do
+		echo " - $inp"
+	done
+
+	if [ ${#pa_inputs[@]} -gt 1 ]; then
+		>&2 echo "Error: could not select audio source, use \"-a <pa-input>\""
+		pactl list sources | awk '/Name: / { print $2 }'
+		exit 1
+	fi
+
+	pa_input="${pa_inputs[0]}"
+fi
+
+if [ -n "${opt_kms_dev:-}" ]; then
+	kms_dev="$opt_kms_dev"
+else
+	# TODO: use some better heuristic
+	kms_dev=/dev/dri/card0
+fi
+
+if [ -n "${opt_output:-}" ]; then
+	output="$opt_output"
+else
+	output="$HOME/grab-screen-$(date +%F-%H%M%S).mkv"
+fi
+
+run () {
+	>&2 printf "run:"
+	for i in "$@"; do
+		arg="${i%\'/\'\\\'\'}"
+		>&2 printf " '%s'" "$arg"
+	done
+	>&2 printf "\n"
+
+	exec "$@"
+}
+
+run ffmpeg -hide_banner \
+	# inputs
+	-device "$kms_dev" -f kmsgrab -i - \
+	-f pulse -i "$pa_input" \
+	# filters
+	-vf 'hwmap=derive_device=vaapi,scale_vaapi=format=nv12' \
+	# outputs
+	-c:v h264_vaapi -qp 24 \
+	-c:a libopus \
+	"$output"
