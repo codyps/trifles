@@ -45,3 +45,4 @@ user.keystore
 *.gcda
 *.gcno
 *.gcov
+zig-cache
