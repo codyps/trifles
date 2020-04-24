@@ -1,0 +1,21 @@
+[package]
+name = "helloworld-tonic"
+version = "0.1.0"
+authors = ["Cody Schafer <cody@berkshiregrey.com>"]
+edition = "2018"
+
+[[bin]]
+name = "helloworld-server"
+path = "src/server.rs"
+
+[[bin]]
+name = "helloworld-client"
+path = "src/client.rs"
+
+[dependencies]
+tonic = "0.2"
+prost = "0.6"
+tokio = { version = "0.2", features = ["macros"] }
+
+[build-dependencies]
+tonic-build = "0.2"

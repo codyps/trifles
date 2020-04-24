@@ -1,0 +1,17 @@
+[package]
+name = "helloworld-capn"
+version = "0.1.0"
+authors = ["Cody Schafer <cody@berkshiregrey.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+capnp = "*"
+capnp-rpc = "*"
+futures = "*"
+async-std = { version = "*", features = ["attributes"] }
+
+
+[build-dependencies]
+capnpc = "*"
