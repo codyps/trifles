@@ -5,6 +5,12 @@
 #  - support x11grab
 #  - allow multiple audio inputs (ie: allow mic grab)
 
+# - audio of one program: https://askubuntu.com/questions/60837/record-a-programs-output-with-pulseaudio
+# - audio is mix output, which means it's volume is limited to the mix output
+#   instead of full volume. Playback applys mix volume level again
+
+# - jitter is bad
+
 set -euf -o pipefail
 
 optstr="ha:k:o:"
@@ -49,7 +55,13 @@ fi
 if [ -n "${opt_pa_input:-}" ]; then
 	pa_input="$opt_pa_input"
 else
-	pa_inputs=$(pactl list sources | awk '/Name: *alsa_output\..*\.monitor/ { print $2 }')
+	pa_default_output="$(pacmd list-sinks | grep -A1 "* index" | grep -oP "<\K[^ >]+")"
+	pa_default_output_monitor="$pa_default_output.monitor"
+
+	# TODO: use pa_default_output_monitor if it exists
+	# TODO: link ourselves _before_ pa_default_output_monitor and use that
+
+	pa_inputs="$(pactl list sources | awk '/Name: *alsa_output\..*\.monitor/ { print $2 }')"
 	readarray -t pa_inputs <<<"$pa_inputs"
 	echo "pa_inputs: ${#pa_inputs[@]}"
 	for inp in "${pa_inputs[@]}"; do
