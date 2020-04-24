@@ -46,3 +46,6 @@ user.keystore
 *.gcno
 *.gcov
 zig-cache
+.clangd
+_b*
+compile_commands.json
