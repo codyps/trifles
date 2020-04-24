@@ -13,14 +13,24 @@
 
 set -euf -o pipefail
 
-optstr="ha:k:o:"
+optstr="ha:k:o:KXPA"
 
 usage() {
 	cat >&2 <<EOF
 Captures screen and mixed audio
 
-usage: $0 [-p pulse-audio-device] [-d kmsgrab-device] [-o output-file]
 usage: $0 [-$optstr]
+
+options:
+
+ -p <pulse-audio-device>
+ -k <kmsgrab-device>
+ -o <output-file>         use a specific output file
+                          default: ~/grab-screen-<date>-<time>.mkv
+ -K                       use kmsgrab to capture video (default)
+ -X                       use x11grab to capture video
+ -P                       use pulseaudio to capture audio (default)
+ -A                       use alsa to capture audio
 EOF
 
 	exit "$1"
@@ -60,21 +70,9 @@ else
 
 	# TODO: use pa_default_output_monitor if it exists
 	# TODO: link ourselves _before_ pa_default_output_monitor and use that
+	# TODO: inject a monitor for a specific application
 
-	pa_inputs="$(pactl list sources | awk '/Name: *alsa_output\..*\.monitor/ { print $2 }')"
-	readarray -t pa_inputs <<<"$pa_inputs"
-	echo "pa_inputs: ${#pa_inputs[@]}"
-	for inp in "${pa_inputs[@]}"; do
-		echo " - $inp"
-	done
-
-	if [ ${#pa_inputs[@]} -gt 1 ]; then
-		>&2 echo "Error: could not select audio source, use \"-a <pa-input>\""
-		pactl list sources | awk '/Name: / { print $2 }'
-		exit 1
-	fi
-
-	pa_input="${pa_inputs[0]}"
+	pa_input="$pa_default_output_monitor"
 fi
 
 if [ -n "${opt_kms_dev:-}" ]; then
