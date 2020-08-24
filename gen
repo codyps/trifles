@@ -1,0 +1,10 @@
+#! /bin/bash
+set -euf -o pipefail
+
+n="$1"
+openssl req -x509 -sha256 -nodes \
+	-newkey rsa:4096 \
+	-days 365 \
+	-keyout "$n".key \
+	-subj "/CN=$n/" \
+	-out "$n".crt
