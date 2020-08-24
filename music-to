@@ -84,7 +84,17 @@ conv_one() {
 			mkdir_done=true
 		fi
 		# XXX: consider preserving 48k (downsample to 48k, avoid upsampling)
-		run ffmpeg -hide_banner -y -i "$f" -c:a libfdk_aac -cutoff 18000 -b:a 192k -ar 44100 -ac 2 -vn "$R"
+		current_rate=$(ffprobe "$f" 2>&1 | awk '/Stream #0:0/ { print $5 }')
+		rate_arg=""
+		if [ -z "$current_rate" ]; then
+			>&2 echo "ERROR: could not determine rate for $f"
+			exit 1
+		fi
+		# TODO: validate that it is a number
+		if [ "$current_rate" -gt 48000 ]; then
+			rate_arg="-ar 48000"
+		fi
+		run ffmpeg -hide_banner -y -i "$f" -c:a libfdk_aac -cutoff 18000 -b:a 192k $rate_arg -ac 2 -vn "$R"
 		;;
 	*.log|*.[cC][uU][eE]|*.svf|*.md5|*.txt|*.[Jj][Pp][Gg]|*.m3u8|*.st5|*.png|*.ffp)
 		# known don't cares

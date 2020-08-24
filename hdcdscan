@@ -1,0 +1,118 @@
+#!/bin/bash
+set -euf -o pipefail
+
+# A bash script for scanning for files with HDCD encoding.
+# Burt P.
+#
+# Usage:
+#   ./hdcdscan.sh *.flac
+# or
+#   find /some/archive/path/ -name '*.flac' -exec ./hdcdscan.sh {} \;
+# or 
+#   find /some/archive/path/ -name '*.flac' -print0 |xargs -0 -P 4 -n 1 ./hdcdscan.sh
+# or (prolly best)
+#   find /some/archive/path/ -name '*.flac' -print0 |xargs -0 -P 1 -n 50 ./hdcdscan.sh
+#
+
+failure() {
+	local lineno=$1
+	local msg=$2
+	echo "Failed at $lineno: $msg"
+}
+trap 'failure ${LINENO} "$BASH_COMMAND"' ERR
+
+TDER="$XDG_RUNTIME_DIR/hdcdscan" # temp directory
+cleanup() {
+	if [ -n "$TDER" ]; then
+		rm -rf "$TDER"
+	fi
+}
+trap cleanup exit
+mkdir -p "$TDER"
+TLIMIT=""      # scan the first N seconds, empty for no limit
+SIMPLE=true      # show only summary, empty for no
+ONLY_HDCD=true   # show only files with hdcd detected, empty for no
+CHECK_MODES=""  # use both modes and see if md5 matches
+
+optsring="oasvt:"
+while getopts "$optsring" arg; do
+	case "$arg" in
+	o)  ONLY_HDCD=true;;
+	a)  ONLY_HDCD=false;;
+	s)  SIMPLE=true;;
+	v)  SIMPLE=false;;
+	t)  TLIMIT="$OPTARG" ;;
+	*)
+		echo "ERROR: $arg, $OPT"
+		exit 1;;
+	esac
+done
+shift "$((OPTIND - 1))"
+
+CPU_COUNT=$(nproc)
+: ${FFMPEG:=ffmpeg}
+
+FILTERCHK=$("$FFMPEG" -filters 2>&1 | grep hdcd)
+if [ -z "$FILTERCHK" ]; then
+    echo "$FFMPEG is not built with hdcd filter support"
+    exit 1
+fi
+
+#FORMATSTR="-acodec pcm_s24le -f wav"  # if using wav temp file
+FORMATSTR="-f s24le"                   # if using /dev/null
+
+scan_file() {
+    local SF
+    local TAG
+    local P_TLIMIT
+    TAG="$$_$1"
+    SF="$2"
+    P_TLIMIT=""
+    if [ -n "$TLIMIT" ]; then P_TLIMIT="-t $TLIMIT"; fi
+
+    if [ -f "$f" ]; then
+        #TF="$TDER/hdcdout_$TAG.wav"
+        TF="/dev/null"
+        TFO="$TDER/hdcdout_$TAG.ffmpeg-out"
+
+        echo "$f ..." >"$TFO"
+
+        "$FFMPEG" -hide_banner -nostats -y -v verbose -i "$f" $P_TLIMIT -vn -af hdcd $FORMATSTR "$TF" 2>&1 | grep "_hdcd_" >>"$TFO"
+        DETECTED=$(grep "HDCD detected: yes" "$TFO")
+        if [ -n "$ONLY_HDCD" ]; then
+            if [ -z "$DETECTED" ]; then echo -n "" >"$TFO"; fi
+        fi
+        if [ -n "$DETECTED" ]; then
+            if [ -n "$CHECK_MODES" ]; then
+                SUM1=$("$FFMPEG" -y -v verbose -i "$f" $P_TLIMIT -vn -af hdcd=process_stereo=0 $FORMATSTR md5: 2>/dev/null)
+                SUM2=$("$FFMPEG" -y -v verbose -i "$f" $P_TLIMIT -vn -af hdcd=process_stereo=1 $FORMATSTR md5: 2>/dev/null)
+                if [ "$SUM1" == "$SUM2" ]; then
+                    echo "md5 sums match: $SUM1" >>"$TFO"
+                else
+                    echo "md5 sums differ: ps0: $SUM1, ps1: $SUM2" >>"$TFO"
+                fi
+            fi
+        fi
+        sed -i -e "s#^\[Parsed_hdcd_[0-9]\+ @ [0-9a-fx]\+\] ##" "$TFO"
+        sed -i -e "s#^#[$TAG] #" "$TFO"
+        if [ -n "$SIMPLE" ]; then
+            head -n 1 "$TFO"
+            if [ -n "$CHECK_MODES" ]; then grep "md5 sums " "$TFO"; fi
+            grep "HDCD detected:" "$TFO"
+        else
+            cat "$TFO"
+        fi
+
+        if [ -f "$TFO" ]; then rm "$TFO"; fi
+        if [ -f "$TF" ]; then rm "$TF"; fi
+    fi
+}
+
+NN=0
+for f in "$@"
+do
+    scan_file "$NN" "$f" &
+    while [ $(jobs -r| wc -l) -ge "$CPU_COUNT" ] ; do sleep 0.2 ; done
+    : $((NN++))
+done
+wait
