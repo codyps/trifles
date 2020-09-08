@@ -1,21 +1,23 @@
 #! /usr/bin/env bash
 set -euf -o pipefail
 
-if [ $# -ne 2 ]; then
+if [ $# -ne 3 ]; then
 	>&2 echo "Print the commit status names for a given commit"
-	>&2 echo "usage: $0 <org/repo> <commit>"
+	>&2 echo "usage: $0 <username> <org/repo> <commit>"
 	exit 1
 fi
 
-repo="$1"
-commit="$2"
+user="$1"
+repo="$2"
+commit="$3"
 
 c() {
-	curl -H 'Accept: application/vnd.github.antiope-preview+json' -n "$@"
+	curl -u "$user:$(pass show "github-$user")" -H 'Accept: application/vnd.github.antiope-preview+json' -n "$@"
 }
 
 suites=$(c https://api.github.com/repos/"$repo"/commits/"$commit"/check-suites)
 #suites_data=$(echo "$suites" | jq -r '.check_suites[] | .check_runs_url, .app.slug')
+echo "$suites"
 readarray -t checks_merged < <(echo "$suites" | jq -r '.check_suites[] | .check_runs_url, .app.slug')
 
 for ((i=0; i < "$((${#checks_merged[@]} / 2))"; i++)); do
