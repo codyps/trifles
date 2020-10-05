@@ -24,6 +24,12 @@ info() {
 	echo "I: $*"
 }
 
+debug() {
+	if [ "$DEBUG" -gt 0 ]; then
+		echo "D: $*"
+	fi
+}
+
 # $1 = string
 # $2 = prefix
 remove_prefix() {
@@ -94,7 +100,7 @@ conv_one() {
 		if [ "$current_rate" -gt 48000 ]; then
 			rate_arg="-ar 48000"
 		fi
-		run ffmpeg -hide_banner -y -i "$f" -c:a libfdk_aac -cutoff 18000 -b:a 192k $rate_arg -ac 2 -vn "$R"
+		run ffmpeg -hide_banner -y -i "$f" -c copy -c:a libfdk_aac -cutoff 18000 -b:a 192k $rate_arg -ac 2 "$R"
 		;;
 	*.log|*.[cC][uU][eE]|*.svf|*.md5|*.txt|*.[Jj][Pp][Gg]|*.m3u8|*.st5|*.png|*.ffp)
 		# known don't cares
@@ -175,9 +181,11 @@ do_parallel_x() {
 		if [ -n "$NUM_PROCS" ]; then
 			np_arg="-j$NUM_PROCS"
 		fi
-
+		
+		debug "parallel: $np_arg : $*"
 		parallel -0 $np_arg -m "$@"
 	elif $USE_XARGS; then
+		debug "xargs: $NUM_PROCS: $*"
 		xargs -0 -n 1 -P "${NUM_PROCS}" "$@"
 	else
 		>&2 echo "ERROR: no parallel mechanism found"
@@ -186,6 +194,7 @@ do_parallel_x() {
 }
 
 do_path_fp() {
+	debug "do_path_fp: $*"
 	local dr_arg=""
 	if $dry_run; then
 		dr_arg="-n"

@@ -1,0 +1,2 @@
+#! /bin/bash
+exec maim -s -l -c 0.1,0.4,0.1,0.4 | tee ~/Screenshots/$(date +%F_%H%M%S).png | xclip -selection clipboard -t image/png
