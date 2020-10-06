@@ -1,0 +1,2 @@
+ - circular allocator (based on what I've done in hj's framing code).
+
