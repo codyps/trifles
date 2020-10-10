@@ -1,5 +1,6 @@
 [package]
 name = "nib"
+description = "Nibble references and slices"
 version = "0.1.0"
 authors = ["Cody P Schafer <dev@codyps.com>"]
 edition = "2018"
