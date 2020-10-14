@@ -1,0 +1,57 @@
+= Penny =
+Nicer things in C, for cheep.
+
+Includes useful non-specific macros and data structures for use within C
+based projects.
+
+Quite a few of these depend on ccan libs, and use of ccan is intended (which is why I don't have a linked list or container_of()).
+
+== Parts ==
+
+penny.h::
+	Includes general items that do not warrent their own header. These
+	include the following:
+
+	- barrier
+	- htonll() & ntohll()
+	- ACCESS_ONCE()
+	- LINE_STR
+	- likely(), unlikely()
+	- CAT2(), CAT3()
+	- FIELD_SIZE(), typeof_field()
+
+	- GCC_VERSION_GREATER(a,b,c)
+
+math.h::
+	Commonly used math operators
+
+	- MAX(), MIN() (and variants with more arguments)
+	- ABS()
+	- KILO(), MEGA()
+	- SAT_CEIL(x, ceil) - constrain 'x' to 'ceil' and return.
+	- pow4(x) - calculate '4^(x)' using integer operators.
+	- SUB_SAT(x, y) - calculate 'x - y' and return 0 if the result would
+	                  be negative.
+	- DIV_OR_ZERO()
+	- DIV_ROUND_UP()
+
+mem.h::
+	Some handy compaions to the common str*() functions that operate on
+	lenth specified byte arrays instead of null terminated arrays.
+
+check.h::
+	Some functions for compile time checking of code.
+
+circ_buf.h::
+	Macros for managing a circular buffer.
+
+darray.h::
+	Macros for managing a dynamic array where the array metadata and
+	data sections are contained within the same allocation.
+	Using ccan's darray may be a better choice.
+
+gen_fn.h::
+	Contains a macro which generates a bsearch on a particular type,
+	given a particular comparator.
+
+

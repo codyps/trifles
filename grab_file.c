@@ -69,4 +69,3 @@ void *grab_file(const char *filename, size_t *size)
 	close(fd);
 	return buffer;
 }
-

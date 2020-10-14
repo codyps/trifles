@@ -1,0 +1,8 @@
+[package]
+name = "iio"
+version = "0.1.0"
+authors = ["Cody Schafer <dev@codyps.com>"]
+edition = "2018"
+
+[dependencies]
+ctrlc = "*"
