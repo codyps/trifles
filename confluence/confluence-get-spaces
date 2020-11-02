@@ -1,0 +1,27 @@
+#! /bin/bash
+set -euf -o pipefail
+
+if [ $# -ne 3 ]; then
+	>&2 echo "Usage: $0 <cookie-file> <site-url> <output-dir>"
+	exit 1
+fi
+
+
+COOKIE_FILE="$1"
+SITE_URL="$2"
+OUTPUT_DIR="$3"
+
+fetch_url="$SITE_URL/rest/api/space"
+n=0
+while true; do
+	echo "fetch: '$fetch_url'"
+	spaces="$(curl -b "$COOKIE_FILE" "$fetch_url")"
+	results="$(printf "%s" "$spaces" | jq .results)"
+	echo "$results" >"$OUTPUT_DIR"/space.$n.json
+	fetch_url="$(printf "%s" "$spaces" | jq -r ._links.next)"
+	if [ "$fetch_url" = "null" ]; then
+		break
+	fi
+	fetch_url="$SITE_URL$fetch_url"
+	: $((n=n+1))
+done
