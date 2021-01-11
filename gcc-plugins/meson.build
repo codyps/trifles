@@ -1,4 +1,5 @@
 project('gcc-plugin-test', ['cpp', 'c'],
+  meson_version: '>= 0.55',
   default_options: [
     'optimization=g',
     'werror=true',
@@ -8,11 +9,19 @@ project('gcc-plugin-test', ['cpp', 'c'],
 cc = meson.get_compiler('c')
 plugin_dev_path_result = run_command(cc.cmd_array(), '-print-file-name=plugin')
 plugin_dev_path = plugin_dev_path_result.stdout().strip()
-plugin_inc = include_directories([join_paths(plugin_dev_path, 'include')])
+plugin_inc = include_directories([join_paths(plugin_dev_path, 'include')], is_system: true)
+
+# required for gcc10 plugin headers
+gmp = dependency('gmp')
+
+gcc_plugin = declare_dependency(
+  include_directories: plugin_inc,
+  dependencies: [gmp]
+  )
 
 explicit_init = shared_module('explicit_init',
 	'explicit-init.cc',
-	include_directories: plugin_inc
+	dependencies: [gcc_plugin]
 )
 
 explicit_init_fdep = custom_target('explicit_init',
