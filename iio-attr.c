@@ -4,12 +4,16 @@
 
 int main(void) {
 	struct iio_context *ctx = iio_create_default_context();
-	if (!ctx)
+	if (!ctx) {
+		fprintf(stderr, "iio_create_default_context() failed\n");
 		abort();
+	}
 
-	struct iio_device *dev = iio_context_find_device(ctx, "cui_amt22");
-	if (!dev)
+	struct iio_device *dev = iio_context_find_device(ctx, "deck_angl");
+	if (!dev) {
+		fprintf(stderr, "iio_context_find_device(ctx, \"deck_angl\") failed\n");
 		abort();
+	}
 
 	struct iio_channel *chan = iio_device_find_channel(dev, "angl", false);
 	if (!chan)

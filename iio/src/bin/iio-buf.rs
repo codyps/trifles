@@ -41,7 +41,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let r = iio_dev.read(&mut buf)?;
         let buf = &buf[..r];
 
-        let enc = u16::from_ne_bytes(buf[..2].try_into().unwrap()) & ((1 << 14) - 1);
+        let enc = u16::from_ne_bytes(buf[..2].try_into().unwrap()) & ((1 << 12) - 1);
         let ts = u64::from_ne_bytes(buf[8..16].try_into().unwrap());
 
         println!("{}: {}", ts, enc);
