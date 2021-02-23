@@ -1,0 +1,12 @@
+#! /bin/bash
+
+VERSION=v1.2.3-beta
+
+v="$VERSION"
+while true; do
+	echo "$v"
+	case "$v" in
+	*.*) v="${v%.*}" ;;
+	*) break ;;
+	esac
+done
