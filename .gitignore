@@ -1,4 +1,7 @@
 *.out
+*.ogg
+*.mkv
+*.mp4
 *.vcd
 *.gen
 *.ps
@@ -49,3 +52,4 @@ zig-cache
 .clangd
 _b*
 compile_commands.json
+.gdb_history
