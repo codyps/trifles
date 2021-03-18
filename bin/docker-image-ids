@@ -1,0 +1,32 @@
+#!/bin/bash
+set -euf -o pipefail
+
+: ${DOCKER_ROOT:=index.docker.io}
+API_URL="https://$DOCKER_ROOT/v2"
+REPOSITORY=$1
+TARGET_IMAGE_ID=$2
+
+# get authorization token
+#TOKEN=$(curl -s "https://auth.docker.io/token?service=registry.docker.io&scope=repository:$REPOSITORY:pull" | jq -r .token)
+TOKEN=$(pass show artifactory-bearer)
+
+# find all tags
+ALL_TAGS=$(curl -s -H "Authorization: Bearer $TOKEN" $API_URL/$REPOSITORY/tags/list | jq -r .tags[])
+
+# get image digest for target
+#TARGET_DIGEST=$(curl -s -D - -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.docker.distribution.manifest.v2+json" $API_URL/$REPOSITORY/manifests/$TARGET_TAG | grep Docker-Content-Digest | cut -d ' ' -f 2)
+
+# for each tags
+for tag in ${ALL_TAGS[@]}; do
+  # get image digest
+  digest=$(curl -s -I -D - -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.docker.distribution.manifest.v2+json" "$API_URL/$REPOSITORY/manifests/$tag" | grep Docker-Content-Digest | cut -d ' ' -f 2)
+  image_id=$(curl -s -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.docker.distribution.manifest.v2+json" "$API_URL/$REPOSITORY/manifests/$tag" | jq -r .config.digest)
+  #curl -s -D - -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.docker.distribution.manifest.v2+json" "$API_URL/$REPOSITORY/manifests/$tag"
+
+  # check digest
+  #case "$image_id" in
+  #"$TARGET_IMAGE_ID"*)
+  echo "$tag $image_id $digest"
+  #esac
+  #fi
+done

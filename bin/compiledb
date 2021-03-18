@@ -1,0 +1,49 @@
+#! /bin/bash
+set -euf -o pipefail
+
+t=""
+finish() {
+	if [ -n "$t" ] && [ -f "$t" ]; then
+		rm "$t"
+	fi
+}
+trap finish EXIT
+
+t="$(mktemp)"
+set +e
+perf stat -o "$t" -x \; -e cycles "$@"
+ret="$?"
+set -e
+
+quote_array() {
+	for i in "$@"; do
+		printf "'%s' " "${i/\'/\\\'}"
+	done
+}
+
+sql_escape() {
+	echo "$1" | sed "s/'/''/g"	
+}
+
+: ${COMPILEDB:=$HOME/.config/compiledb/compiledb.db}
+mkdir -p "$(dirname "$COMPILEDB")"
+
+cycles=$(<"$t" awk -F\; '/^[^#]/ { print $1 }')
+duration=$(<"$t" awk -F\; '/^[^#]/ { print $4 }')
+command_sql="$(sql_escape "$(quote_array "$@")")"
+sqlite3 -batch "$COMPILEDB" <<ENDSQL
+.timeout 1000
+CREATE TABLE IF NOT EXISTS compdb (
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    working_dir TEXT NOT NULL,
+    command TEXT NOT NULL,
+    cycles INTEGER,
+    duration INTEGER,
+    return INTEGER
+);
+INSERT INTO compdb (working_dir, command, cycles, duration, return)
+VALUES ('$PWD', '$command_sql', $cycles, $duration, $ret)
+
+ENDSQL
+
+exit $ret
