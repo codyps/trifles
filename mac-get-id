@@ -1,0 +1,12 @@
+#! /bin/ksh
+SIMachineAttributesPath="/System/Library/PrivateFrameworks/ServerInformation.framework/Versions/A/Resources/en.lproj/SIMachineAttributes.plist"
+#SIMachineAttributesPath="/System/Library/PrivateFrameworks/ServerInformation.framework/Versions/A/Resources/English.lproj/SIMachineAttributes.plist"
+
+if ! [ -f "${SIMachineAttributesPath}" ]; then
+    echo "can't use offline method to find marketing name on this OS version"
+    exit
+fi
+
+echo defaults read "${SIMachineAttributesPath}" "$(sysctl -n hw.model)" marketingModel
+
+#|sed -n -e 's/\\//g' -e 's/.*marketingModel = "\(.*\)";/\1/p'
