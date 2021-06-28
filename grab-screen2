@@ -103,9 +103,9 @@ run () {
 }
 
 run ffmpeg -hide_banner \
-	-video_size 1024x768 -framerate 30 -f x11grab -i :0.0+100,200 \
+	-hwaccel auto -hwaccel_device /dev/dri/renderD128 \
+	-video_size 1024x768 -framerate 30 -f x11grab -i :0.0+0,0 \
 	-f pulse -i "$pa_input" \
-	-vaapi_device /dev/dri/renderD128 \
 	-vf 'hwmap,scale_vaapi=format=nv12' \
 	-c:v h264_vaapi -qp 24 \
 	-c:a libopus \

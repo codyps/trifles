@@ -1,0 +1,13 @@
+#! /bin/bash
+set -euf -o pipefail
+
+: ${DOCKER_ROOT:="registry.hub.docker.com"}
+api_url="https://$DOCKER_ROOT/v2"
+repo=${1}
+size=${2:-25}
+page=${3:-1}
+
+: ${PASS_DOCKER_BEARER:=artifactory-bearer}
+auth_bearer="$(pass show "$PASS_DOCKER_BEARER")"
+
+exec curl -v -H "Authorization: Bearer $auth_bearer" "$api_url/${repo}/tags/list"

@@ -8,10 +8,20 @@
 #include <unistd.h>
 
 int main(void) {
-	int fd = open("tmp.bin", O_RDWR|O_CREAT);
+	unlink("tmp.bin");
+	int fd = open("tmp.bin", O_RDWR|O_CREAT, 0666);
 	if (fd < 0) {
 		fprintf(stderr, "E: could not open tmp.bin: %s\n", strerror(errno));
 		return -1;
+	}
+
+	{
+		unsigned char buf[1] = { 1 };
+		ssize_t rs = write(fd, buf, sizeof(buf));
+		if (rs < 0) {
+			fprintf(stderr, "E: could not write 1 byte (1): %s\n", strerror(errno));
+			return -1;
+		}
 	}
 
 	off_t soffs = lseek(fd, 10ull * 1024 * 1024 * 1024, SEEK_SET);
@@ -20,11 +30,13 @@ int main(void) {
 		return -1;
 	}
 
-	unsigned char buf[1] = { 0 };
-	ssize_t rs = write(fd, buf, sizeof(buf));
-	if (rs < 0) {
-		fprintf(stderr, "E: could not write 1 byte (0): %s\n", strerror(errno));
-		return -1;
+	{
+		unsigned char buf[1] = { 0 };
+		ssize_t rs = write(fd, buf, sizeof(buf));
+		if (rs < 0) {
+			fprintf(stderr, "E: could not write 1 byte (1): %s\n", strerror(errno));
+			return -1;
+		}
 	}
 
 	soffs = lseek(fd, 0, SEEK_SET);
