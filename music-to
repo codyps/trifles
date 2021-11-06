@@ -24,6 +24,8 @@ info() {
 	echo "I: $*"
 }
 
+: ${DEBUG:=0}
+
 debug() {
 	if [ "$DEBUG" -gt 0 ]; then
 		echo "D: $*"

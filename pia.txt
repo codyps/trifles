@@ -1,0 +1,24 @@
+
+# Network Namespaces
+
+https://github.com/chrisbouchard/namespaced-wireguard-vpn
+
+ - No support in systemd-networkd directly
+ - Have to configure interfaces directly (shell scripts)
+
+1. start wg (in normal)
+2. move wg interface to netns
+3. start transmission in netns
+4. ?? forward local non-netns connections into netns to allow transmission-remote to work
+	use 
+
+
+# seperate routing tables based on fwmark
+
+ - This _seems_ like we can use systemd-networkd to initialize wg interface.
+ - Care must be taken to pick the right packets to fwmark, iow: must avoid the
+   transmission-remote related ones
+
+1. mark packets that are transmission related with a fwmark
+2. add a ip rule to have them use a different routing table
+3. have that routing table use the wg interface
