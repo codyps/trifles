@@ -53,3 +53,5 @@ zig-cache
 _b*
 compile_commands.json
 .gdb_history
+
+target/
