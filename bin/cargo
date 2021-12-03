@@ -19,12 +19,13 @@ darwin*)
 esac
 
 # Figure out where cargo _would_ place it's cache
-workspace_root="$(dirname "$("${CARGO}" locate-project --workspace --message-format plain)")"
+workspace_root="$(dirname "$("${CARGO}" locate-project --workspace --message-format plain 2>/dev/null)")"
+
 # FIXME: this can be customized via some cargo config. We should bail on any customization
 default_target="${workspace_root}/target"
 
 # FIXME: consider if we want to invalidate the target symlink ever
-if [ -d "$default_target" ] || [ -n "${CARGO_TARGET_DIR:-}" ]; then
+if [ -z "${workspace_root}" ] || [ -d "$default_target" ] || [ -n "${CARGO_TARGET_DIR:-}" ]; then
 	exec "${CARGO}" "$@"
 fi
 
