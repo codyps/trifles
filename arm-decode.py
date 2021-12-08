@@ -5,7 +5,7 @@ import math
 
 import itertools
 import attr
-from sumtype import sumtype, match
+from sumtypes import sumtype, match
 
 def format_bits(val, bit_map):
     s = []
@@ -121,6 +121,39 @@ def _main(argv):
         (31,32,"N"),
     ]
 
+    armv7m_ccr_bits = [
+        (0,1,"NONBASETHRDENA"),
+        (1,2,"USERSETMPEND"),
+        #(2,3,"reserved0"),
+        (3,4, "UNALIGN_TRP"),
+        (4,5, "DIV_0_TRP"),
+        #(5,8, "reserved1"),
+        (8,9, "BFHFNMIGN"),
+        (9,10, "STKALIGN"),
+        #(10,16, "reserved2"),
+        (16,17, "DC"),
+        (17,18, "IC"),
+        (18,19,"BP"),
+        #(19,32, "reserved3"),
+            ]
+
+    armv7m_demcr_bits = [
+        (0,1, "VC_CORERESET"),
+        #(1,4, "reserved0"),
+        (4,5, "VC_MMERR"),
+        (5,6, "VC_NOCPERR"),
+        (6,7, "VC_CHKERR"),
+        (7,8, "VC_STATERR"),
+        (8,9, "VC_BUSERR"),
+        (9,10, "VC_INTERR"),
+        (10,11, "VC_HARDERR"),
+        (16,17, "MON_EN"),
+        (17,18, "MON_PEND"),
+        (18,19, "MON_STEP"),
+        (19,20, "MON_REQ"),
+        (24,25, "TRCENA"),
+            ]
+
     armv7m_cfsr_bits = []
     armv7m_cfsr_bits += [(i, i+1, name) for (i, name) in armv7m_mmfsr_bits]
     armv7m_cfsr_bits += [(i+8, i+9, name) for (i, name) in armv7m_bfsr_bits]
@@ -136,6 +169,8 @@ def _main(argv):
         "xPSR": armv7m_xpsr_bits,
         "UFSR": armv7m_ufsr_bits,
         "CFSR": armv7m_cfsr_bits,
+        "CCR": armv7m_ccr_bits,
+        "DEMCR": armv7m_demcr_bits,
         "raw": [],
     }
 
