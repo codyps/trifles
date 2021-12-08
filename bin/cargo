@@ -29,7 +29,14 @@ if [ -z "${workspace_root}" ] || [ -d "$default_target" ] || [ -n "${CARGO_TARGE
 	exec "${CARGO}" "$@"
 fi
 
-workspace_key="$(echo "$workspace_root" | md5sum)"
+
+if command -v md5sum >/dev/null; then
+	MD5SUM=md5sum
+else
+	# darwin
+	MD5SUM=md5
+fi
+workspace_key="$(echo "$workspace_root" | "${MD5SUM}")"
 new_target="$cache_dir/$workspace_key"
 
 # FIXME: making this a relative link might be good.
