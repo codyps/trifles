@@ -1,0 +1,46 @@
+#! /usr/bin/env bash
+set -euf -o pipefail
+
+if [ -z "${HOME:-}" ]; then
+	# This is an awful hack because of crazy build scripts
+	HOME="$(dirname "$(dirname "$(dirname "$0")")")"
+fi
+
+# FIXME: this is kind of a hack
+CARGO="$HOME/.cargo/bin/cargo"
+
+case "$OSTYPE" in
+darwin*)
+	cache_dir="$HOME/Library/Caches/cargo-x"
+	;;
+*)
+	cache_dir="$HOME/.cache/cargo-x"
+	;;
+esac
+
+# Figure out where cargo _would_ place it's cache
+workspace_root="$(dirname "$("${CARGO}" locate-project --workspace --message-format plain 2>/dev/null)")"
+
+# FIXME: this can be customized via some cargo config. We should bail on any customization
+default_target="${workspace_root}/target"
+
+# FIXME: consider if we want to invalidate the target symlink ever
+if [ -z "${workspace_root}" ] || [ -d "$default_target" ] || [ -n "${CARGO_TARGET_DIR:-}" ]; then
+	exec "${CARGO}" "$@"
+fi
+
+
+if command -v md5sum >/dev/null; then
+	MD5SUM=md5sum
+else
+	# darwin
+	MD5SUM=md5
+fi
+workspace_key="$(echo "$workspace_root" | "${MD5SUM}")"
+new_target="$cache_dir/$workspace_key"
+
+# FIXME: making this a relative link might be good.
+mkdir -p "${new_target}"
+ln -s "${new_target}" "${default_target}"
+
+exec "${CARGO}" "$@"
