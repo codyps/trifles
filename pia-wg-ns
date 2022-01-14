@@ -1,0 +1,65 @@
+#! /bin/bash
+set -euf -o pipefail
+
+PIA_HOME=/etc/pia
+. "$PIA_HOME"/account
+
+PIA_TOKEN=$(curl -s -u "$PIA_USERNAME:$PIA_PASSWORD" \
+	"https://privateinternetaccess.com/gtoken/generateToken" | jq -r '.token')
+
+pia_servers=$(curl --max-time 15 'https://serverlist.piaservers.net/vpninfo/servers/v6')
+
+# remote ips
+printf "%s" "$pia_servers" | jq '.regions[] | select (.country == "NO") | .servers["wg"]' 
+exit
+
+# ports
+printf "%s" "$pia_servers" | jq '.groups["wg"][0]["ports"]'
+
+WG_PRIVKEY="$(wg genkey)"
+WG_PUBKEY="$(printf "%s" "$WG_PRIVKEY" | wg pubkey)"
+
+WG_HOSTNAME=?
+WG_SERVER_IP=?
+
+wireguard_json="$(curl -s -G \
+  --connect-to "$WG_HOSTNAME::$WG_SERVER_IP:" \
+  --cacert "$PIA_HOME/ca.rsa.4096.crt" \
+  --data-urlencode "pt=${PIA_TOKEN}" \
+  --data-urlencode "pubkey=$WG_PUBKEY" \
+  "https://${WG_HOSTNAME}:1337/addKey" )"
+
+mkdir -p /run/pia/
+touch /run/pia/pia.key
+chmod 0640 /run/pia/pia.key
+chown root:systemd-network /run/pia/pia.key
+echo "$WG_PRIVKEY" >/run/pia/pia.key
+
+mkdir -p /run/systemd/network
+echo >/run/systemd/network/10-pia.netdev <<EOF
+[NetDev]
+Name = pia
+Kind = wireguard
+
+[WireGuard]
+PrivateKeyFile = /run/pia/pia.key
+
+[WireGuardPeer]
+PublicKey = $(echo "$wireguard_json" | jq -r .server_key)
+AllowedIPs = 0.0.0.0/0
+Endpoint = $WG_SERVER_IP:$(echo "$wireguard_json" | jq -r .server_port)
+PersistentKeepalive = 25
+EOF
+
+echo >/run/systemd/network/10-pia.network <<EOF
+[Match]
+Name=pia
+
+# dns
+[Network]
+Address = $(echo "$wireguard_json" | jq -r .peer_ip)
+DNSSEC = false
+
+# FIXME: use array?
+DNS = $(echo "$wireguard_json" | jq -r '.dns_servers[0]')
+EOF
