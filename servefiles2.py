@@ -6,8 +6,8 @@ import socket
 import struct
 import threading
 import argparse
-import itertools
 import shutil
+from itertools import islice, takewhile, repeat
 from pathlib import Path
 
 from http.server import BaseHTTPRequestHandler
@@ -15,9 +15,8 @@ from socketserver import TCPServer
 
 ACCEPTED_SUFFIX = ('.cia', '.tik', '.cetk', '.3dsx')
 
-def grouper(iterable, n):
-    while True:
-        yield itertools.chain((next(iterable),), itertools.islice(iterable, n-1))
+def split_every(it, n):
+    return takewhile(bool, (list(islice(it, n)) for _ in repeat(None)))
 
 class SpecificFilesHTTPRequestHandler(BaseHTTPRequestHandler):
     server_version = "FBI-servefiles/0"
@@ -81,15 +80,14 @@ def main():
     for f in files:
         print(" {}".format(f.name))
 
-    # create serve socket
-    server = FbiHttpServer(('', 0), files)
-    http_addr = server.socket.getsockname()
-
     # create command socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((args.target_host, 5000))
-
     sock_addr = sock.getsockname()
+
+    # create serve socket
+    server = FbiHttpServer((sock_addr, 0), files)
+    http_addr = server.socket.getsockname()
 
     print('http_addr={}'.format(http_addr))
     print('sock_addr={}'.format(sock_addr))
@@ -101,7 +99,7 @@ def main():
 
     # send urls
     # group into blocks of 128 urls
-    for g in grouper(enumerate(files), 128):
+    for g in split_every(enumerate(files), 128):
         data = '\n'.join([url_base + str(num) for num, name in g]) + '\n'
         data = struct.pack('!L', len(data)) + data.encode('ascii')
         sock.sendall(data)

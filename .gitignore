@@ -54,4 +54,10 @@ _b*
 compile_commands.json
 .gdb_history
 
-target/
+target
+
+/qemu-g3
+/qemu-ppc-static
+/qemu-user-env
+
+vgcore.*

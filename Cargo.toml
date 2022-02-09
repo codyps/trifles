@@ -1,11 +1,13 @@
 [workspace]
 members = [
-	"helloworld-tonic",
 	"arm-bits",
-	"helloworld-capn",
-	"udp-spam",
-	"onlyn",
-	"mac",
 	"gopro-util",
+	"helloworld-capn",
+	"helloworld-tonic",
+	"holdoff",
+	"mac",
+	"onlyn",
 	"test-fetch",
+	"udp-spam",
+	"zbus-systemd-start",
 ]
