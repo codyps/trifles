@@ -1,10 +1,11 @@
 [workspace]
 members = [
-	"helloworld-tonic",
 	"arm-bits",
+	"gopro-util",
 	"helloworld-capn",
-	"udp-spam",
-	"onlyn",
+	"helloworld-tonic",
+	"holdoff",
 	"mac",
-	"gopro-util"
+	"onlyn",
+	"udp-spam",
 ]

@@ -1,0 +1,46 @@
+#! /usr/bin/env bash
+set -euf -o pipefail
+
+if [ -e ~/.wgetpaste.conf ]; then
+	. ~/.wgetpaste.conf
+fi
+
+error() {
+	>&2 echo "$@"
+	exit 1
+}
+
+case $# in
+	0) # stdin
+		file_content="$(cat -)"
+		file_name="stdin"
+		file_data="$(echo '{}' | jq -c --arg file_content "$file_content" --arg file_name "$file_name" '{files:{($file_name): { "content": $file_content}}}')"
+		;;
+	1) # filename
+		if [ -n "$1" ]; then
+			file_content="$(cat $1)"
+			file_name="$(basename "$1")"
+			file_data="$(echo '{}' | jq -c --arg file_content "$file_content" --arg file_name "$file_name" '{files:{($file_name): { "content": $file_content}}}')"
+		elif [ -d "$1" ]; then
+			# enumerate directory?
+			error "$1 is a directory"
+		fi
+		;;
+	*) # multi-file
+		error "$# args unhandled"
+		;;
+esac
+
+CURL_ARGS=()
+if [ -n "${HEADER_gists:-}" ]; then
+	CURL_ARGS+=(-H "${HEADER_gists}")
+fi
+
+res_json=$(curl \
+  -X POST \
+  "${CURL_ARGS[@]}" \
+  -H "Accept: application/vnd.github.v3+json" \
+  https://api.github.com/gists \
+  -d "$file_data")
+
+echo "$res_json" | jq -r .html_url
