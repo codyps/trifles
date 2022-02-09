@@ -8,4 +8,5 @@ members = [
 	"mac",
 	"onlyn",
 	"udp-spam",
+	"zbus-systemd-start",
 ]

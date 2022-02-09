@@ -25,12 +25,17 @@ WG_PUBKEY="$(printf "%s" "$WG_PRIVKEY" | wg pubkey)"
 WG_SERVER_IP=$(printf "%s" "$server_json" | jq -r .ip)
 WG_HOSTNAME=$(printf "%s" "$server_json" | jq -r .cn)
 
-wireguard_json="$(curl -G \
+wireguard_json="$(curl -vv -G \
   --connect-to "$WG_HOSTNAME::$WG_SERVER_IP:" \
   --cacert "$PIA_HOME/ca.rsa.4096.crt" \
   --data-urlencode "pt=${PIA_TOKEN}" \
   --data-urlencode "pubkey=$WG_PUBKEY" \
   "https://${WG_HOSTNAME}:1337/addKey" )"
+
+if [ "$(echo "$wireguard_json" | jq -r '.status')" != "OK" ];then
+	echo "addKey failed: $wireguard_json"
+	exit 1
+fi
 
 #mkdir -p /run/pia/
 #touch /run/pia/pia.key
@@ -38,35 +43,52 @@ wireguard_json="$(curl -G \
 #chown root:systemd-network /run/pia/pia.key
 #echo "$WG_PRIVKEY" >/run/pia/pia.key
 
+WG_ADDR="$(echo "$wireguard_json" | jq -r .peer_ip)"
+WG_SERVER_PUBKEY="$(echo "$wireguard_json" | jq -r .server_key)"
+WG_SERVER_PORT="$(echo "$wireguard_json" | jq -r .server_port)"
+WG_SERVER_ENDPOINT="$WG_SERVER_IP:$WG_SERVER_PORT"
+
+WG_SERVER_DNS="$(echo "$wireguard_json" | jq -r '.dns_servers[0]')"
+
 cat <<EOF
 # 10-pia.netdev
-
 [NetDev]
 Name = pia
 Kind = wireguard
 
 [WireGuard]
-PrivateKey = "$WG_PRIVKEY"
+PrivateKey = $WG_PRIVKEY
 
 [WireGuardPeer]
-PublicKey = $(echo "$wireguard_json" | jq -r .server_key)
+PublicKey = $WG_SERVER_PUBKEY
 AllowedIPs = 0.0.0.0/0
-Endpoint = $WG_SERVER_IP:$(echo "$wireguard_json" | jq -r .server_port)
+Endpoint = $WG_SERVER_ENDPOINT
 PersistentKeepalive = 25
 
-EOFg
-
+EOF
 cat <<EOF
 # 10-pia.network
 
 [Match]
 Name=pia
 
-# dns
 [Network]
-Address = $(echo "$wireguard_json" | jq -r .peer_ip)
+Address = $WG_ADDR
 DNSSEC = false
 
 # FIXME: use array?
-DNS = $(echo "$wireguard_json" | jq -r '.dns_servers[0]')
+DNS = $WG_SERVER_DNS
+EOF
+
+cat <<EOF
+# wg-quick
+[Interface]
+Address = $WG_ADDR
+PrivateKey = $WG_PRIVKEY
+
+[Peer]
+PersistentKeepalive = 25
+PublicKey = $WG_SERVER_PUBKEY
+AllowedIPs = 0.0.0.0/0
+Endpoint = $WG_SERVER_ENDPOINT
 EOF
