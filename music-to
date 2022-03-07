@@ -78,6 +78,7 @@ conv_one() {
 
 	case "$f" in
 	*.mp3|*.m4a)
+		return
 		if ! $mkdir_done; then
 			mkdir_p "$dest_dir"
 			mkdir_done=true
@@ -102,7 +103,10 @@ conv_one() {
 		if [ "$current_rate" -gt 48000 ]; then
 			rate_arg="-ar 48000"
 		fi
-		run ffmpeg -hide_banner -y -i "$f" -c copy -c:a libfdk_aac -cutoff 18000 -b:a 192k $rate_arg -ac 2 "$R"
+		#run ffmpeg -hide_banner -y -i "$f" -c copy -c:a libfdk_aac -cutoff 18000 -b:a 192k $rate_arg -ac 2 "$R"
+		# WARNING: alac_at causes poping sound when played back, ffmpeg bug
+		run ffmpeg -hide_banner -y -i "$f" -c copy -c:a alac "$R"
+
 		;;
 	*.log|*.[cC][uU][eE]|*.svf|*.md5|*.txt|*.[Jj][Pp][Gg]|*.m3u8|*.st5|*.png|*.ffp)
 		# known don't cares
@@ -115,7 +119,7 @@ conv_one() {
 # A conv_one intended for execution via `find`
 conv_one_x() {
 	local DEST_DIR="$1"
-	info "DEST_DIR=$SRC_DIR"
+	info "DEST_DIR=$DEST_DIR"
 	local SRC_DIR="$2"
 	info "SRC_DIR=$SRC_DIR"
 	local f="$3"
