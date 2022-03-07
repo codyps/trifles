@@ -7,6 +7,7 @@ members = [
 	"holdoff",
 	"mac",
 	"onlyn",
+	"test-fetch",
 	"udp-spam",
 	"zbus-systemd-start",
 ]
