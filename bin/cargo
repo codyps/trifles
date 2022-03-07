@@ -24,6 +24,25 @@ workspace_root="$(dirname "$("${CARGO}" locate-project --workspace --message-for
 # FIXME: this can be customized via some cargo config. We should bail on any customization
 default_target="${workspace_root}/target"
 
+# FIXME: this parsing will get confused with global args
+action=
+for arg in "$@"; do
+	case "$arg" in
+		-*|+*)
+			;;
+		*)
+			action="$arg"
+			break
+			;;
+	esac
+done
+
+case "$action" in
+	new|init|search|install|uninstall)
+		exec "${CARGO}" "$@"
+		;;
+esac
+
 # FIXME: consider if we want to invalidate the target symlink ever
 if [ -z "${workspace_root}" ] || [ -d "$default_target" ] || [ -n "${CARGO_TARGET_DIR:-}" ]; then
 	exec "${CARGO}" "$@"
@@ -37,6 +56,7 @@ else
 	MD5SUM=md5
 fi
 workspace_key="$(echo "$workspace_root" | "${MD5SUM}")"
+workspace_key="${workspace_key%% *}"
 new_target="$cache_dir/$workspace_key"
 
 # FIXME: making this a relative link might be good.

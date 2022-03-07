@@ -1,0 +1,10 @@
+#! /usr/bin/env bash
+
+# TODO: look this path up with nix automatically
+
+NEW_OPENSSL_PATH="/nix/store/h65q0gz96ghs734cziigida2ppyib9ba-openssl-1.1.1m/lib"
+
+install_name_tool -change /usr/local/opt/openssl@1.1/lib/libssl.1.1.dylib "$NEW_OPENSSL_PATH/libssl.1.1.dylib" \
+	-change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib "$NEW_OPENSSL_PATH/libcrypto.1.1.dylib" \
+	"$HOME/.rustup/toolchains/esp/bin/cargo"
+
