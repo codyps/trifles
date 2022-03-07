@@ -617,6 +617,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "holdoff"
+version = "0.1.0"
+
+[[package]]
 name = "http"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
