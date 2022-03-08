@@ -62,5 +62,6 @@ new_target="$cache_dir/$workspace_key"
 # FIXME: making this a relative link might be good.
 mkdir -p "${new_target}"
 ln -s "${new_target}" "${default_target}"
+echo "$workspace_root" > "${new_target}.path"
 
 exec "${CARGO}" "$@"
