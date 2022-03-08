@@ -1,7 +1,8 @@
 #! /usr/bin/env bash
 
-export PATH="/Users/x/.espressif/tools/xtensa-esp32-elf-clang/esp-13.0.0-20211203-x86_64-apple-darwin/bin/:$PATH"
-export LIBCLANG_PATH="/Users/x/.espressif/tools/xtensa-esp32-elf-clang/esp-13.0.0-20211203-x86_64-apple-darwin/lib/"
+export PATH="$HOME/.espressif/tools/xtensa-esp32-elf-clang/esp-13.0.0-20211203-x86_64-apple-darwin/bin/:$PATH"
+export LIBCLANG_PATH="$HOME/.espressif/tools/xtensa-esp32-elf-clang/esp-13.0.0-20211203-x86_64-apple-darwin/lib/"
 export PIP_USER=no
+export ESP_IDF_TOOLS_INSTALL_DIR="custom:$HOME/Library/Caches/espressif/esp-idf"
 
 exec cargo +esp "$@"
