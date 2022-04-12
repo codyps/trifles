@@ -2,7 +2,11 @@
 
 # TODO: look this path up with nix automatically
 
-NEW_OPENSSL_PATH="/nix/store/h65q0gz96ghs734cziigida2ppyib9ba-openssl-1.1.1m/lib"
+#NEW_OPENSSL_PATH="/nix/store/h65q0gz96ghs734cziigida2ppyib9ba-openssl-1.1.1m/lib"
+#NEW_OPENSSL_PATH="/nix/store/d9xq00lhjmj75py7l15zgck7zzli1pv2-openssl-1.1.1n/lib"
+
+NEW_OPENSSL_PATH="$(nix-shell -p openssl pkg-config --run "pkg-config openssl --libs-only-L")"
+NEW_OPENSSL_PATH="${NEW_OPENSSL_PATH##-L}"
 
 install_name_tool -change /usr/local/opt/openssl@1.1/lib/libssl.1.1.dylib "$NEW_OPENSSL_PATH/libssl.1.1.dylib" \
 	-change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib "$NEW_OPENSSL_PATH/libcrypto.1.1.dylib" \
