@@ -1,0 +1,10 @@
+#! /usr/bin/env bash
+set -euf -o pipefail
+
+docker image build --progress plain --no-cache -t build-context -f - . <<EOF
+FROM busybox
+WORKDIR /build-context
+COPY . .
+CMD find .
+EOF 
+docker container run --rm build-context
