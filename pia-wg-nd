@@ -14,7 +14,6 @@ pia_servers="$(curl --max-time 15 'https://serverlist.piaservers.net/vpninfo/ser
 country_json="$(printf "%s" "$pia_servers" | jq '.regions[] | select (.country == "NO")')"
 #WG_HOSTNAME=$(printf "%s" "$country_json" | jq -r .dns)
 
-
 servers_json="$(printf "%s" "$country_json" | jq '.servers.wg')"
 server_json="$(printf "%s" "$servers_json" | jq '.[0]')"
 # ports
