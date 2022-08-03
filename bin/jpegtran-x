@@ -1,0 +1,56 @@
+#! /usr/bin/env bash
+set -euf -o pipefail
+
+: ${DRY_RUN:=false}
+
+p() {
+	local i
+	for i in "$@"; do
+		>&2 printf " '%s'" "${i/\'/\'\\\'\'}"
+	done
+}
+
+run() {
+	if ! "$DRY_RUN"; then
+		>&2 printf "run:"
+		p "$@"
+		>&2 printf "\n"
+		"$@"
+	else
+		>&2 printf "would run:"
+		p "$@"
+		>&2 printf "\n"
+	fi
+}
+
+abs_path() {
+	case "$1" in
+		/*)
+			echo "$1"
+			;;
+		*)
+			echo "$PWD/$1"
+			;;
+	esac
+}
+
+>&2 echo "ARG:"
+p "$@"
+>&2 echo
+
+out="$1"
+base="$2"
+img="$3"
+
+ai="$(abs_path "$img")"
+# stip off "base"
+rem="${ai##"$base/"}"
+
+rem_dirs="$(dirname "$rem")"
+dest_dir="$out/$rem_dirs"
+dest_file="$out/$rem"
+
+run mkdir -p "$dest_dir"
+
+# NOTE: without `-copy all`, exif data is stripped
+run jpegtran -optimize -copy all -outfile "$dest_file" "$img"

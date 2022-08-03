@@ -9,5 +9,6 @@ members = [
 	"onlyn",
 	"test-fetch",
 	"udp-spam",
+	"replace",
 	"zbus-systemd-start",
 ]

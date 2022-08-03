@@ -1,0 +1,23 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -p bash exiftool
+# ex: ft=sh
+set -euf -o pipefail
+
+if [ "$#" -ne 2 ]; then
+	>&2 echo "usage: $0 <gps-log> <input-dir>"
+	exit 2
+fi
+gps_log="$1"
+input_dir="$2"
+
+exiftool -o dummy -r -if '$GPSLatitude' \
+	'-directory<'"$HOME"'/CameraProcessed/${model;}/${createdate#;DateFmt("%Y-%m-%d")}' \
+	-d '%Y%m%d-%H%M%%-03.c.%%e' '-filename<CreateDate' \
+	-ext 'JPG' -ext 'MOV' -ext 'MP4' \
+	"$input_dir"
+
+exiftool -o dummy -r -if 'not $GPSLatitude' -geotag "$gps_log" \
+	'-directory<'"$HOME"'/CameraProcessed/${model;}/${createdate#;DateFmt("%Y-%m-%d")}' \
+	-d '%Y%m%d-%H%M%%-03.c.%%e' '-filename<CreateDate' \
+	-ext 'JPG' -ext 'MOV' -ext 'MP4' \
+	"$input_dir"
