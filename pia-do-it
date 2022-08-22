@@ -79,17 +79,37 @@ echo "start this script without PIA_DNS."
 echo
 dnsSettingForVPN="DNS = $dnsServer"
 
+PEER_IP="$(echo "$wireguard_json" | jq -r '.peer_ip')"
+SERVER_PORT="$(echo "$wireguard_json" | jq -r '.server_port')"
+SERVER_KEY="$(echo "$wireguard_json" | jq -r '.server_key')"
+
 cat <<EOF
 # /etc/wireguard/pia.conf
 [Interface]
-Address = $(echo "$wireguard_json" | jq -r '.peer_ip')
+Address = $PEER_IP
 PrivateKey = $privKey
 $dnsSettingForVPN
 [Peer]
 PersistentKeepalive = 25
-PublicKey = $(echo "$wireguard_json" | jq -r '.server_key')
+PublicKey = $SERVER_KEY
 AllowedIPs = 0.0.0.0/0
-Endpoint = ${WG_SERVER_IP}:$(echo "$wireguard_json" | jq -r '.server_port')
+Endpoint = ${WG_SERVER_IP}:$SERVER_PORT
+EOF
+
+cat <<EOF
+## OPENWRT START
+uci set network.pia.private_key='$privKey'
+uci del network.pia.addresses
+uci add_list network.pia.addresses='$PEER_IP'
+
+uci add network wireguard_pia # =cfg1179a8
+uci set network.@wireguard_pia[-1].description='pia main'
+uci set network.@wireguard_pia[-1].public_key='$SERVER_KEY'
+uci add_list network.@wireguard_pia[-1].allowed_ips='0.0.0.0/0'
+uci set network.@wireguard_pia[-1].endpoint_host='${WG_SERVER_IP}'
+uci set network.@wireguard_pia[-1].endpoint_port='$SERVER_PORT'
+uci set network.@wireguard_pia[-1].persistent_keepalive='25'
+## OPENWRT END
 EOF
 
 #PIA_TOKEN=$PIA_TOKEN \
