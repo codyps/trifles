@@ -5,4 +5,8 @@ export LIBCLANG_PATH="$HOME/.espressif/tools/xtensa-esp32-elf-clang/esp-13.0.0-2
 export PIP_USER=no
 export ESP_IDF_TOOLS_INSTALL_DIR="custom:$HOME/Library/Caches/espressif/esp-idf"
 
+# TODO: consider if we need to make this target-specific
+: ${HOST_CC:="ccache cc"}
+export HOST_CC
+
 exec cargo +esp "$@"

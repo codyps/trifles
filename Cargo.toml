@@ -6,6 +6,7 @@ members = [
 	"helloworld-tonic",
 	"holdoff",
 	"mac",
+	"lk",
 	"onlyn",
 	"test-fetch",
 	"udp-spam",
