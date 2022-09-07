@@ -6,5 +6,6 @@ FROM busybox
 WORKDIR /build-context
 COPY . .
 CMD find .
-EOF 
+EOF
+
 docker container run --rm build-context

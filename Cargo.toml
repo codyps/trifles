@@ -7,6 +7,7 @@ members = [
 	"holdoff",
 	"mac",
 	"lk",
+	"iflet2",
 	"onlyn",
 	"test-fetch",
 	"udp-spam",

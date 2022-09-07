@@ -784,6 +784,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "iflet2"
+version = "0.1.0"
+
+[[package]]
 name = "hyper"
 version = "0.14.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
