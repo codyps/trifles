@@ -1,23 +1,41 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i bash -p bash exiftool
+#! nix-shell -i bash -p bash exiftool mozjpeg findutils
 # ex: ft=sh
 set -euf -o pipefail
 
-if [ "$#" -ne 2 ]; then
-	>&2 echo "usage: $0 <gps-log> <input-dir>"
+if [ "$#" -ne 3 ]; then
+	>&2 echo "usage: $0 <gps-log> <input-dir> <date>"
+	>&2 echo "example: $0 foo.gpx ~/Cameras/GH6/ 2022:08:02"
 	exit 2
 fi
 gps_log="$1"
 input_dir="$2"
+date="$3"
 
-exiftool -o dummy -r -if '$GPSLatitude' \
-	'-directory<'"$HOME"'/CameraProcessed/${model;}/${createdate#;DateFmt("%Y-%m-%d")}' \
-	-d '%Y%m%d-%H%M%%-03.c.%%e' '-filename<CreateDate' \
-	-ext 'JPG' -ext 'MOV' -ext 'MP4' \
-	"$input_dir"
+et() {
+	exiftool -o dummy -r "$@" \
+		-api QuickTimeUTC=1 \
+		-if '$CreateDate ge "'"$date"'"' \
+		'-directory<'"$HOME"'/CameraProcessed/${model;}/${createdate#;DateFmt("%Y-%m-%d")}' \
+		'-filename<${createdate#;DateFmt("%Y-%m-%d_%H%M%S")}_%f.%e' \
+		'-gpscoordinates<gpsposition' \
+		"-FileCreateDate<DateTimeOriginal" "-FileModifyDate<DateTimeOriginal"  \
+		'-keys:GPSCoordinates<$GPSLatitude, $GPSLongitude, $GPSAltitude' \
+		-ext 'JPG' -ext 'MOV' -ext 'MP4' \
+		"$input_dir"
 
-exiftool -o dummy -r -if 'not $GPSLatitude' -geotag "$gps_log" \
-	'-directory<'"$HOME"'/CameraProcessed/${model;}/${createdate#;DateFmt("%Y-%m-%d")}' \
-	-d '%Y%m%d-%H%M%%-03.c.%%e' '-filename<CreateDate' \
-	-ext 'JPG' -ext 'MOV' -ext 'MP4' \
-	"$input_dir"
+}
+
+et -if '$GPSLatitude'
+et -if 'not $GPSLatitude' -geotag "$gps_log"
+
+find "$HOME/CameraProcessed" -type f -and -name '*.JPG' -and -print0 | xargs -0 -I '{}' -n1 jpegtran -optimize -copy all -outfile '{}' '{}'
+
+
+# things to do:
+# - copy into date dirs
+# - geotag
+# - optimize compression losslessly
+#
+# Ideally, we can do this incrimentally (ie: not re-copy/geotag/compress already handled files). Doing that may be tricky.
+# As a stop-gap, being able to limit the processing to a date range may help things.
