@@ -33,7 +33,6 @@ done
 
 case "$action" in
 	new|init|search|install|uninstall|locate-project)
-		>&2 echo "HACK: bypass"
 		exec "${CARGO}" "$@"
 		;;
 esac

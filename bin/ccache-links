@@ -1,0 +1,15 @@
+#! /bin/bash
+
+ccache="$(which ccache)"
+dest="$HOME/.local/bin/ccache.d"
+
+mkdir -p "$dest"
+for e in cc c++ gcc g++ clang clang++; do
+	ln -sf "$ccache" "$dest"/"$e"
+done
+
+for prefix in arm-none-eabi xtensa-esp32 xtensa-esp32s2 xtensa-esp32s3 riscv32-esp-elf; do
+	for e in cc c++ gcc g++; do
+		ln -sf "$ccache" "$dest/$prefix-$e"
+	done
+done
