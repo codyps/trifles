@@ -1,0 +1,8 @@
+#! /usr/bin/env bash
+# This is a hack to get esp-idf to build with ccache. Unclear how effective it is yet.
+
+if [ "$1" == "--build" ]; then
+	exec cmake "$@"
+else
+	exec cmake -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache "$@"
+fi
