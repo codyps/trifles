@@ -8,7 +8,7 @@ for e in cc c++ gcc g++ clang clang++; do
 	ln -sf "$ccache" "$dest"/"$e"
 done
 
-for prefix in arm-none-eabi xtensa-esp32 xtensa-esp32s2 xtensa-esp32s3 riscv32-esp-elf; do
+for prefix in arm-none-eabi xtensa-esp32-elf xtensa-esp32s2-elf xtensa-esp32s3-elf riscv32-esp-elf x86_64-linux-gnu; do
 	for e in cc c++ gcc g++; do
 		ln -sf "$ccache" "$dest/$prefix-$e"
 	done
