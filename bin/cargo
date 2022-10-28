@@ -9,14 +9,8 @@ fi
 # FIXME: this is kind of a hack
 CARGO="$HOME/.cargo/bin/cargo"
 
-case "$OSTYPE" in
-darwin*)
-	cache_dir="$HOME/Library/Caches/cargo-x"
-	;;
-*)
-	cache_dir="$HOME/.cache/cargo-x"
-	;;
-esac
+: ${XDG_CACHE_HOME:="$HOME/.cache"}
+cache_dir="$XDG_CACHE_HOME/cargo-x"
 
 # Figure out where cargo _would_ place it's cache
 workspace_root="$(dirname "$("${CARGO}" locate-project --workspace --message-format plain 2>/dev/null)")"
@@ -38,7 +32,7 @@ for arg in "$@"; do
 done
 
 case "$action" in
-	new|init|search|install|uninstall)
+	new|init|search|install|uninstall|locate-project)
 		exec "${CARGO}" "$@"
 		;;
 esac

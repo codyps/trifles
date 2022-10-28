@@ -1,12 +1,13 @@
 #! /usr/bin/env bash
+set -euf -o pipefail
 
-export PATH="$HOME/.espressif/tools/xtensa-esp32-elf-clang/esp-13.0.0-20211203-x86_64-apple-darwin/bin/:$PATH"
-export LIBCLANG_PATH="$HOME/.espressif/tools/xtensa-esp32-elf-clang/esp-13.0.0-20211203-x86_64-apple-darwin/lib/"
-export PIP_USER=no
-export ESP_IDF_TOOLS_INSTALL_DIR="custom:$HOME/Library/Caches/espressif/esp-idf"
+export PATH="$(find "${IDF_TOOLS_PATH}/tools/xtensa-esp32s3-elf-gcc" -depth 1 -prune | sort | tail -n1)/bin:$PATH"
 
-# TODO: consider if we need to make this target-specific
-: ${HOST_CC:="ccache cc"}
-export HOST_CC
+# FIXME: this is macos specific
+export LIBCLANG_PATH="$(find "${IDF_TOOLS_PATH}/tools/xtensa-esp32-elf-clang" -name libclang.dylib | sort | tail -n1)"
+export LIBCLANG_PATH="${LIBCLANG_PATH%%/libclang.dylib}"
+
+>&2 echo "LIBCLANG_PATH=$LIBCLANG_PATH"
+>&2 echo "PATH=$PATH"
 
 exec cargo +esp "$@"

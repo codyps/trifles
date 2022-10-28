@@ -1,0 +1,20 @@
+#! /bin/bash
+set -euf -o pipefail
+set -x
+
+# https://superuser.com/questions/320045/change-the-frame-rate-of-an-mp4-video-with-ffmpeg
+#   MKVToolNIX
+#   mkvmerge
+
+# https://askubuntu.com/questions/370692/how-to-change-the-framerate-of-a-video-without-reencoding
+#   MP4Box + avconv + soundstrech
+
+
+for i in "$@"; do
+	# itsscale = input frame rate / desired frame rate
+	# atempo = desired frame rate / input frame rate
+	# ffmpeg -itsscale 1.0427083 -i input.mp4 -vcodec copy -filter:a "atempo=0.959041" output.mp4
+	# ffmpeg -i "$i" -filter_complex "[0:v]setpts=0.5*PTS[v];[0:a]atempo=2.0[a]" -map "[v]" -map "[a]" output.mkv
+	# mkvmerge --default-duration 0:24000/1001fps --fix-bitstream-timing-information 0  in.mkv -o out.mkv
+
+done

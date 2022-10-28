@@ -1,0 +1,129 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -p bash mozjpeg parallel findutils --pure
+# ex: ft=sh
+set -eu -o pipefail
+
+out="$1"
+base="$2"
+shift 2
+
+: ${DRY_RUN:=false}
+
+if $DRY_RUN; then
+	>&2 echo "DRY_RUN=$DRY_RUN"
+fi
+
+clean_p() {
+	local p="$1"
+
+	while true; do
+		case "$p" in
+			*/) p="${p%/}" ;;
+			*) break;;
+		esac
+	done
+	echo "$p"
+}
+
+abs_path() {
+	case "$1" in
+		/*)
+			echo "$1"
+			;;
+		*)
+			echo "$PWD/$i"
+			;;
+	esac
+}
+
+base="$(clean_p "$base")"
+
+err=false
+for i in "$@"; do
+	ai="$(abs_path "$i")"
+	# stip off "base"
+	case "$ai" in
+		"$base"/*)
+			;;
+		*)
+			>&2 echo "Path is outside of $base: $i"
+			err=true
+			;;
+	esac
+done
+
+if $err; then
+	exit 1
+fi
+
+p() {
+	local i
+	for i in "$@"; do
+		printf " '%s'" "${i/\'/\'\\\'\'}"
+	done
+}
+
+run() {
+	if ! "$DRY_RUN"; then
+		printf "run:"
+		p "$@"
+		printf "\n"
+		"$@"
+	else
+		printf "would run:"
+		p "$@"
+		printf "\n"
+	fi
+}
+
+do_file() {
+	local ai="$(abs_path "$i")"
+	# stip off "base"
+	local rem="${ai##$base/}"
+
+	local rem_dirs="$(dirname "$rem")"
+	local dest_dir="$out/$rem_dirs"
+	local dest_file="$out/$rem"
+
+	run mkdir -p "$dest_dir"
+
+	run jpegtran -output "$dest_file" "$i"
+}
+
+ROOT="$(dirname "$0")"
+
+set -x
+for i in "$@"; do
+	i="$(clean_p "$i")"
+	find "$i" \( -iname "*.jpg" -or -iname "*.jpeg" \) -print0 \
+		| parallel -d '\0' "$ROOT"/jpegtran-x "$out" "$base"
+done
+
+do_jpegtran() {
+	for i in "$@"; do
+		if [ -d "$i" ]; then
+			for j in "$i"/*; do
+				do_file "$j"
+			done
+		else
+			do_file "$i"
+		fi
+	done
+}
+
+do_jpegoptim() {
+	if [ -d "$i" ]; then
+		dest="$out/$rem"
+		run mkdir -p "$dest"
+		dest="$(clean_p "$dest")"
+
+		run jpegoptim --dest "$dest" "$i"/*
+	else
+		rem_dirs="$(dirname "$rem")"
+		dest="$out/$rem_dirs"
+		run mkdir -p "$dest"
+
+		run jpegoptim --dest "$dest" "$i"
+	fi
+}
+
