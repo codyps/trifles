@@ -50,7 +50,7 @@ WG_SERVER_ENDPOINT="$WG_SERVER_IP:$WG_SERVER_PORT"
 WG_SERVER_DNS="$(echo "$wireguard_json" | jq -r '.dns_servers[0]')"
 
 cat <<EOF
-# 10-pia.netdev
+## 10-pia.netdev {
 [NetDev]
 Name = pia
 Kind = wireguard
@@ -64,9 +64,10 @@ AllowedIPs = 0.0.0.0/0
 Endpoint = $WG_SERVER_ENDPOINT
 PersistentKeepalive = 25
 
+## }
 EOF
 cat <<EOF
-# 10-pia.network
+## 10-pia.network {
 
 [Match]
 Name=pia
@@ -77,10 +78,13 @@ DNSSEC = false
 
 # FIXME: use array?
 DNS = $WG_SERVER_DNS
+
+## }
 EOF
 
 cat <<EOF
-# wg-quick
+## wg-quick {
+
 [Interface]
 Address = $WG_ADDR
 PrivateKey = $WG_PRIVKEY
@@ -90,4 +94,35 @@ PersistentKeepalive = 25
 PublicKey = $WG_SERVER_PUBKEY
 AllowedIPs = 0.0.0.0/0
 Endpoint = $WG_SERVER_ENDPOINT
+
+## }
+EOF
+
+cat <<EOF
+## OPENWRT START
+uci set network.pia.listen_port='1337'
+uci set network.pia.private_key='$WG_PRIVKEY'
+uci del network.pia.addresses
+uci add_list network.pia.addresses='$WG_ADDR'
+
+# FIXME: need to delete existing PEERS!
+uci add network wireguard_pia # =cfg1179a8
+uci set network.@wireguard_pia[-1].description='pia main'
+uci set network.@wireguard_pia[-1].public_key='$WG_SERVER_KEY'
+uci add_list network.@wireguard_pia[-1].allowed_ips='0.0.0.0/0'
+uci set network.@wireguard_pia[-1].endpoint_host='$WG_SERVER_IP'
+uci set network.@wireguard_pia[-1].endpoint_port='$WG_SERVER_PORT'
+uci set network.@wireguard_pia[-1].persistent_keepalive='25'
+## OPENWRT END
+EOF
+
+cat <<EOF
+## /etc/namespaced-wireguard-vpn/namespaced-wireguard-vpn.conf {
+
+WIREGUARD_IP_ADDRESSES="$WG_ADDR"
+WIREGUARD_PRIVATE_KEY="$WG_PRIVKEY"
+WIREGUARD_VPN_PUBLIC_KEY="$WG_SERVER_PORT"
+WIREGUARD_ENDPOINT="$WG_SERVER_ENDPOINT"
+
+## }
 EOF
