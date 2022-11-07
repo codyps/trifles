@@ -1,0 +1,4 @@
+#! /usr/bin/env bash
+unset TMPDIR
+
+exec sccache "$@"
