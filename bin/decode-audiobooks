@@ -1,0 +1,21 @@
+#! /usr/bin/env bash
+set -eu -o pipefail
+
+if [ "$#" -ne 1 ]; then
+	>&2 echo "Usage: $0 <activation_bytes>"
+	exit 1
+fi
+
+activation_bytes="$1"
+shift
+
+for i in *.aax; do
+	b="${i%%.aax}"
+	o="$b.m4b"
+	if [ -e "$o" ]; then
+		continue
+	fi
+
+	ffmpeg -hide_banner -y -activation_bytes "$activation_bytes" -i "$i"  -codec copy "$o"
+done
+	
