@@ -25,8 +25,7 @@ for i in $crates; do
 
 	crate_name="${enc_crate_name##*/}"
 
-	# TODO: use `jq` to extract the version numbers 
-	versions="$(<"$i" jq -r ".vers")"
+	versions="$(<"$i" jq -r ".vers" | tail -n1)"
 
 	for crate_version in $versions; do
 
