@@ -18,7 +18,12 @@ servers_json="$(printf "%s" "$country_json" | jq '.servers.wg')"
 server_json="$(printf "%s" "$servers_json" | jq '.[0]')"
 # ports
 
-WG_PRIVKEY="$(wg genkey)"
+
+if [ $# -eq 1 ]; then
+	WG_PRIVKEY="$1"
+else
+	WG_PRIVKEY="$(wg genkey)"
+fi
 WG_PUBKEY="$(printf "%s" "$WG_PRIVKEY" | wg pubkey)"
 
 WG_SERVER_IP=$(printf "%s" "$server_json" | jq -r .ip)
