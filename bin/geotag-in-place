@@ -15,7 +15,6 @@ shift
 et() {
 	exiftool -r \
 		-v \
-		-api QuickTimeUTC=1 \
 		"-FileCreateDate<DateTimeOriginal" "-FileModifyDate<DateTimeOriginal"  \
 		-ext JPG -ext HIF -ext ARW -ext MOV \
 		"$@" \
