@@ -1,0 +1,37 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -p bash exiftool
+# ex: ft=sh
+set -euf -o pipefail
+
+if [ "$#" -lt 2 ]; then
+	>&2 echo "usage: $0 <input-dir> <gpx...>"
+	>&2 echo "example: $0  ~/Cameras/GH6/ foo.gpx"
+	exit 2
+fi
+
+input_dir="$1"
+shift
+
+et() {
+	exiftool -r \
+		-v \
+		"-FileCreateDate<DateTimeOriginal" "-FileModifyDate<DateTimeOriginal"  \
+		-ext JPG -ext HIF -ext ARW -ext MOV \
+		"$@" \
+		"$input_dir"
+}
+
+args=()
+for gpx in "$@"; do
+	args+=(-geotag "$gpx")
+done
+
+et -if 'not $GPSLatitude' "${args[@]}"
+
+# things to do:
+# - copy into date dirs
+# - geotag
+# - optimize compression losslessly
+#
+# Ideally, we can do this incrimentally (ie: not re-copy/geotag/compress already handled files). Doing that may be tricky.
+# As a stop-gap, being able to limit the processing to a date range may help things.
