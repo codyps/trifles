@@ -24,8 +24,9 @@ AllowedIPs = 0.0.0.0/0
 Endpoint = $WG_SERVER_ENDPOINT
 EOF
 
-ip netns exec "$NETNS_NAME" ip addr flush dev "$WIREGUARD_NAME"
-ip netns exec "$NETNS_NAME" ip addr add dev "$WIREGUARD_NAME" "$WG_ADDR"
+ip -n "$NETNS_NAME" addr flush dev "$WIREGUARD_NAME"
+ip -n "$NETNS_NAME" addr add dev "$WIREGUARD_NAME" "$WG_ADDR"
+ip -n "$NETNS_NAME" route add default dev "$WIREGUARD_NAME"
 
 ip netns exec "$NETNS_NAME" wg syncconf "$WIREGUARD_NAME" "$wg_sync_conf"
 
