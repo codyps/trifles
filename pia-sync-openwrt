@@ -1,4 +1,9 @@
 #! /usr/bin/env bash
+# FIXME: this doesn't quite work:
+#  - the ssh `sh -c` bit fails entirely.
+#  - copying the command mostly works, but leaves the old peers behind
+#  - we don't poke the networking to reload at all
+
 set -euf -o pipefail
 set -x
 
@@ -19,7 +24,7 @@ uci set network.$WIREGUARD_NAME.private_key='$WG_PRIVKEY'
 uci del network.$WIREGUARD_NAME.addresses
 uci add_list network.$WIREGUARD_NAME.addresses='$WG_ADDR'
 
-udi del network.wireguard_$WIREGUARD_NAME
+uci del network.wireguard_$WIREGUARD_NAME
 uci add network wireguard_$WIREGUARD_NAME
 uci set network.@wireguard_$WIREGUARD_NAME[-1].description='$WIREGUARD_NAME main'
 uci set network.@wireguard_$WIREGUARD_NAME[-1].public_key='$WG_SERVER_PUBKEY'
@@ -29,7 +34,9 @@ uci set network.@wireguard_$WIREGUARD_NAME[-1].endpoint_port='$WG_SERVER_PORT'
 uci set network.@wireguard_$WIREGUARD_NAME[-1].persistent_keepalive='25'
 "
 
-ssh "$SSH_HOST" bash -c "$script"
+echo "$script"
+
+ssh "$SSH_HOST" sh -c "$script"
 exit 0
 
 wg_sync_conf="$(mktemp)"
