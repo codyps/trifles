@@ -1,0 +1,37 @@
+#! /usr/bin/env bash
+set -euf -o pipefail
+set -x
+
+D="$(dirname "$0")"
+
+. "$D/pia-wg.sh"
+
+ns_wg_conf="/etc/namespaced-wireguard-vpn/namespaced-wireguard-vpn.conf"
+. "$ns_wg_conf"
+
+pia_renew "$WIREGUARD_PRIVATE_KEY"
+
+wg_sync_conf="$(mktemp)"
+# XXX: do we need to set the listen port?
+cat <<EOF >"$wg_sync_conf"
+[Interface]
+PrivateKey = $WG_PRIVKEY
+
+[Peer]
+PersistentKeepalive = 25
+PublicKey = $WG_SERVER_PUBKEY
+AllowedIPs = 0.0.0.0/0
+Endpoint = $WG_SERVER_ENDPOINT
+EOF
+
+ip -n "$NETNS_NAME" addr flush dev "$WIREGUARD_NAME"
+ip -n "$NETNS_NAME" addr add dev "$WIREGUARD_NAME" "$WG_ADDR"
+ip -n "$NETNS_NAME" route add default dev "$WIREGUARD_NAME"
+
+ip netns exec "$NETNS_NAME" wg syncconf "$WIREGUARD_NAME" "$wg_sync_conf"
+
+sed --in-place="bak.$(date +%s)" \
+	-e "s|^WIREGUARD_IP_ADDRESS=.*|WIREGUARD_IP_ADDRESS=$WG_ADDR|" \
+	-e "s|^WIREGUARD_VPN_PUBLIC_KEY=.*|WIREGUARD_VPN_PUBLIC_KEY=$WG_SERVER_PUBKEY|" \
+	-e "s|^WIREGUARD_ENDPOINT=.*|WIREGUARD_ENDPOINT=$WG_SERVER_ENDPOINT|" \
+	"$ns_wg_conf"

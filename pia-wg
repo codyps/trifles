@@ -18,7 +18,12 @@ servers_json="$(printf "%s" "$country_json" | jq '.servers.wg')"
 server_json="$(printf "%s" "$servers_json" | jq '.[0]')"
 # ports
 
-WG_PRIVKEY="$(wg genkey)"
+
+if [ $# -eq 1 ]; then
+	WG_PRIVKEY="$1"
+else
+	WG_PRIVKEY="$(wg genkey)"
+fi
 WG_PUBKEY="$(printf "%s" "$WG_PRIVKEY" | wg pubkey)"
 
 WG_SERVER_IP=$(printf "%s" "$server_json" | jq -r .ip)
@@ -82,9 +87,11 @@ DNS = $WG_SERVER_DNS
 ## }
 EOF
 
-cat <<EOF
-## wg-quick {
 
+: ${WG_QUICK_CONF_OUT_FILE:=/dev/stdout}
+
+cat <<EOF >"$WG_QUICK_CONF_OUT_FILE"
+### BEGIN QUICK CONFIG
 [Interface]
 Address = $WG_ADDR
 PrivateKey = $WG_PRIVKEY
@@ -94,8 +101,7 @@ PersistentKeepalive = 25
 PublicKey = $WG_SERVER_PUBKEY
 AllowedIPs = 0.0.0.0/0
 Endpoint = $WG_SERVER_ENDPOINT
-
-## }
+### END QUICK CONFIG
 EOF
 
 cat <<EOF
@@ -116,13 +122,14 @@ uci set network.@wireguard_pia[-1].persistent_keepalive='25'
 ## OPENWRT END
 EOF
 
-cat <<EOF
-## /etc/namespaced-wireguard-vpn/namespaced-wireguard-vpn.conf {
+: ${NAMESPACED_WIREGUARD_VPN_CONF_OUT_FILE:=/dev/stdout}
 
+echo "## /etc/namespaced-wireguard-vpn/namespaced-wireguard-vpn.conf {"
+cat <<EOF >"$NAMESPACED_WIREGUARD_VPN_CONF_OUT_FILE"
 WIREGUARD_IP_ADDRESSES="$WG_ADDR"
 WIREGUARD_PRIVATE_KEY="$WG_PRIVKEY"
 WIREGUARD_VPN_PUBLIC_KEY="$WG_SERVER_PUBKEY"
 WIREGUARD_ENDPOINT="$WG_SERVER_ENDPOINT"
-
-## }
 EOF
+
+echo "## }"
