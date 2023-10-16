@@ -1,0 +1,52 @@
+#! /usr/bin/env bash
+set -euf -o pipefail
+set -x
+
+D="$(dirname "$0")"
+
+. "$D/pia-wg.sh"
+
+SSH_HOST="root@192.168.6.1"
+WIREGUARD_NAME="pia"
+
+WIREGUARD_PRIVATE_KEY=$(ssh "$SSH_HOST" uci get network.$WIREGUARD_NAME.private_key)
+
+pia_renew "$WIREGUARD_PRIVATE_KEY"
+
+script="
+uci set network.$WIREGUARD_NAME.listen_port='1337'
+uci set network.$WIREGUARD_NAME.private_key='$WG_PRIVKEY'
+uci del network.$WIREGUARD_NAME.addresses
+uci add_list network.$WIREGUARD_NAME.addresses='$WG_ADDR'
+
+udi del network.wireguard_$WIREGUARD_NAME
+uci add network wireguard_$WIREGUARD_NAME
+uci set network.@wireguard_$WIREGUARD_NAME[-1].description='$WIREGUARD_NAME main'
+uci set network.@wireguard_$WIREGUARD_NAME[-1].public_key='$WG_SERVER_PUBKEY'
+uci add_list network.@wireguard_$WIREGUARD_NAME[-1].allowed_ips='0.0.0.0/0'
+uci set network.@wireguard_$WIREGUARD_NAME[-1].endpoint_host='$WG_SERVER_IP'
+uci set network.@wireguard_$WIREGUARD_NAME[-1].endpoint_port='$WG_SERVER_PORT'
+uci set network.@wireguard_$WIREGUARD_NAME[-1].persistent_keepalive='25'
+"
+
+ssh "$SSH_HOST" bash -c "$script"
+exit 0
+
+wg_sync_conf="$(mktemp)"
+# XXX: do we need to set the listen port?
+cat <<EOF >"$wg_sync_conf"
+[Interface]
+PrivateKey = $WG_PRIVKEY
+
+[Peer]
+PersistentKeepalive = 25
+PublicKey = $WG_SERVER_PUBKEY
+AllowedIPs = 0.0.0.0/0
+Endpoint = $WG_SERVER_ENDPOINT
+EOF
+
+ip addr flush dev "$WIREGUARD_NAME"
+ip addr add dev "$WIREGUARD_NAME" "$WG_ADDR"
+ip route add default dev "$WIREGUARD_NAME"
+
+wg syncconf "$WIREGUARD_NAME" "$wg_sync_conf"

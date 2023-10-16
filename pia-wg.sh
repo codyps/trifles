@@ -3,7 +3,15 @@ pia_renew() {
 	WG_PRIVKEY="$1"
 
 	PIA_HOME=/etc/pia
-	. "$PIA_HOME"/account
+	: ${XDG_CONFIG_HOME:=$HOME/.config}
+	if [ -f "$PIA_HOME/account" ];then
+		. "$PIA_HOME/account"
+	elif [ -f "$XDG_CONFIG_HOME/pia/account" ];then
+		. "$XDG_CONFIG_HOME/pia/account"
+	else
+		>&2 echo "No PIA account file found"
+		return 1
+	fi
 
 	PIA_TOKEN="$(curl -s -u "$PIA_USERNAME:$PIA_PASSWORD" \
 		"https://privateinternetaccess.com/gtoken/generateToken" | jq -r '.token')"
