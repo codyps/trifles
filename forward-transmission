@@ -1,0 +1,10 @@
+#! /usr/bin/env bash
+set -euf -o pipefail
+set -x
+
+iptables-restore -T nat -n <<EOF
+*nat
+-A OUTPUT -d 127.0.0.0/8 -p tcp -m addrtype --src-type LOCAL --dst-type LOCAL -m tcp --dport 9091 -j DNAT --to-destination 192.168.65.66
+-A POSTROUTING -o veth-pia0 -m addrtype --src-type LOCAL --dst-type UNICAST -j MASQUERADE
+COMMIT
+EOF
