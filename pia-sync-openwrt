@@ -14,7 +14,7 @@ D="$(dirname "$0")"
 SSH_HOST="root@192.168.6.1"
 WIREGUARD_NAME="pia"
 
-WIREGUARD_PRIVATE_KEY=$(ssh "$SSH_HOST" uci get network.$WIREGUARD_NAME.private_key)
+WIREGUARD_PRIVATE_KEY=$(ssh "$SSH_HOST" uci get "network.$WIREGUARD_NAME.private_key")
 
 pia_renew "$WIREGUARD_PRIVATE_KEY"
 
