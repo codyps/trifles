@@ -1,6 +1,26 @@
 
+pia_list_countries() {
+	PIA_HOME=/etc/pia
+	: ${XDG_CONFIG_HOME:=$HOME/.config}
+	if [ -f "$PIA_HOME/account" ];then
+		. "$PIA_HOME/account"
+	elif [ -f "$XDG_CONFIG_HOME/pia/account" ];then
+		. "$XDG_CONFIG_HOME/pia/account"
+	else
+		>&2 echo "No PIA account file found"
+		return 1
+	fi
+
+	PIA_TOKEN="$(curl -s -u "$PIA_USERNAME:$PIA_PASSWORD" \
+		"https://privateinternetaccess.com/gtoken/generateToken" | jq -r '.token')"
+
+	pia_servers="$(curl --max-time 15 'https://serverlist.piaservers.net/vpninfo/servers/v6' | head -1)"
+	echo $pia_servers | jq
+}
+
 pia_renew() {
 	WG_PRIVKEY="$1"
+	NETWORK_ID="$2"
 
 	PIA_HOME=/etc/pia
 	: ${XDG_CONFIG_HOME:=$HOME/.config}
@@ -19,9 +39,12 @@ pia_renew() {
 	pia_servers="$(curl --max-time 15 'https://serverlist.piaservers.net/vpninfo/servers/v6' | head -1)"
 
 	# remote ips
-	country_json="$(printf "%s" "$pia_servers" | jq '.regions[] | select (.country == "NO")')"
+	country_json="$(printf "%s" "$pia_servers" | jq --arg network_id "$NETWORK_ID" '.regions[] | select (.id == $network_id)')"
 	servers_json="$(printf "%s" "$country_json" | jq '.servers.wg')"
-	server_json="$(printf "%s" "$servers_json" | jq '.[0]')"
+	server_ct="$(printf "%s" "$servers_json" | jq length)"
+	server_n="$(shuf -i 0-"$((server_ct-1))" -n 1)"
+
+	server_json="$(printf "%s" "$servers_json" | jq --argjson server_n "$server_n" '.[$server_n]')"
 
 	WG_PUBKEY="$(printf "%s" "$WG_PRIVKEY" | wg pubkey)"
 

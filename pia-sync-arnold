@@ -9,7 +9,8 @@ D="$(dirname "$0")"
 ns_wg_conf="/etc/namespaced-wireguard-vpn/namespaced-wireguard-vpn.conf"
 . "$ns_wg_conf"
 
-pia_renew "$WIREGUARD_PRIVATE_KEY"
+# fi, br
+pia_renew "$WIREGUARD_PRIVATE_KEY" "br"
 
 wg_sync_conf="$(mktemp)"
 # XXX: do we need to set the listen port?

@@ -16,7 +16,7 @@ WIREGUARD_NAME="pia"
 
 WIREGUARD_PRIVATE_KEY=$(ssh "$SSH_HOST" uci get "network.$WIREGUARD_NAME.private_key")
 
-pia_renew "$WIREGUARD_PRIVATE_KEY"
+pia_renew "$WIREGUARD_PRIVATE_KEY" "br"
 
 script="
 uci set network.$WIREGUARD_NAME.listen_port='1337'
