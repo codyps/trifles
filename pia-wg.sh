@@ -25,13 +25,14 @@ pia_renew() {
 	PIA_HOME=/etc/pia
 	: ${XDG_CONFIG_HOME:=$HOME/.config}
 	if [ -f "$PIA_HOME/account" ];then
-		. "$PIA_HOME/account"
+		:
 	elif [ -f "$XDG_CONFIG_HOME/pia/account" ];then
-		. "$XDG_CONFIG_HOME/pia/account"
+		PIA_HOME="$XDG_CONFIG_HOME/pia"
 	else
 		>&2 echo "No PIA account file found"
 		return 1
 	fi
+	. "$PIA_HOME/account"
 
 	PIA_TOKEN="$(curl -s -u "$PIA_USERNAME:$PIA_PASSWORD" \
 		"https://privateinternetaccess.com/gtoken/generateToken" | jq -r '.token')"

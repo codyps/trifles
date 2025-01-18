@@ -1,4 +1,5 @@
-#! /usr/bin/env bash
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -p jq curl wireguard-tools
 # FIXME: this doesn't quite work:
 #  - the ssh `sh -c` bit fails entirely.
 #  - copying the command mostly works, but leaves the old peers behind
